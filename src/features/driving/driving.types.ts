@@ -2,6 +2,7 @@ export type DrivingTab = "history" | "score";
 export type DrivingDay = "일" | "월" | "화" | "수" | "목" | "금" | "토";
 
 export interface DailyDrivingData {
+  totalDistance: string;
   idling: string;
   avgSpeed: string;
   maxSpeed: string;

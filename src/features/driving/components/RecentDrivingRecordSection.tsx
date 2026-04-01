@@ -1,19 +1,20 @@
 import { motion } from "motion/react";
 import { cn } from "../../../shared/lib/utils";
+import type { DrivingDay } from "../driving.types";
 import { DailyDrivingDetailCard } from "./DailyDrivingDetailCard";
 import { DrivingBehaviorStats } from "./DrivingBehaviorStats";
 import { dailyHistoryData } from "../driving.mock";
 
 interface RecentDrivingRecordSectionProps {
-  selectedDay: string;
-  onDayChange: (day: string) => void;
+  selectedDay: DrivingDay;
+  onDayChange: (day: DrivingDay) => void;
 }
 
 export function RecentDrivingRecordSection({
   selectedDay,
   onDayChange,
 }: RecentDrivingRecordSectionProps) {
-  const days = ["일", "월", "화", "수", "목", "금", "토"];
+  const days: DrivingDay[] = ["일", "월", "화", "수", "목", "금", "토"];
 
   return (
     <div className="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm">
