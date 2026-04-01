@@ -1,8 +1,6 @@
 import { useState } from "react";
 import AssetSummaryCard from "./AssetSummaryCard";
-import { QuickPayActions } from "./QuickPayActions";
 import { RecentHistorySection } from "./RecentHistorySection";
-import { ServiceGuideSection } from "./ServiceGuideSection";
 import BenefitProductSection from "./BenefitProductSection";
 import type {
   PaymentCategory,
@@ -39,11 +37,11 @@ export default function PaymentHomeTab({
           monthlyUsage={user.monthlyUsage}
           onOpenCoupons={onOpenCoupons}
         />
-        <RecentHistorySection history={recentHistory.slice(0, 4)} onViewAll={onOpenHistory} />
+        <RecentHistorySection
+          history={recentHistory.slice(0, 4)}
+          onViewAll={onOpenHistory}
+        />
       </div>
-
-      <QuickPayActions />
-      <ServiceGuideSection />
 
       <BenefitProductSection
         categories={categories}
