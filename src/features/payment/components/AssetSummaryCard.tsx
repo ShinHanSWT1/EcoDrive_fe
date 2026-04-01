@@ -1,81 +1,78 @@
-import { Wallet, Coins, TrendingUp, ChevronRight } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Coins, CreditCard, Plus, Ticket, TrendingUp, Wallet } from "lucide-react";
+import { motion } from "motion/react";
 
 interface AssetSummaryCardProps {
   balance: number;
   points: number;
   monthlyUsage: number;
+  onOpenCoupons: () => void;
 }
 
-export function AssetSummaryCard({ balance, points, monthlyUsage }: AssetSummaryCardProps) {
+export default function AssetSummaryCard({
+  balance,
+  points,
+  monthlyUsage,
+  onOpenCoupons,
+}: AssetSummaryCardProps) {
+  const totalBalance = balance + points;
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {/* Pay Balance */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-slate-900 p-6 rounded-[32px] text-white shadow-xl shadow-slate-200 relative overflow-hidden group"
-      >
-        <div className="relative z-10">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-white/10 text-white rounded-2xl">
-              <Wallet size={24} />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-gradient-to-br from-emerald-500 to-blue-600 p-8 rounded-[40px] text-white shadow-2xl shadow-blue-100 relative overflow-hidden group h-full flex flex-col justify-between"
+    >
+      <div className="relative z-10">
+        <div className="flex justify-between items-start mb-8">
+          <div className="p-3 bg-white/20 backdrop-blur-md text-white rounded-2xl border border-white/30">
+            <Wallet size={28} />
+          </div>
+          <div className="text-right">
+            <div className="text-[10px] text-white/60 font-bold uppercase tracking-widest mb-1">
+              이번 달 총 사용액
             </div>
-            <button className="text-xs font-bold text-slate-400 hover:text-white transition-colors flex items-center gap-1">
-              관리 <ChevronRight size={14} />
-            </button>
-          </div>
-          <div className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">현재 Pay 잔액</div>
-          <div className="text-3xl font-black">{balance.toLocaleString()}원</div>
-          <div className="mt-4 flex items-center gap-2">
-            <span className="text-[10px] font-bold bg-blue-500 px-2 py-0.5 rounded-md">연결계좌</span>
-            <span className="text-[10px] text-slate-400 font-medium">신한은행 110-***-123456</span>
+            <div className="text-lg font-black flex items-center justify-end gap-1">
+              {monthlyUsage.toLocaleString("ko-KR")}원
+              <TrendingUp size={16} className="text-emerald-300" />
+            </div>
           </div>
         </div>
-        <Wallet size={120} className="absolute -bottom-10 -right-10 text-white/5 -rotate-12 group-hover:scale-110 transition-transform duration-500" />
-      </motion.div>
 
-      {/* Points */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="bg-white p-6 rounded-[32px] border border-slate-200 shadow-sm relative overflow-hidden group"
-      >
-        <div className="flex justify-between items-start mb-4">
-          <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl">
-            <Coins size={24} />
+        <div className="space-y-1.5 mb-8">
+          <div className="text-[11px] text-white/80 font-black uppercase tracking-widest">
+            현재 PAY 총 잔액
           </div>
-          <button className="text-xs font-bold text-slate-400 hover:text-amber-600 transition-colors flex items-center gap-1">
-            적립방법 <ChevronRight size={14} />
-          </button>
-        </div>
-        <div className="text-xs text-slate-500 font-medium mb-1">사용 가능 포인트</div>
-        <div className="text-3xl font-black text-slate-900">{points.toLocaleString()} P</div>
-        <div className="mt-4 text-[11px] text-amber-600 font-bold bg-amber-50 px-3 py-1 rounded-full w-fit">
-          이번 주 1,200P 적립 예정
-        </div>
-      </motion.div>
+          <div className="text-5xl font-black tracking-tighter text-white drop-shadow-md">
+            {totalBalance.toLocaleString("ko-KR")}
+            <span className="text-3xl ml-1">원</span>
+          </div>
 
-      {/* Monthly Usage */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="bg-white p-6 rounded-[32px] border border-slate-200 shadow-sm"
-      >
-        <div className="flex justify-between items-start mb-4">
-          <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
-            <TrendingUp size={24} />
+          <div className="flex flex-wrap items-center gap-3 mt-6">
+            <div className="px-4 py-2.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 flex items-center gap-2">
+              <Coins size={18} className="text-amber-300" />
+              <span className="text-sm font-bold">{points.toLocaleString("ko-KR")}P</span>
+            </div>
+            <div className="px-4 py-2.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 flex items-center gap-2">
+              <CreditCard size={18} className="text-blue-200" />
+              <span className="text-sm font-bold">{balance.toLocaleString("ko-KR")}원</span>
+            </div>
           </div>
         </div>
-        <div className="text-xs text-slate-500 font-medium mb-1">이번 달 총 사용액</div>
-        <div className="text-3xl font-black text-slate-900">{monthlyUsage.toLocaleString()}원</div>
-        <div className="mt-4 flex items-center gap-2 text-[11px] text-slate-500 font-medium">
-          <span className="text-blue-600 font-bold">지난달 대비 12% 감소</span>
-          <span>절약 중이에요!</span>
-        </div>
-      </motion.div>
-    </div>
+      </div>
+
+      <div className="relative z-10 grid grid-cols-2 gap-3">
+        <button className="bg-white text-slate-900 rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] transition-transform">
+          <Plus size={16} />
+          충전하기
+        </button>
+        <button
+          onClick={onOpenCoupons}
+          className="bg-white/10 backdrop-blur-md text-white rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 border border-white/20 hover:bg-white/15 transition-colors"
+        >
+          <Ticket size={16} />
+          쿠폰함
+        </button>
+      </div>
+    </motion.div>
   );
 }

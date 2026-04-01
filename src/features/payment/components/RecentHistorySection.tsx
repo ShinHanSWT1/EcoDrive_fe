@@ -1,68 +1,59 @@
-import {
-  History,
-  ChevronRight,
-  ArrowUpRight,
-  ArrowDownLeft,
-} from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, ChevronRight, History } from "lucide-react";
 import { cn } from "../../../shared/lib/utils";
+import type { PaymentHistoryItem } from "../payment.types";
 
-interface HistoryItem {
-  id: number;
-  title: string;
-  date: string;
-  amount: number;
-  type: "pay" | "earn";
-  category: string;
-}
+type RecentHistorySectionProps = {
+  history: PaymentHistoryItem[];
+  onViewAll: () => void;
+};
 
-interface RecentHistorySectionProps {
-  history: HistoryItem[];
-}
-
-export function RecentHistorySection({ history }: RecentHistorySectionProps) {
+export function RecentHistorySection({
+  history,
+  onViewAll,
+}: RecentHistorySectionProps) {
   return (
-    <div className="bg-white rounded-[32px] border border-slate-200 shadow-sm overflow-hidden">
-      <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-        <h4 className="font-bold text-slate-900 flex items-center gap-2">
-          <History size={18} className="text-slate-400" /> 최근 이용내역
-        </h4>
-        <button className="text-xs font-bold text-blue-600 flex items-center gap-1 hover:underline">
-          전체보기 <ChevronRight size={14} />
+    <div className="bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden h-full flex flex-col">
+      <div className="p-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
+        <div>
+          <h4 className="font-black text-slate-900 flex items-center gap-2 text-base">
+            <History size={18} className="text-blue-600" /> 최근 이용내역
+          </h4>
+          <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+            최근 4건의 내역을 확인하세요
+          </p>
+        </div>
+        <button
+          onClick={onViewAll}
+          className="text-[10px] font-bold text-blue-600 flex items-center gap-1 hover:bg-blue-50 px-2.5 py-1.5 rounded-lg transition-all"
+        >
+          전체보기 <ChevronRight size={12} />
         </button>
       </div>
-      <div className="divide-y divide-slate-50">
+      <div className="divide-y divide-slate-50 flex-1 overflow-y-auto">
         {history.map((item) => (
           <div
             key={item.id}
-            className="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group"
+            className="p-5 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group"
           >
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <div
                 className={cn(
-                  "w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:scale-110",
+                  "w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:scale-110 shadow-sm",
                   item.type === "earn"
                     ? "bg-emerald-50 text-emerald-600"
-                    : "bg-blue-50 text-blue-600",
+                    : "bg-slate-100 text-slate-600",
                 )}
               >
                 {item.type === "earn" ? (
-                  <ArrowUpRight size={20} />
+                  <ArrowDownLeft size={16} />
                 ) : (
-                  <ArrowDownLeft size={20} />
+                  <ArrowUpRight size={16} />
                 )}
               </div>
               <div>
-                <div className="text-sm font-bold text-slate-900">
-                  {item.title}
-                </div>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                    {item.category}
-                  </span>
-                  <span className="text-[10px] text-slate-300">•</span>
-                  <span className="text-[10px] text-slate-400 font-bold">
-                    {item.date}
-                  </span>
+                <div className="font-bold text-slate-900 text-sm">{item.title}</div>
+                <div className="text-[11px] text-slate-400 font-medium mt-0.5">
+                  {item.date} · {item.category}
                 </div>
               </div>
             </div>
@@ -72,15 +63,12 @@ export function RecentHistorySection({ history }: RecentHistorySectionProps) {
                 item.type === "earn" ? "text-emerald-600" : "text-slate-900",
               )}
             >
-              {item.type === "earn" ? "+" : ""}
-              {item.amount.toLocaleString()}원
+              {item.type === "earn" ? "+" : "-"}
+              {item.amount.toLocaleString("ko-KR")}원
             </div>
           </div>
         ))}
       </div>
-      <button className="w-full py-4 text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors border-t border-slate-50">
-        이전 내역 더보기
-      </button>
     </div>
   );
 }

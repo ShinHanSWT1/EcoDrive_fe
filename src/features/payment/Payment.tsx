@@ -5,12 +5,21 @@ import type { PaymentTab } from "./payment.types";
 import PaymentHeader from "./components/PaymentHeader";
 import PaymentTabs from "./components/PaymentTabs";
 import PaymentHomeTab from "./components/PaymentHomeTab";
-import PaymentHistoryTab from "./components/PaymentHistoryTab";
 import PaymentMissionTab from "./components/PaymentMissionTab";
+import CouponListModal from "./components/CouponListModal";
+import HistoryModal from "./components/HistoryModal";
 
 export default function Payment() {
   const [activeTab, setActiveTab] = useState<PaymentTab>("home");
+  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [selectedCouponCategory, setSelectedCouponCategory] = useState<string | null>(null);
   const { data, isLoading, isError } = usePayment();
+
+  const handleOpenCoupons = (category: string | null = null) => {
+    setSelectedCouponCategory(category);
+    setIsCouponModalOpen(true);
+  };
 
   if (isLoading) {
     return (
@@ -28,66 +37,53 @@ export default function Payment() {
     );
   }
 
-  const toggleHomeHistory = () => {
-    setActiveTab((prev) => (prev === "home" ? "history" : "home"));
-  };
-
   return (
-    <div className="space-y-6">
-      <PaymentHeader
-        balance={data.user.balance}
-        activeTab={activeTab}
-        onToggleHomeHistory={toggleHomeHistory}
-      />
-
-      <PaymentTabs activeTab={activeTab} onChangeTab={setActiveTab} />
+    <div className="space-y-8 pb-20">
+      <section className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <PaymentHeader />
+        <PaymentTabs activeTab={activeTab} onChangeTab={setActiveTab} />
+      </section>
 
       <AnimatePresence mode="wait">
-        {activeTab === "home" && (
+        {activeTab === "home" ? (
           <motion.div
             key="home"
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            exit={{ opacity: 0, y: -20 }}
           >
             <PaymentHomeTab
               user={data.user}
               categories={data.categories}
               products={data.products}
               recentHistory={data.recentHistory}
+              onOpenCoupons={handleOpenCoupons}
+              onOpenHistory={() => setIsHistoryModalOpen(true)}
             />
           </motion.div>
-        )}
-
-        {activeTab === "history" && (
-          <motion.div
-            key="history"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-          >
-            <PaymentHistoryTab
-              historySummary={data.historySummary}
-              coupons={data.coupons}
-              pointHistory={data.pointHistory}
-            />
-          </motion.div>
-        )}
-
-        {activeTab === "mission" && (
+        ) : (
           <motion.div
             key="mission"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
           >
-            <PaymentMissionTab
-              summary={data.missionSummary}
-              missions={data.missions}
-            />
+            <PaymentMissionTab summary={data.missionSummary} missions={data.missions} />
           </motion.div>
         )}
       </AnimatePresence>
+
+      <CouponListModal
+        isOpen={isCouponModalOpen}
+        onClose={() => setIsCouponModalOpen(false)}
+        coupons={data.coupons}
+        initialCategory={selectedCouponCategory}
+      />
+      <HistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        history={data.recentHistory}
+      />
     </div>
   );
 }

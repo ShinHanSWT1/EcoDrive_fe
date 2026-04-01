@@ -47,6 +47,8 @@ export interface PaymentCouponItem {
   id: number;
   name: string;
   expiry: string;
+  discount?: string;
+  category?: string;
   used: boolean;
 }
 
