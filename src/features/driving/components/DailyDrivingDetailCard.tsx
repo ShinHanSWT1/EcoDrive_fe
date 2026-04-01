@@ -1,4 +1,14 @@
-export function DailyDrivingDetailCard({ data, day }: { data: any, day: string }) {
+import type { DailyDrivingData, DrivingDay } from "../driving.types";
+
+interface DailyDrivingDetailCardProps {
+  data: DailyDrivingData;
+  day: DrivingDay;
+}
+
+export function DailyDrivingDetailCard({
+  data,
+  day,
+}: DailyDrivingDetailCardProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
@@ -8,7 +18,11 @@ export function DailyDrivingDetailCard({ data, day }: { data: any, day: string }
         </div>
       </div>
       
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+          <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">오늘 총 주행거리</div>
+          <div className="text-lg font-black text-slate-900">{data.totalDistance}</div>
+        </div>
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
           <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">공회전 시간</div>
           <div className="text-lg font-black text-slate-900">{data.idling}</div>

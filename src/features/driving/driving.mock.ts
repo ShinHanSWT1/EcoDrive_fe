@@ -9,13 +9,13 @@ export const monthlyHistoryData = [
 ];
 
 export const dailyHistoryData: Record<string, any> = {
-  '일': { idling: '12분', avgSpeed: '42km/h', maxSpeed: '85km/h', accel: 1, decel: 2, start: 0, night: '15%', idlingTime: '12분' },
-  '월': { idling: '8분', avgSpeed: '48km/h', maxSpeed: '92km/h', accel: 0, decel: 1, start: 1, night: '10%', idlingTime: '8분' },
-  '화': { idling: '15분', avgSpeed: '38km/h', maxSpeed: '78km/h', accel: 3, decel: 4, start: 2, night: '25%', idlingTime: '15분' },
-  '수': { idling: '10분', avgSpeed: '45km/h', maxSpeed: '88km/h', accel: 1, decel: 1, start: 0, night: '5%', idlingTime: '10분' },
-  '목': { idling: '22분', avgSpeed: '35km/h', maxSpeed: '82km/h', accel: 2, decel: 3, start: 1, night: '30%', idlingTime: '22분' },
-  '금': { idling: '45분', avgSpeed: '52km/h', maxSpeed: '110km/h', accel: 5, decel: 6, start: 3, night: '45%', idlingTime: '45분' },
-  '토': { idling: '32분', avgSpeed: '40km/h', maxSpeed: '95km/h', accel: 2, decel: 2, start: 1, night: '20%', idlingTime: '32분' },
+  '일': { totalDistance: '31.4km', idling: '12분', avgSpeed: '42km/h', maxSpeed: '85km/h', accel: 1, decel: 2, start: 0, night: '15%', idlingTime: '12분' },
+  '월': { totalDistance: '27.8km', idling: '8분', avgSpeed: '48km/h', maxSpeed: '92km/h', accel: 0, decel: 1, start: 1, night: '10%', idlingTime: '8분' },
+  '화': { totalDistance: '24.6km', idling: '15분', avgSpeed: '38km/h', maxSpeed: '78km/h', accel: 3, decel: 4, start: 2, night: '25%', idlingTime: '15분' },
+  '수': { totalDistance: '29.1km', idling: '10분', avgSpeed: '45km/h', maxSpeed: '88km/h', accel: 1, decel: 1, start: 0, night: '5%', idlingTime: '10분' },
+  '목': { totalDistance: '22.3km', idling: '22분', avgSpeed: '35km/h', maxSpeed: '82km/h', accel: 2, decel: 3, start: 1, night: '30%', idlingTime: '22분' },
+  '금': { totalDistance: '41.7km', idling: '45분', avgSpeed: '52km/h', maxSpeed: '110km/h', accel: 5, decel: 6, start: 3, night: '45%', idlingTime: '45분' },
+  '토': { totalDistance: '34.2km', idling: '32분', avgSpeed: '40km/h', maxSpeed: '95km/h', accel: 2, decel: 2, start: 1, night: '20%', idlingTime: '32분' },
 };
 
 export const scoreTrendData = [
