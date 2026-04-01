@@ -16,6 +16,7 @@ import OnboardingPage from "../pages/OnboardingPage";
 import AdminPage from "../pages/AdminPage";
 import MissionPage from "../pages/MissionPage";
 import LandingPage from "../pages/LandingPage";
+import OAuthCallbackPage from "../pages/OAuthCallbackPage";
 
 interface RouterProps {
   isAuthenticated: boolean;
@@ -84,6 +85,10 @@ export default function AppRouter({
           element={isAuthenticated ? <MissionPage /> : <Navigate to="/login" />}
         />
         <Route path="/dashboard-preview" element={<DashboardPage />} />
+        <Route
+          path="/oauth/callback"
+          element={<OAuthCallbackPage onLogin={onLogin} />}
+        />
       </Routes>
     </LayoutWrapper>
   );
