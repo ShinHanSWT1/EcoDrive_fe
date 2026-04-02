@@ -9,13 +9,17 @@ import {
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { getKakaoLoginUrl } from "@/src/shared/api/auth";
+import { useState } from "react";
 
 export default function Login({ onLogin }: { onLogin: () => void }) {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleSocialLogin = (provider: "kakao" | "google") => {
     switch (provider) {
       case "kakao":
+        if (loading) return;
+        setLoading(true);
         window.location.href = getKakaoLoginUrl();
         break;
       case "google":
