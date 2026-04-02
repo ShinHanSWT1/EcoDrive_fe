@@ -13,11 +13,16 @@ import { getKakaoLoginUrl } from "@/src/shared/api/auth";
 export default function Login({ onLogin }: { onLogin: () => void }) {
   const navigate = useNavigate();
 
-  const handleSocialLogin = () => {
-    window.location.href = getKakaoLoginUrl();
-
-    // onLogin();
-    // navigate("/onboarding");
+  const handleSocialLogin = (provider: "kakao" | "google") => {
+    switch (provider) {
+      case "kakao":
+        window.location.href = getKakaoLoginUrl();
+        break;
+      case "google":
+        onLogin();
+        navigate("/onboarding");
+        break;
+    }
   };
 
   return (
@@ -42,7 +47,7 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
 
         <div className="space-y-4">
           <button
-            onClick={handleSocialLogin}
+            onClick={() => handleSocialLogin("kakao")}
             className="w-full bg-[#03C755] text-white py-4 rounded-2xl font-bold shadow-lg shadow-green-50 hover:bg-[#02b34c] transition-all flex items-center justify-center gap-3"
           >
             <img
@@ -54,7 +59,7 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
           </button>
 
           <button
-            onClick={handleSocialLogin}
+            onClick={() => handleSocialLogin("google")}
             className="w-full bg-white border border-slate-200 text-slate-900 py-4 rounded-2xl font-bold shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center gap-3"
           >
             <img
