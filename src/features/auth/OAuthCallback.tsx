@@ -13,6 +13,7 @@ export default function OAuthCallback({ onLogin }: { onLogin: () => void }) {
       const accessToken = params.get("accessToken");
 
       if (!accessToken) {
+        console.log("토큰이 없음: {}", accessToken);
         setMessage("토큰이 없습니다.");
         navigate("/login", { replace: true });
         return;
@@ -25,7 +26,7 @@ export default function OAuthCallback({ onLogin }: { onLogin: () => void }) {
         console.log("로그인 사용자", me);
 
         onLogin();
-        navigate("/dashboard-preview", { replace: true });
+        navigate("/onboarding", { replace: true });
       } catch (error) {
         console.error(error);
         removeAccessToken();
