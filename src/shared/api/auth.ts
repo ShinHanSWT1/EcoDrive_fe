@@ -7,6 +7,5 @@ export async function fetchMe(): Promise<UserMe> {
 }
 
 export function getKakaoLoginUrl(): string {
-  console.log("env =", import.meta.env.VITE_API_BASE_URL);
   return `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/kakao`;
 }

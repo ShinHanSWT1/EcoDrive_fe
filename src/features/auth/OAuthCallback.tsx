@@ -24,7 +24,7 @@ export default function OAuthCallback({ onLogin }: { onLogin: () => void }) {
         const me = await fetchMe();
         console.log("로그인 사용자", me);
 
-        // onLogin();
+        onLogin();
         navigate("/dashboard-preview", { replace: true });
       } catch (error) {
         console.error(error);
