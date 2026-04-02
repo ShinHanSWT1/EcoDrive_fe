@@ -1,10 +1,10 @@
 # 1) build stage
-FROM node:20-alpine AS builder
+FROM docker.io/library/node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --no-audit --no-fund
 
 COPY . .
 
@@ -18,11 +18,11 @@ ENV VITE_PAY_BASE_URL=${VITE_PAY_BASE_URL}
 RUN npm run build
 
 # 2) runtime stage
-FROM nginx:1.27-alpine
+FROM docker.io/library/nginx:1.27-alpine
 
-COPY deploy/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-EXPOSE 8082
+EXPOSE 3000
 
 CMD ["nginx", "-g", "daemon off;"]
