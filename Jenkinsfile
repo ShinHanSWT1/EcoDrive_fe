@@ -94,8 +94,8 @@ pipeline {
                                   ${FULL_IMAGE_TAG}
 
                                 sudo podman image prune -f
-                                sudo podman ps -a --format "table {{.Names}}\\t{{.Image}}\\t{{.Status}}"
-                            EOF
+                                sudo podman ps -a --format "table {{.Names}}\\t{{.Image}}\\t{{.Status}}" 
+EOF
                         '''
                     }
                 }
