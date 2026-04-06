@@ -2,7 +2,7 @@ import { api } from "./client";
 import type { ApiResponse, UserMe } from "../types/api";
 
 export async function fetchMe(): Promise<UserMe> {
-  const response = await api.get<ApiResponse<UserMe>>("/api/users/me");
+  const response = await api.get<ApiResponse<UserMe>>("/users/me");
   return response.data.data;
 }
 
