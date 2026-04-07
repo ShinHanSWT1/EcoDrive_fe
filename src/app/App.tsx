@@ -5,6 +5,7 @@
 
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
+import axios from "axios";
 import AppRouter from "./router";
 import { fetchMe } from "../shared/api/auth";
 import { getAccessToken, removeAccessToken } from "../shared/lib/auth";
@@ -14,6 +15,25 @@ export default function App() {
   const [isInitializing, setIsInitializing] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserMe | null>(null);
+
+  const applyAuthenticatedUser = (user: UserMe) => {
+    setCurrentUser(user);
+    setIsAuthenticated(true);
+  };
+
+  const clearAuthentication = () => {
+    setCurrentUser(null);
+    setIsAuthenticated(false);
+  };
+
+  const shouldRemoveToken = (error: unknown) => {
+    if (!axios.isAxiosError(error)) {
+      return false;
+    }
+
+    const status = error.response?.status;
+    return status === 401 || status === 403;
+  };
 
   useEffect(() => {
     const bootstrapAuth = async () => {
@@ -26,13 +46,15 @@ export default function App() {
 
       try {
         const me = await fetchMe();
-        setCurrentUser(me);
-        setIsAuthenticated(true);
+        applyAuthenticatedUser(me);
       } catch (error) {
         console.error("인증 복원 실패", error);
-        removeAccessToken();
-        setCurrentUser(null);
-        setIsAuthenticated(false);
+
+        if (shouldRemoveToken(error)) {
+          removeAccessToken();
+        }
+
+        clearAuthentication();
       } finally {
         setIsInitializing(false);
       }
@@ -42,19 +64,16 @@ export default function App() {
   }, []);
 
   const login = (user: UserMe) => {
-    setCurrentUser(user);
-    setIsAuthenticated(true);
+    applyAuthenticatedUser(user);
   };
 
   const updateCurrentUser = (user: UserMe) => {
-    setCurrentUser(user);
-    setIsAuthenticated(true);
+    applyAuthenticatedUser(user);
   };
 
   const logout = () => {
     removeAccessToken();
-    setCurrentUser(null);
-    setIsAuthenticated(false);
+    clearAuthentication();
   };
 
   if (isInitializing) {

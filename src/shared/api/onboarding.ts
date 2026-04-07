@@ -1,5 +1,4 @@
 import { api } from "./client";
-import { getAccessToken } from "../lib/auth";
 import type { ApiResponse } from "../types/api";
 
 export interface RegisterVehicleRequest {
@@ -42,20 +41,6 @@ export interface VehicleModelSummary {
   fuelType: string;
 }
 
-function buildAuthConfig() {
-  const token = getAccessToken();
-
-  if (!token) {
-    return {};
-  }
-
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-}
-
 export async function searchVehicleModels(keyword: string) {
   const response = await api.get<ApiResponse<VehicleModelSummary[]>>(
     "/vehicles/models",
@@ -70,7 +55,6 @@ export async function registerMyVehicle(request: RegisterVehicleRequest) {
   const response = await api.post<ApiResponse<RegisterVehicleResponse>>(
     "/users/me/vehicles",
     request,
-    buildAuthConfig(),
   );
   return response.data.data;
 }
@@ -79,7 +63,6 @@ export async function registerMyInsurance(request: RegisterInsuranceRequest) {
   const response = await api.post<ApiResponse<RegisterInsuranceResponse>>(
     "/users/me/insurances",
     request,
-    buildAuthConfig(),
   );
   return response.data.data;
 }
@@ -88,7 +71,6 @@ export async function completeMyOnboarding() {
   const response = await api.patch<ApiResponse<CompleteOnboardingResponse>>(
     "/users/me/onboarding",
     undefined,
-    buildAuthConfig(),
   );
   return response.data.data;
 }

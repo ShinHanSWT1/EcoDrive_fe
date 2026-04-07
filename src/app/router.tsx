@@ -27,6 +27,92 @@ interface RouterProps {
   onUserUpdate: (user: UserMe) => void;
 }
 
+function RequireAuth({
+  isAuthenticated,
+  children,
+}: {
+  isAuthenticated: boolean;
+  children: ReactNode;
+}) {
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function RequireOnboardingComplete({
+  isOnboardingCompleted,
+  children,
+}: {
+  isOnboardingCompleted: boolean;
+  children: ReactNode;
+}) {
+  if (!isOnboardingCompleted) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function ProtectedRoute({
+  isAuthenticated,
+  isOnboardingCompleted,
+  children,
+}: {
+  isAuthenticated: boolean;
+  isOnboardingCompleted: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <RequireAuth isAuthenticated={isAuthenticated}>
+      <RequireOnboardingComplete isOnboardingCompleted={isOnboardingCompleted}>
+        {children}
+      </RequireOnboardingComplete>
+    </RequireAuth>
+  );
+}
+
+function OnboardingRoute({
+  isAuthenticated,
+  isOnboardingCompleted,
+  onUserUpdate,
+}: {
+  isAuthenticated: boolean;
+  isOnboardingCompleted: boolean;
+  onUserUpdate: (user: UserMe) => void;
+}) {
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (isOnboardingCompleted) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <OnboardingPage onUserUpdate={onUserUpdate} />;
+}
+
+function RedirectIfAuthenticated({
+  isAuthenticated,
+  shouldGoToOnboarding,
+  children,
+}: {
+  isAuthenticated: boolean;
+  shouldGoToOnboarding: boolean;
+  children: ReactNode;
+}) {
+  if (isAuthenticated) {
+    return shouldGoToOnboarding ? (
+      <Navigate to="/onboarding" replace />
+    ) : (
+      <Navigate to="/" replace />
+    );
+  }
+
+  return <>{children}</>;
+}
+
 function LayoutWrapper({
   children,
   currentUser,
@@ -94,86 +180,78 @@ export default function AppRouter({
         <Route
           path="/report"
           element={
-            !isAuthenticated ? (
-              <Navigate to="/login" replace />
-            ) : !isOnboardingCompleted ? (
-              <Navigate to="/onboarding" replace />
-            ) : (
-              <ReportPage />
-            )
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+                <ReportPage />
+            </ProtectedRoute>
           }
         />
         <Route
           path="/insurance"
           element={
-            !isAuthenticated ? (
-              <Navigate to="/login" replace />
-            ) : !isOnboardingCompleted ? (
-              <Navigate to="/onboarding" replace />
-            ) : (
-              <InsurancePage />
-            )
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+                <InsurancePage />
+            </ProtectedRoute>
           }
         />
         <Route
           path="/payment"
           element={
-            !isAuthenticated ? (
-              <Navigate to="/login" replace />
-            ) : !isOnboardingCompleted ? (
-              <Navigate to="/onboarding" replace />
-            ) : (
-              <PaymentPage />
-            )
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+                <PaymentPage />
+            </ProtectedRoute>
           }
         />
         <Route
           path="/profile"
           element={
-            !isAuthenticated ? (
-              <Navigate to="/login" replace />
-            ) : !isOnboardingCompleted ? (
-              <Navigate to="/onboarding" replace />
-            ) : (
-              <ProfilePage />
-            )
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+                <ProfilePage />
+            </ProtectedRoute>
           }
         />
         <Route
           path="/login"
           element={
-            !isAuthenticated ? (
-              <LoginPage onLogin={onLogin} />
-            ) : shouldGoToOnboarding ? (
-              <Navigate to="/onboarding" replace />
-            ) : (
-              <Navigate to="/" replace />
-            )
+            <RedirectIfAuthenticated
+              isAuthenticated={isAuthenticated}
+              shouldGoToOnboarding={shouldGoToOnboarding}
+            >
+              <LoginPage />
+            </RedirectIfAuthenticated>
           }
         />
         <Route
           path="/onboarding"
           element={
-            !isAuthenticated ? (
-              <Navigate to="/login" replace />
-            ) : isOnboardingCompleted ? (
-              <Navigate to="/" replace />
-            ) : (
-              <OnboardingPage onUserUpdate={onUserUpdate} />
-            )
+            <OnboardingRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+              onUserUpdate={onUserUpdate}
+            />
           }
         />
         <Route path="/admin" element={<AdminPage />} />
         <Route
           path="/mission"
           element={
-            !isAuthenticated ? (
-              <Navigate to="/login" replace />
-            ) : !isOnboardingCompleted ? (
-              <Navigate to="/onboarding" replace />
-            ) : (
-              <MissionPage />
-            )
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+                <MissionPage />
+            </ProtectedRoute>
           }
         />
         <Route

@@ -2,23 +2,24 @@ import {
   ShieldCheck,
   Mail,
   Lock,
-  ArrowRight,
-  Chrome,
-  MessageCircle,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "motion/react";
 import { getKakaoLoginUrl } from "@/src/shared/api/auth";
-import type { UserMe } from "../../shared/types/api";
 
-export default function Login({ onLogin }: { onLogin: (user: UserMe) => void }) {
-  const navigate = useNavigate();
+export default function Login() {
+  const [searchParams] = useSearchParams();
+  const error = searchParams.get("error");
+
+  const errorMessage =
+    error === "email_required"
+      ? "카카오 이메일 정보 제공이 필요합니다. 이메일 제공에 동의한 뒤 다시 로그인해주세요."
+      : error === "oauth_login_failed"
+        ? "소셜 로그인 처리에 실패했습니다. 다시 시도해주세요."
+        : null;
 
   const handleSocialLogin = () => {
     window.location.href = getKakaoLoginUrl();
-
-    // onLogin();
-    // navigate("/onboarding");
   };
 
   return (
@@ -42,13 +43,19 @@ export default function Login({ onLogin }: { onLogin: (user: UserMe) => void }) 
         </div>
 
         <div className="space-y-4">
+          {errorMessage && (
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+              {errorMessage}
+            </div>
+          )}
+
           <button
             onClick={handleSocialLogin}
             className="w-full bg-[#03C755] text-white py-4 rounded-2xl font-bold shadow-lg shadow-green-50 hover:bg-[#02b34c] transition-all flex items-center justify-center gap-3"
           >
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/2/21/Naver_Square_Logo.svg"
-              alt="KaKao"
+              alt="Kakao"
               className="w-5 h-5 invert brightness-0"
             />
             카카오로 시작하기
