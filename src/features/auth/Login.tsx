@@ -9,8 +9,9 @@ import {
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { getKakaoLoginUrl } from "@/src/shared/api/auth";
+import type { UserMe } from "../../shared/types/api";
 
-export default function Login({ onLogin }: { onLogin: () => void }) {
+export default function Login({ onLogin }: { onLogin: (user: UserMe) => void }) {
   const navigate = useNavigate();
 
   const handleSocialLogin = () => {

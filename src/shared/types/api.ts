@@ -11,4 +11,5 @@ export interface UserMe {
   nickname: string;
   profileImageUrl: string | null;
   role: string;
+  isOnboardingCompleted: boolean;
 }

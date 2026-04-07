@@ -2,8 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchMe } from "../../shared/api/auth";
 import { removeAccessToken, setAccessToken } from "../../shared/lib/auth";
+import type { UserMe } from "../../shared/types/api";
 
-export default function OAuthCallback({ onLogin }: { onLogin: () => void }) {
+export default function OAuthCallback({
+  onLogin,
+}: {
+  onLogin: (user: UserMe) => void;
+}) {
   const navigate = useNavigate();
   const [message, setMessage] = useState("로그인 처리 중입니다...");
 
@@ -24,8 +29,10 @@ export default function OAuthCallback({ onLogin }: { onLogin: () => void }) {
         const me = await fetchMe();
         console.log("로그인 사용자", me);
 
-        // onLogin();
-        navigate("/dashboard-preview", { replace: true });
+        onLogin(me);
+        navigate(me.isOnboardingCompleted ? "/" : "/onboarding", {
+          replace: true,
+        });
       } catch (error) {
         console.error(error);
         removeAccessToken();
