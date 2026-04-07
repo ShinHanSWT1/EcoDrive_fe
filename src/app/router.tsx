@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ReactNode } from "react";
 
 // Layouts
@@ -17,19 +17,24 @@ import AdminPage from "../pages/AdminPage";
 import MissionPage from "../pages/MissionPage";
 import LandingPage from "../pages/LandingPage";
 import OAuthCallbackPage from "../pages/OAuthCallbackPage";
+import type { UserMe } from "../shared/types/api";
 
 interface RouterProps {
+  currentUser: UserMe | null;
   isAuthenticated: boolean;
-  onLogin: () => void;
+  onLogin: (user: UserMe) => void;
   onLogout: () => void;
+  onUserUpdate: (user: UserMe) => void;
 }
 
 function LayoutWrapper({
   children,
+  currentUser,
   isAuthenticated,
   onLogout,
 }: {
   children: ReactNode;
+  currentUser: UserMe | null;
   isAuthenticated: boolean;
   onLogout: () => void;
 }) {
@@ -41,50 +46,148 @@ function LayoutWrapper({
   }
 
   return (
-    <AppLayout isAuthenticated={isAuthenticated} onLogout={onLogout}>
+    <AppLayout
+      currentUser={currentUser}
+      isAuthenticated={isAuthenticated}
+      onLogout={onLogout}
+    >
       {children}
     </AppLayout>
   );
 }
 
 export default function AppRouter({
+  currentUser,
   isAuthenticated,
   onLogin,
   onLogout,
+  onUserUpdate,
 }: RouterProps) {
+  const navigate = useNavigate();
+  const isOnboardingCompleted = currentUser?.isOnboardingCompleted ?? false;
+  const canAccessMainApp = isAuthenticated && isOnboardingCompleted;
+  const shouldGoToOnboarding = isAuthenticated && !isOnboardingCompleted;
+  const handleLogout = () => {
+    onLogout();
+    navigate("/", { replace: true });
+  };
+
   return (
-    <LayoutWrapper isAuthenticated={isAuthenticated} onLogout={onLogout}>
+    <LayoutWrapper
+      currentUser={currentUser}
+      isAuthenticated={isAuthenticated}
+      onLogout={handleLogout}
+    >
       <Routes>
         <Route
           path="/"
-          element={isAuthenticated ? <DashboardPage /> : <LandingPage />}
+          element={
+            !isAuthenticated ? (
+              <LandingPage />
+            ) : shouldGoToOnboarding ? (
+              <Navigate to="/onboarding" replace />
+            ) : (
+              <DashboardPage />
+            )
+          }
         />
         <Route
           path="/report"
-          element={isAuthenticated ? <ReportPage /> : <Navigate to="/login" />}
+          element={
+            !isAuthenticated ? (
+              <Navigate to="/login" replace />
+            ) : !isOnboardingCompleted ? (
+              <Navigate to="/onboarding" replace />
+            ) : (
+              <ReportPage />
+            )
+          }
         />
         <Route
           path="/insurance"
           element={
-            isAuthenticated ? <InsurancePage /> : <Navigate to="/login" />
+            !isAuthenticated ? (
+              <Navigate to="/login" replace />
+            ) : !isOnboardingCompleted ? (
+              <Navigate to="/onboarding" replace />
+            ) : (
+              <InsurancePage />
+            )
           }
         />
         <Route
           path="/payment"
-          element={isAuthenticated ? <PaymentPage /> : <Navigate to="/login" />}
+          element={
+            !isAuthenticated ? (
+              <Navigate to="/login" replace />
+            ) : !isOnboardingCompleted ? (
+              <Navigate to="/onboarding" replace />
+            ) : (
+              <PaymentPage />
+            )
+          }
         />
         <Route
           path="/profile"
-          element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />}
+          element={
+            !isAuthenticated ? (
+              <Navigate to="/login" replace />
+            ) : !isOnboardingCompleted ? (
+              <Navigate to="/onboarding" replace />
+            ) : (
+              <ProfilePage />
+            )
+          }
         />
-        <Route path="/login" element={<LoginPage onLogin={onLogin} />} />
-        <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route
+          path="/login"
+          element={
+            !isAuthenticated ? (
+              <LoginPage onLogin={onLogin} />
+            ) : shouldGoToOnboarding ? (
+              <Navigate to="/onboarding" replace />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+        <Route
+          path="/onboarding"
+          element={
+            !isAuthenticated ? (
+              <Navigate to="/login" replace />
+            ) : isOnboardingCompleted ? (
+              <Navigate to="/" replace />
+            ) : (
+              <OnboardingPage onUserUpdate={onUserUpdate} />
+            )
+          }
+        />
         <Route path="/admin" element={<AdminPage />} />
         <Route
           path="/mission"
-          element={isAuthenticated ? <MissionPage /> : <Navigate to="/login" />}
+          element={
+            !isAuthenticated ? (
+              <Navigate to="/login" replace />
+            ) : !isOnboardingCompleted ? (
+              <Navigate to="/onboarding" replace />
+            ) : (
+              <MissionPage />
+            )
+          }
         />
-        <Route path="/dashboard-preview" element={<DashboardPage />} />
+        <Route
+          path="/dashboard-preview"
+          element={
+            canAccessMainApp ? (
+              <Navigate to="/" replace />
+            ) : !isAuthenticated ? (
+              <Navigate to="/login" replace />
+            ) : (
+              <Navigate to="/onboarding" replace />
+            )
+          }
+        />
         <Route
           path="/oauth/callback"
           element={<OAuthCallbackPage onLogin={onLogin} />}

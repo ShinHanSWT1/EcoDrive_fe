@@ -9,24 +9,16 @@ import {
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { getKakaoLoginUrl } from "@/src/shared/api/auth";
-import { useState } from "react";
+import type { UserMe } from "../../shared/types/api";
 
-export default function Login({ onLogin }: { onLogin: () => void }) {
+export default function Login({ onLogin }: { onLogin: (user: UserMe) => void }) {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
 
-  const handleSocialLogin = (provider: "kakao" | "google") => {
-    switch (provider) {
-      case "kakao":
-        if (loading) return;
-        setLoading(true);
-        window.location.href = getKakaoLoginUrl();
-        break;
-      case "google":
-        onLogin();
-        navigate("/onboarding");
-        break;
-    }
+  const handleSocialLogin = () => {
+    window.location.href = getKakaoLoginUrl();
+
+    // onLogin();
+    // navigate("/onboarding");
   };
 
   return (
@@ -51,7 +43,7 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
 
         <div className="space-y-4">
           <button
-            onClick={() => handleSocialLogin("kakao")}
+            onClick={handleSocialLogin}
             className="w-full bg-[#03C755] text-white py-4 rounded-2xl font-bold shadow-lg shadow-green-50 hover:bg-[#02b34c] transition-all flex items-center justify-center gap-3"
           >
             <img
@@ -63,7 +55,7 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
           </button>
 
           <button
-            onClick={() => handleSocialLogin("google")}
+            onClick={handleSocialLogin}
             className="w-full bg-white border border-slate-200 text-slate-900 py-4 rounded-2xl font-bold shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center gap-3"
           >
             <img
