@@ -2,13 +2,15 @@ import { Link } from 'react-router-dom';
 import { Bell, ShieldCheck, User } from 'lucide-react';
 import HeaderNav from './HeaderNav';
 import MoreMenu from './MoreMenu';
+import type { UserMe } from '../types/api';
 
 interface HeaderProps {
+  currentUser: UserMe | null;
   isAuthenticated: boolean;
   onLogout: () => void;
 }
 
-export default function Header({ isAuthenticated, onLogout }: HeaderProps) {
+export default function Header({ currentUser, isAuthenticated, onLogout }: HeaderProps) {
   return (
     <header className="h-16 md:h-20 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between">
       <div className="flex items-center">
@@ -30,9 +32,14 @@ export default function Header({ isAuthenticated, onLogout }: HeaderProps) {
             </button>
             <Link to="/profile" className="hidden md:flex items-center gap-3 p-1 pr-3 bg-slate-50 rounded-2xl border border-slate-200 hover:border-blue-200 transition-all">
               <div className="w-8 h-8 bg-slate-200 rounded-xl overflow-hidden">
-                <img src="https://picsum.photos/seed/user/100/100" alt="Profile" />
+                <img
+                  src={currentUser?.profileImageUrl ?? "https://picsum.photos/seed/user/100/100"}
+                  alt="Profile"
+                />
               </div>
-              <span className="text-xs font-bold text-slate-700">홍길동님</span>
+              <span className="text-xs font-bold text-slate-700">
+                {currentUser?.nickname ?? "사용자"}님
+              </span>
             </Link>
             <MoreMenu onLogout={onLogout} />
           </>
