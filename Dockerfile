@@ -4,7 +4,10 @@ FROM registry-gorani.lab.terminal-lab.kr/base/node:20-bookworm-slim AS builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --no-audit --no-fund
+
+RUN npm install -g npm@11
+RUN npm ci --no-audit --no-fund --foreground-scripts
+# RUN npm ci --no-audit --no-fund
 # RUN npm ci --ignore-scripts
 # RUN sync && node node_modules/esbuild/install.js
 
@@ -16,7 +19,9 @@ ARG VITE_PAY_BASE_URL
 
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 ENV VITE_PAY_BASE_URL=${VITE_PAY_BASE_URL}
+ENV NODE_OPTIONS=--max-old-space-size=1024
 
+RUN npx esbuild --version
 RUN npm run build
 
 # 2) runtime stage
