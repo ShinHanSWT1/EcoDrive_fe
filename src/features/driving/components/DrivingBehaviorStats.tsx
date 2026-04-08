@@ -19,7 +19,7 @@ export function DrivingBehaviorStats({ data }: { data: DailyDrivingData }) {
       bg: "bg-red-100/50",
     },
     {
-      label: "급출발",
+      label: "과속",
       value: data.start != null ? `${data.start}회` : "--",
       icon: Activity,
       color: "text-amber-600",

@@ -3,6 +3,7 @@ import { ShieldCheck } from "lucide-react";
 import type {
   DrivingLatestCarbon,
   DrivingLatestScore,
+  DrivingMonthlySummary,
   DrivingRecentSession,
 } from "../driving.api";
 import type { ScoreHistoryItem, ScoreTrendItem } from "../driving.types";
@@ -16,6 +17,7 @@ interface ScoreCarbonSectionProps {
   latestScore: DrivingLatestScore | null;
   latestCarbon: DrivingLatestCarbon | null;
   recentSessions: DrivingRecentSession[];
+  monthlySummary: DrivingMonthlySummary | null;
   scoreHistory: ScoreHistoryItem[];
   scoreTrend: ScoreTrendItem[];
 }
@@ -24,6 +26,7 @@ export function ScoreCarbonSection({
   latestScore,
   latestCarbon,
   recentSessions,
+  monthlySummary,
   scoreHistory,
   scoreTrend,
 }: ScoreCarbonSectionProps) {
@@ -50,8 +53,13 @@ export function ScoreCarbonSection({
           score={latestScore?.score ?? null}
           snapshotDate={latestScore?.snapshotDate ?? null}
           recentDistanceKm={recentDistanceKm}
+          monthlyDistanceKm={monthlySummary?.totalDistanceKm ?? null}
         />
-        <SafetyScoreCriteriaCard snapshotDate={latestScore?.snapshotDate ?? null} />
+        <SafetyScoreCriteriaCard
+          snapshotDate={latestScore?.snapshotDate ?? null}
+          monthlyDistanceKm={monthlySummary?.totalDistanceKm ?? null}
+          monthLabel={monthlySummary ? `${monthlySummary.month}월` : null}
+        />
         <SafetyScoreHistoryCard items={scoreHistory} />
         <DailyScoreTrendChart trendData={scoreTrend} />
         </div>
@@ -62,6 +70,7 @@ export function ScoreCarbonSection({
       <CarbonReductionSection
         carbonReductionKg={latestCarbon?.carbonReductionKg ?? null}
         rewardPoint={latestCarbon?.rewardPoint ?? null}
+        monthlySummary={monthlySummary}
       />
     </motion.div>
   );

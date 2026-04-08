@@ -23,6 +23,10 @@ export default function DrivingReport() {
     weeklySummaries,
     selectedWeeklySummary,
     monthlyHistory,
+    monthlySummaryData,
+    monthlySummary,
+    scoreHistory,
+    scoreTrend,
     isLoading,
     isRefreshing,
     isError,
@@ -74,7 +78,7 @@ export default function DrivingReport() {
               weeklySummaries={weeklySummaries}
               selectedWeeklySummary={selectedWeeklySummary}
               monthlyHistory={monthlyHistory}
-              recentSessions={recentSessions}
+              monthlySummaryData={monthlySummaryData}
               onDateChange={setSelectedDate}
               onGoToToday={goToToday}
               onWeekChange={setSelectedWeekKey}
@@ -86,8 +90,9 @@ export default function DrivingReport() {
               latestScore={latestScore}
               latestCarbon={latestCarbon}
               recentSessions={recentSessions}
-              scoreHistory={[]}
-              scoreTrend={[]}
+              monthlySummary={monthlySummary}
+              scoreHistory={scoreHistory}
+              scoreTrend={scoreTrend}
             />
           )}
         </AnimatePresence>

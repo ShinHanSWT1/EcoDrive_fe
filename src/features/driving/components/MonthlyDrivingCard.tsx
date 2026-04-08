@@ -7,33 +7,25 @@ import {
   Tooltip,
   Cell,
 } from "recharts";
-import type { DrivingRecentSession } from "../driving.api";
-import type { MonthlyHistoryItem } from "../driving.types";
+import type { MonthlyHistoryItem, MonthlySummaryData } from "../driving.types";
 
 interface MonthlyDrivingCardProps {
-  recentSessions: DrivingRecentSession[];
   monthlyHistory: MonthlyHistoryItem[];
+  monthlySummaryData: MonthlySummaryData | null;
 }
 
 export function MonthlyDrivingCard({
-  recentSessions,
   monthlyHistory,
+  monthlySummaryData,
 }: MonthlyDrivingCardProps) {
-  const currentMonthDistance = recentSessions.reduce(
-    (sum, session) => sum + session.distanceKm,
-    0,
-  );
-  const currentMonthLabel =
-    recentSessions.length > 0
-      ? `${new Date(recentSessions[0].sessionDate).getMonth() + 1}월`
-      : "이번 달";
-
   return (
     <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <div className="text-2xl font-black text-slate-900 mb-1">
-            {currentMonthLabel} 누적 {currentMonthDistance.toFixed(2)}km 달렸어요
+            {monthlySummaryData
+              ? `${monthlySummaryData.label} 누적 ${monthlySummaryData.totalDistance} 달렸어요`
+              : "이번 달 누적 -- 달렸어요"}
           </div>
           <div className="flex items-center gap-3 text-sm font-bold">
             {monthlyHistory.length > 1 ? (
@@ -46,7 +38,9 @@ export function MonthlyDrivingCard({
               </>
             ) : (
               <span className="text-slate-400">
-                월별 비교 지표는 데이터가 더 쌓이면 자동 반영됩니다.
+                {monthlySummaryData
+                  ? `이번 달 ${monthlySummaryData.dayCount ?? "--"}일 / ${monthlySummaryData.sessionCount ?? "--"}세션 기준 집계`
+                  : "월별 데이터가 반영되면 자동으로 집계됩니다."}
               </span>
             )}
           </div>

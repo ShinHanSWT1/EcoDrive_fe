@@ -1,15 +1,23 @@
 interface CarbonReductionFormulaCardProps {
   carbonReductionKg: number | null;
+  totalIdlingTimeMinutes: number | null;
+  rapidAccelCount: number | null;
+  hardBrakeCount: number | null;
+  steadyDrivingRatio: number | null;
 }
 
 export function CarbonReductionFormulaCard({
   carbonReductionKg,
+  totalIdlingTimeMinutes,
+  rapidAccelCount,
+  hardBrakeCount,
+  steadyDrivingRatio,
 }: CarbonReductionFormulaCardProps) {
   const items = [
-    { label: '공회전 감소 시간', value: '--' },
-    { label: '급가속 감소 횟수', value: '--' },
-    { label: '급감속 감소 횟수', value: '--' },
-    { label: '정속주행 비율', value: '--' },
+    { label: '공회전 시간', value: totalIdlingTimeMinutes != null ? `${totalIdlingTimeMinutes}분` : '--' },
+    { label: '급가속 횟수', value: rapidAccelCount != null ? `${rapidAccelCount}회` : '--' },
+    { label: '급감속 횟수', value: hardBrakeCount != null ? `${hardBrakeCount}회` : '--' },
+    { label: '정속주행 비율', value: steadyDrivingRatio != null ? `${steadyDrivingRatio.toFixed(2)}%` : '--' },
   ];
 
   return (

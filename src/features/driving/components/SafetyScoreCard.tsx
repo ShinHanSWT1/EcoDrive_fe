@@ -4,12 +4,14 @@ interface SafetyScoreCardProps {
   score: number | null;
   snapshotDate: string | null;
   recentDistanceKm: number;
+  monthlyDistanceKm: number | null;
 }
 
 export function SafetyScoreCard({
   score,
   snapshotDate,
   recentDistanceKm,
+  monthlyDistanceKm,
 }: SafetyScoreCardProps) {
   return (
     <div className="bg-white p-6 rounded-[32px] text-slate-900 border border-slate-200 shadow-sm relative overflow-hidden h-full">
@@ -29,12 +31,14 @@ export function SafetyScoreCard({
 
         <div className="grid grid-cols-2 gap-4 mt-6">
           <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-            <div className="text-[9px] text-slate-400 font-bold uppercase mb-0.5">3월 주행거리</div>
+            <div className="text-[9px] text-slate-400 font-bold uppercase mb-0.5">최근 반영 주행거리</div>
             <div className="text-lg font-black text-slate-900">{recentDistanceKm.toFixed(2)} km</div>
           </div>
           <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-            <div className="text-[9px] text-slate-400 font-bold uppercase mb-0.5">누적 주행거리</div>
-            <div className="text-lg font-black text-slate-900">--</div>
+            <div className="text-[9px] text-slate-400 font-bold uppercase mb-0.5">이번 달 누적 주행거리</div>
+            <div className="text-lg font-black text-slate-900">
+              {monthlyDistanceKm != null ? `${monthlyDistanceKm.toFixed(2)} km` : "--"}
+            </div>
           </div>
         </div>
       </div>
