@@ -1,21 +1,31 @@
 export type DrivingTab = "history" | "score";
+
 export type DrivingDay = "일" | "월" | "화" | "수" | "목" | "금" | "토";
 
 export interface DailyDrivingData {
-  totalDistance: string;
-  idling: string;
-  avgSpeed: string;
-  maxSpeed: string;
-  accel: number;
-  decel: number;
-  start: number;
-  night: string;
-  idlingTime: string;
+  totalDistance: string | null;
+  idling: string | null;
+  avgSpeed: string | null;
+  maxSpeed: string | null;
+  accel: number | null;
+  decel: number | null;
+  start: number | null;
+  night: string | null;
+  idlingTime: string | null;
 }
 
 export interface MonthlyHistoryItem {
   month: string;
   distance: number;
+}
+
+export interface WeeklySummaryItem {
+  weekKey: string;
+  label: string;
+  averageDistance: string;
+  averageIdling: string;
+  averageSpeed: string;
+  maxSpeed: string;
 }
 
 export interface ScoreTrendItem {

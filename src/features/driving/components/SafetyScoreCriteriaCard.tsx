@@ -1,6 +1,12 @@
-import { Info } from 'lucide-react';
+import { Info } from "lucide-react";
 
-export function SafetyScoreCriteriaCard() {
+interface SafetyScoreCriteriaCardProps {
+  snapshotDate: string | null;
+}
+
+export function SafetyScoreCriteriaCard({
+  snapshotDate,
+}: SafetyScoreCriteriaCardProps) {
   return (
     <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-full">
       <div className="flex items-center gap-2 mb-6">
@@ -11,11 +17,13 @@ export function SafetyScoreCriteriaCard() {
       <div className="space-y-4">
         <div className="flex justify-between items-center py-3 border-b border-slate-50">
           <span className="text-sm text-slate-500 font-medium">산정 기간</span>
-          <span className="text-sm font-bold text-slate-900">최근 90일 (2025.12.26 ~ 2026.03.26)</span>
+          <span className="text-sm font-bold text-slate-900">
+            {snapshotDate ? `기준일 ${snapshotDate}` : "--"}
+          </span>
         </div>
         <div className="flex justify-between items-center py-3 border-b border-slate-50">
           <span className="text-sm text-slate-500 font-medium">산정 기간 내 주행거리</span>
-          <span className="text-sm font-bold text-slate-900">7,240 km</span>
+          <span className="text-sm font-bold text-slate-900">--</span>
         </div>
         <div className="pt-2">
           <p className="text-xs text-slate-400 leading-relaxed">

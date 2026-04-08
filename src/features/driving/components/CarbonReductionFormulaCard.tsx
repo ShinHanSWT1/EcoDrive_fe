@@ -1,9 +1,15 @@
-export function CarbonReductionFormulaCard() {
+interface CarbonReductionFormulaCardProps {
+  carbonReductionKg: number | null;
+}
+
+export function CarbonReductionFormulaCard({
+  carbonReductionKg,
+}: CarbonReductionFormulaCardProps) {
   const items = [
-    { label: '공회전 감소 시간', value: '45분' },
-    { label: '급가속 감소 횟수', value: '12회' },
-    { label: '급감속 감소 횟수', value: '8회' },
-    { label: '정속주행 비율', value: '78%' },
+    { label: '공회전 감소 시간', value: '--' },
+    { label: '급가속 감소 횟수', value: '--' },
+    { label: '급감속 감소 횟수', value: '--' },
+    { label: '정속주행 비율', value: '--' },
   ];
 
   return (
@@ -19,7 +25,7 @@ export function CarbonReductionFormulaCard() {
       </div>
       <div className="mt-5 p-3.5 bg-emerald-50 rounded-2xl text-center">
         <p className="text-xs font-bold text-emerald-700">
-          위 데이터를 바탕으로 이번 달 총 12.4kg의 탄소 절감량이 계산되었습니다.
+          위 데이터를 바탕으로 이번 달 총 {carbonReductionKg != null ? carbonReductionKg.toFixed(2) : "--"}kg의 탄소 절감량이 계산되었습니다.
         </p>
       </div>
     </div>

@@ -1,39 +1,40 @@
 import { Zap, AlertTriangle, Activity, Clock, Gauge } from "lucide-react";
 import { cn } from "../../../shared/lib/utils";
+import type { DailyDrivingData } from "../driving.types";
 
-export function DrivingBehaviorStats({ data }: { data: any }) {
+export function DrivingBehaviorStats({ data }: { data: DailyDrivingData }) {
   const items = [
     {
       label: "급가속",
-      value: `${data.accel}회`,
+      value: data.accel != null ? `${data.accel}회` : "--",
       icon: Zap,
       color: "text-orange-600",
       bg: "bg-orange-100/50",
     },
     {
       label: "급감속",
-      value: `${data.decel}회`,
+      value: data.decel != null ? `${data.decel}회` : "--",
       icon: AlertTriangle,
       color: "text-red-600",
       bg: "bg-red-100/50",
     },
     {
       label: "급출발",
-      value: `${data.start}회`,
+      value: data.start != null ? `${data.start}회` : "--",
       icon: Activity,
       color: "text-amber-600",
       bg: "bg-amber-100/50",
     },
     {
       label: "심야운전",
-      value: data.night,
+      value: data.night ?? "--",
       icon: Clock,
       color: "text-indigo-600",
       bg: "bg-indigo-100/50",
     },
     {
       label: "공회전",
-      value: data.idlingTime,
+      value: data.idlingTime ?? "--",
       icon: Gauge,
       color: "text-blue-600",
       bg: "bg-blue-100/50",

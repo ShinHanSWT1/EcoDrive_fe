@@ -1,28 +1,34 @@
 import { Leaf, Navigation, Zap, Activity } from "lucide-react";
 import { cn } from "../../../shared/lib/utils";
 
-export function CarbonReductionEquivalenceCard() {
+interface CarbonReductionEquivalenceCardProps {
+  carbonReductionKg: number | null;
+}
+
+export function CarbonReductionEquivalenceCard({
+  carbonReductionKg,
+}: CarbonReductionEquivalenceCardProps) {
   const items = [
     {
-      label: "도심 나무 1그루가 약 2.4개월 동안 흡수하는 양",
+      label: "도심 나무 1그루가 약 --개월 동안 흡수하는 양",
       icon: Leaf,
       color: "text-emerald-600",
       bg: "bg-emerald-100/50",
     },
     {
-      label: "자동차로 약 49km 주행할 때 나오는 배출량",
+      label: "자동차로 약 --km 주행할 때 나오는 배출량",
       icon: Navigation,
       color: "text-blue-600",
       bg: "bg-blue-100/50",
     },
     {
-      label: "휘발유 약 5.1L 사용 시 발생하는 배출량",
+      label: "휘발유 약 --L 사용 시 발생하는 배출량",
       icon: Zap,
       color: "text-orange-600",
       bg: "bg-orange-100/50",
     },
     {
-      label: "전기 약 30.5kWh 사용 시 발생하는 배출량",
+      label: "전기 약 --kWh 사용 시 발생하는 배출량",
       icon: Activity,
       color: "text-indigo-600",
       bg: "bg-indigo-100/50",
@@ -33,7 +39,7 @@ export function CarbonReductionEquivalenceCard() {
     <div className="bg-emerald-50 p-8 rounded-[32px] border border-emerald-100">
       <div className="mb-8">
         <h3 className="text-xl font-black mb-2 text-emerald-900">
-          이번 활동으로 줄인 12.4kg CO₂는
+          이번 활동으로 줄인 {carbonReductionKg != null ? `${carbonReductionKg.toFixed(2)}kg CO₂` : "--kg CO₂"}는
         </h3>
         <p className="text-sm text-emerald-600/70 font-medium">
           일상 속에서 다음과 같은 가치와 비슷합니다.

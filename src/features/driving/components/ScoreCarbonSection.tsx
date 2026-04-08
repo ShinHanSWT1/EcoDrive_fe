@@ -1,12 +1,37 @@
 import { motion } from "motion/react";
 import { ShieldCheck } from "lucide-react";
+import type {
+  DrivingLatestCarbon,
+  DrivingLatestScore,
+  DrivingRecentSession,
+} from "../driving.api";
+import type { ScoreHistoryItem, ScoreTrendItem } from "../driving.types";
 import { SafetyScoreCard } from "./SafetyScoreCard";
 import { SafetyScoreCriteriaCard } from "./SafetyScoreCriteriaCard";
 import { SafetyScoreHistoryCard } from "./SafetyScoreHistoryCard";
 import { DailyScoreTrendChart } from "./DailyScoreTrendChart";
 import { CarbonReductionSection } from "./CarbonReductionSection";
 
-export function ScoreCarbonSection() {
+interface ScoreCarbonSectionProps {
+  latestScore: DrivingLatestScore | null;
+  latestCarbon: DrivingLatestCarbon | null;
+  recentSessions: DrivingRecentSession[];
+  scoreHistory: ScoreHistoryItem[];
+  scoreTrend: ScoreTrendItem[];
+}
+
+export function ScoreCarbonSection({
+  latestScore,
+  latestCarbon,
+  recentSessions,
+  scoreHistory,
+  scoreTrend,
+}: ScoreCarbonSectionProps) {
+  const recentDistanceKm = recentSessions.reduce(
+    (sum, session) => sum + session.distanceKm,
+    0,
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -21,16 +46,23 @@ export function ScoreCarbonSection() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <SafetyScoreCard />
-        <SafetyScoreCriteriaCard />
-        <SafetyScoreHistoryCard />
-        <DailyScoreTrendChart />
+        <SafetyScoreCard
+          score={latestScore?.score ?? null}
+          snapshotDate={latestScore?.snapshotDate ?? null}
+          recentDistanceKm={recentDistanceKm}
+        />
+        <SafetyScoreCriteriaCard snapshotDate={latestScore?.snapshotDate ?? null} />
+        <SafetyScoreHistoryCard items={scoreHistory} />
+        <DailyScoreTrendChart trendData={scoreTrend} />
         </div>
       </div>
 
       <div className="h-px bg-slate-100 my-4" />
 
-      <CarbonReductionSection />
+      <CarbonReductionSection
+        carbonReductionKg={latestCarbon?.carbonReductionKg ?? null}
+        rewardPoint={latestCarbon?.rewardPoint ?? null}
+      />
     </motion.div>
   );
 }

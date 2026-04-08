@@ -1,75 +1,64 @@
-import { motion } from "motion/react";
-import { cn } from "../../../shared/lib/utils";
-import type { DrivingDay } from "../driving.types";
+import type { DailyDrivingData } from "../driving.types";
 import { DailyDrivingDetailCard } from "./DailyDrivingDetailCard";
 import { DrivingBehaviorStats } from "./DrivingBehaviorStats";
-import { dailyHistoryData } from "../driving.mock";
 
 interface RecentDrivingRecordSectionProps {
-  selectedDay: DrivingDay;
-  onDayChange: (day: DrivingDay) => void;
+  selectedDate: string;
+  selectedDailyData: DailyDrivingData;
+  minDate?: string;
+  maxDate: string;
+  onDateChange: (date: string) => void;
+  onGoToToday: () => void;
+  isTodaySelected: boolean;
 }
 
 export function RecentDrivingRecordSection({
-  selectedDay,
-  onDayChange,
+  selectedDate,
+  selectedDailyData,
+  minDate,
+  maxDate,
+  onDateChange,
+  onGoToToday,
+  isTodaySelected,
 }: RecentDrivingRecordSectionProps) {
-  const days: DrivingDay[] = ["일", "월", "화", "수", "목", "금", "토"];
-
   return (
     <div className="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm">
-      <div className="flex justify-between items-end mb-8 px-2">
+      <div className="flex flex-col gap-4 mb-8 px-2 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h3 className="font-black text-2xl text-slate-900 mb-1">
-            최근 주행 기록
+            오늘 주행 기록
           </h3>
           <p className="text-sm text-slate-400 font-medium">
-            일자별 상세 주행 데이터를 확인하세요
+            날짜를 선택해 확인하고 오늘 버튼으로 다시 오늘 기록으로 돌아올 수 있습니다.
           </p>
         </div>
-        <div className="text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-widest">
-          Daily Analysis
-        </div>
-      </div>
-
-      <div className="flex gap-3 mb-10 overflow-x-auto pb-4 no-scrollbar">
-        {days.map((day, idx) => (
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-600">
+            <span>날짜 선택</span>
+            <input
+              type="date"
+              value={selectedDate}
+              min={minDate}
+              max={maxDate}
+              onChange={(event) => onDateChange(event.target.value)}
+              className="bg-transparent font-medium text-slate-700 outline-none"
+            />
+          </label>
           <button
-            key={day}
-            onClick={() => onDayChange(day)}
-            className={cn(
-              "min-w-[72px] h-24 rounded-3xl flex flex-col items-center justify-center gap-2 transition-all duration-300 shrink-0",
-              selectedDay === day
-                ? "bg-blue-600 text-white shadow-xl shadow-blue-100 scale-105"
-                : "bg-slate-50 text-slate-400 hover:bg-slate-100",
-            )}
+            type="button"
+            onClick={onGoToToday}
+            disabled={isTodaySelected}
+            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
           >
-            <span
-              className={cn(
-                "text-[11px] font-bold uppercase tracking-wider",
-                selectedDay === day ? "text-blue-100" : "text-slate-400",
-              )}
-            >
-              {day}
-            </span>
-            <span className="text-xl font-black">2{idx}</span>
-            {selectedDay === day && (
-              <motion.div
-                layoutId="active-dot"
-                className="w-1.5 h-1.5 bg-white rounded-full mt-1"
-              />
-            )}
+            오늘
           </button>
-        ))}
+        </div>
       </div>
 
       <div className="space-y-8">
-        <DailyDrivingDetailCard
-          data={dailyHistoryData[selectedDay]}
-          day={selectedDay}
-        />
+        <DailyDrivingDetailCard data={selectedDailyData} dateLabel={selectedDate} />
         <div className="pt-4 border-t border-slate-50">
-          <DrivingBehaviorStats data={dailyHistoryData[selectedDay]} />
+          <DrivingBehaviorStats data={selectedDailyData} />
         </div>
       </div>
     </div>
