@@ -66,7 +66,7 @@ pipeline {
                         podman push ${FULL_IMAGE_TAG} --tls-verify=false
                         podman push ${LATEST_IMAGE_TAG} --tls-verify=false
                     '''
-                }
+                
             }
         }
 
