@@ -26,6 +26,22 @@ pipeline {
     }
 
     stages {
+        stage('0. Harbor Login') {
+            steps { 
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: "${HARBOR_CREDENTIALS_ID}",
+                        usernameVariable: 'USER',
+                        passwordVariable: 'PASS'
+                    )
+                ]) {
+                    sh '''
+                        podman login ${REGISTRY} -u "${USER}" -p "${PASS}"
+                    '''
+                }
+            }
+        }
+        
         stage('1. Checkout') {
             steps {
                 git branch: "${GIT_BRANCH_TEST}", url: "${GIT_URL}"
@@ -46,15 +62,7 @@ pipeline {
 
         stage('3. Push to Harbor') {
             steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: "${HARBOR_CREDENTIALS_ID}",
-                        usernameVariable: 'USER',
-                        passwordVariable: 'PASS'
-                    )
-                ]) {
-                    sh '''
-                        podman login ${REGISTRY} -u "${USER}" -p "${PASS}"
+                    sh ''' 
                         podman push ${FULL_IMAGE_TAG} --tls-verify=false
                         podman push ${LATEST_IMAGE_TAG} --tls-verify=false
                     '''
