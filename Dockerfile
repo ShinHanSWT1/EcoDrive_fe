@@ -4,8 +4,9 @@ FROM registry-gorani.lab.terminal-lab.kr/base/node:20-bookworm-slim AS builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --ignore-scripts
-RUN sync && node node_modules/esbuild/install.js
+RUN npm ci --no-audit --no-fund
+# RUN npm ci --ignore-scripts
+# RUN sync && node node_modules/esbuild/install.js
 
 COPY . .
 
