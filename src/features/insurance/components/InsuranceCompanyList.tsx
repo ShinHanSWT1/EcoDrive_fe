@@ -1,6 +1,7 @@
 import { ExternalLink, HelpCircle, Info, X, ShieldCheck } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import type { InsuranceCompany, InsuranceCoverage } from "../insurance.types";
 import { formatCurrency, formatPercent } from "../../../shared/lib/format";
 import { getProductCoverages } from "../insurance.api";
@@ -14,6 +15,7 @@ export default function InsuranceCompanyList({
   companies,
   safetyScore,
 }: InsuranceCompanyListProps) {
+  const navigate = useNavigate();
   const [selectedCompany, setSelectedCompany] = useState<InsuranceCompany | null>(null);
   const [activeModalPlan, setActiveModalPlan] = useState<'BASIC' | 'STANDARD' | 'PREMIUM'>('BASIC');
   const [coverages, setCoverages] = useState<InsuranceCoverage[]>([]);
@@ -32,6 +34,11 @@ export default function InsuranceCompanyList({
   }, [selectedCompany]);
 
   const PLAN_RANK = { BASIC: 0, STANDARD: 1, PREMIUM: 2 };
+
+  const handleApplyNavigation = () => {
+    if (!selectedCompany) return;
+    navigate(`/insurance/apply?productId=${selectedCompany.id}&plan=${activeModalPlan}`);
+  };
 
   return (
     <section className="space-y-4">
@@ -245,8 +252,11 @@ export default function InsuranceCompanyList({
                 >
                   닫기
                 </button>
-                <button className="flex-[2] py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all">
-                  이 보험사로 변경 상담하기
+                <button 
+                  onClick={handleApplyNavigation}
+                  className="flex-[2] py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all"
+                >
+                  보험 가입하기
                 </button>
               </div>
             </motion.div>

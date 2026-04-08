@@ -103,6 +103,20 @@ export async function getMyInsurances(): Promise<InsuranceResponse[]> {
   return insurancesRes.data.data.insurances || [];
 }
 
+export interface CreateContractRequest {
+  insuranceProductId: number;
+  phoneNumber: string;
+  address: string;
+  contractPeriod: number;
+  planType: string;
+  selectedCoverageIds: number[];
+}
+
+export async function createInsuranceContract(request: CreateContractRequest): Promise<ContractResponse> {
+  const response = await api.post("/insurance/contracts", request);
+  return response.data.data;
+}
+
 export async function getInsurancePageData(): Promise<InsurancePageData> {
   // 1~5. 공통 데이터 조회 및 최근 주행 기록 합산
   const [factors, recentSessions] = await Promise.all([
