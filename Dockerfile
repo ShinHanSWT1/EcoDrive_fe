@@ -4,7 +4,7 @@ FROM registry-gorani.lab.terminal-lab.kr/base/node:20-bookworm-slim AS builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --no-audit --no-fund
+RUN ESBUILD_BINARY_PATH=0 npm ci --no-audit --no-fund
 
 COPY . .
 
