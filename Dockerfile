@@ -1,5 +1,5 @@
 # 1) build stage
-FROM docker.io/library/node:20-bookworm-slim AS builder
+FROM registry-gorani.lab.terminal-lab.kr/base/node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ ENV VITE_PAY_BASE_URL=${VITE_PAY_BASE_URL}
 RUN npm run build
 
 # 2) runtime stage
-FROM docker.io/library/nginx:1.27-alpine
+FROM registry-gorani.lab.terminal-lab.kr/base/nginx:1.27-alpine
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
