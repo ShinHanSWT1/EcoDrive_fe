@@ -83,7 +83,7 @@ pipeline {
                     ]) {
                         sh '''
                             ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_SERVER} << EOF
-                                sudo podman login ${REGISTRY} -u "${HARBOR_USER}" -p "${HARBOR_PASS}" --tls-verify=false
+                                sudo podman login ${REGISTRY} -u "${USER}" -p "${PASS}" --tls-verify=false
                                 sudo podman pull ${FULL_IMAGE_TAG} --tls-verify=false
 
                                 sudo podman rm -f ${CONTAINER_NAME} || true
