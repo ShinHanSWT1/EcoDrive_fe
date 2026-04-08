@@ -1,30 +1,47 @@
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
+import { cn } from '../../shared/lib/utils';
+
+type PlanType = 'BASIC' | 'STANDARD' | 'PREMIUM';
+
+const PLAN_INFO: Record<PlanType, { label: string; desc: string; multiplier: number; color: string }> = {
+  BASIC:    { label: '기본형',    desc: '대인·대물 기본 보장',         multiplier: 0.8, color: 'border-slate-300 bg-slate-50' },
+  STANDARD: { label: '표준형',    desc: '기본 + 자기신체·무보험차',     multiplier: 1.0, color: 'border-blue-400 bg-blue-50'  },
+  PREMIUM:  { label: '프리미엄형', desc: '전항목 + 무제한 대인·긴급출동', multiplier: 1.3, color: 'border-indigo-400 bg-indigo-50' },
+};
 
 interface InsuranceStepProps {
   insuranceCompanyName: string;
-  annualPremium: string;
-  insuranceStartedAt: string;
   insuranceCompanies: string[];
+  selectedPlan: PlanType;
+  productName: string;
+  productBaseAmount: number;
+  insuranceStartedAt: string;
+  age: number | '';
   isSubmitting: boolean;
   errorMessage: string | null;
   onInsuranceCompanyChange: (value: string) => void;
-  onAnnualPremiumChange: (value: string) => void;
+  onPlanChange: (value: PlanType) => void;
   onInsuranceStartedAtChange: (value: string) => void;
+  onAgeChange: (value: number | '') => void;
   onPrevStep: () => void;
   onSubmit: () => void;
 }
 
 export default function InsuranceStep({
   insuranceCompanyName,
-  annualPremium,
-  insuranceStartedAt,
   insuranceCompanies,
+  selectedPlan,
+  productName,
+  productBaseAmount,
+  insuranceStartedAt,
+  age,
   isSubmitting,
   errorMessage,
   onInsuranceCompanyChange,
-  onAnnualPremiumChange,
+  onPlanChange,
   onInsuranceStartedAtChange,
+  onAgeChange,
   onPrevStep,
   onSubmit,
 }: InsuranceStepProps) {
@@ -45,41 +62,100 @@ export default function InsuranceStep({
       </div>
 
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* 보험사 선택 */}
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">보험사</label>
+          <select
+            value={insuranceCompanyName}
+            onChange={(e) => onInsuranceCompanyChange(e.target.value)}
+            className="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none appearance-none"
+          >
+            {insuranceCompanies.map((company) => (
+              <option key={company} value={company}>{company}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* 보험 상품 표시 */}
+        {productName && (
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Insurance Company</label>
-            <select
-              value={insuranceCompanyName}
-              onChange={(event) => onInsuranceCompanyChange(event.target.value)}
-              className="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none appearance-none"
-            >
-              {insuranceCompanies.map((company) => (
-                <option key={company} value={company}>
-                  {company}
-                </option>
-              ))}
-            </select>
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">보험 상품</label>
+            <div className="w-full bg-slate-50 rounded-2xl py-4 px-6 text-sm font-bold text-slate-700">
+              {productName}
+            </div>
           </div>
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Annual Premium</label>
-            <input
-              type="text"
-              placeholder="1200000"
-              value={annualPremium}
-              onChange={(event) => onAnnualPremiumChange(event.target.value)}
-              className="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none"
-            />
+        )}
+
+        {/* 플랜 등급 선택 */}
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">플랜 등급</label>
+          <div className="grid grid-cols-3 gap-3">
+            {(Object.keys(PLAN_INFO) as PlanType[]).map((plan) => {
+              const info = PLAN_INFO[plan];
+              const price = productBaseAmount > 0
+                ? Math.round(productBaseAmount * info.multiplier).toLocaleString()
+                : '--';
+              const isSelected = selectedPlan === plan;
+              return (
+                <button
+                  key={plan}
+                  type="button"
+                  onClick={() => onPlanChange(plan)}
+                  className={cn(
+                    'rounded-2xl border-2 p-4 text-left transition-all',
+                    isSelected ? info.color + ' border-opacity-100' : 'border-slate-200 bg-white hover:bg-slate-50',
+                    isSelected && plan === 'STANDARD' && 'ring-2 ring-blue-400 ring-offset-1'
+                  )}
+                >
+                  <div className={cn('text-sm font-bold mb-1', isSelected ? 'text-slate-900' : 'text-slate-600')}>
+                    {info.label}
+                  </div>
+                  <div className="text-xs text-slate-500 mb-2">{info.desc}</div>
+                  <div className={cn('text-sm font-bold', isSelected ? 'text-blue-600' : 'text-slate-500')}>
+                    {price}원
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Insurance Start Date</label>
-          <input
-            type="date"
-            value={insuranceStartedAt}
-            onChange={(event) => onInsuranceStartedAtChange(event.target.value)}
-            className="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none"
-          />
+        <div className="grid grid-cols-2 gap-4">
+          {/* 가입일 */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">보험 가입일</label>
+            <input
+              type="date"
+              value={insuranceStartedAt}
+              onChange={(e) => onInsuranceStartedAtChange(e.target.value)}
+              className="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none"
+            />
+          </div>
+
+          {/* 나이 */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">나이</label>
+            <input
+              type="number"
+              placeholder="만 나이"
+              value={age}
+              onKeyDown={(e) => {
+                if (['.', 'e', 'E', '+', '-'].includes(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === '') {
+                  onAgeChange('');
+                } else {
+                  const num = parseInt(val, 10);
+                  if (!isNaN(num)) onAgeChange(num);
+                }
+              }}
+              className="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none"
+            />
+          </div>
         </div>
 
         {errorMessage && (

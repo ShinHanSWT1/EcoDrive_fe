@@ -55,7 +55,7 @@ export default function InsuranceBillPanel({
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 gap-1">
                   <span className="text-slate-500 font-medium text-sm md:text-base">
-                    기본 보험료 (연간 환산)
+                    {bill.productNameLabel || "기본 보험료"}
                   </span>
                   <span className="font-bold text-slate-900">
                     {formatCurrency(bill.basePremium)}

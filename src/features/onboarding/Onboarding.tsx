@@ -11,11 +11,10 @@ import {
   type VehicleModelSummary,
 } from '../../shared/api/onboarding';
 import { fetchMe } from '../../shared/api/auth';
+import { api } from '../../shared/api/client';
 import type { UserMe } from '../../shared/types/api';
 import VehicleStep from './VehicleStep';
 import InsuranceStep from './InsuranceStep';
-
-const MOCK_INSURANCE_COMPANIES = ['삼성화재', '현대해상', 'DB손해보험', 'KB손해보험'];
 
 export default function Onboarding({
   onUserUpdate,
@@ -28,9 +27,13 @@ export default function Onboarding({
   const [vehicleModels, setVehicleModels] = useState<VehicleModelSummary[]>([]);
   const [selectedVehicleModel, setSelectedVehicleModel] = useState<VehicleModelSummary | null>(null);
   const [isVehicleDropdownOpen, setIsVehicleDropdownOpen] = useState(false);
-  const [insuranceCompanyName, setInsuranceCompanyName] = useState('삼성화재');
-  const [annualPremium, setAnnualPremium] = useState('');
+  const [insuranceCompanies, setInsuranceCompanies] = useState<string[]>([]);
+  const [insuranceCompanyName, setInsuranceCompanyName] = useState('');
+  const [insuranceProductName, setInsuranceProductName] = useState('');
+  const [insuranceProductBaseAmount, setInsuranceProductBaseAmount] = useState(0);
+  const [selectedPlan, setSelectedPlan] = useState<'BASIC' | 'STANDARD' | 'PREMIUM'>('STANDARD');
   const [insuranceStartedAt, setInsuranceStartedAt] = useState('');
+  const [age, setAge] = useState<number | ''>('');
   const [userVehicleId, setUserVehicleId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSearchingModels, setIsSearchingModels] = useState(false);
@@ -39,6 +42,54 @@ export default function Onboarding({
   const vehicleSearchRef = useRef<HTMLDivElement | null>(null);
   const vehicleSearchRequestIdRef = useRef(0);
   const navigate = useNavigate();
+
+  // 보험사 목록 로드
+  useEffect(() => {
+    api.get('/insurance/companies')
+      .then((res) => {
+        const rawCompanies: { id: number; companyName: string; status: string }[] =
+          (res.data.data.companies || []).filter((c: { status: string }) => c.status === 'ACTIVE');
+        const names = rawCompanies.map((c) => c.companyName);
+        setInsuranceCompanies(names);
+        if (names.length > 0) setInsuranceCompanyName(names[0]);
+      })
+      .catch(() => {
+        const fallback = ['삼성화재', '현대해상', 'DB손해보험', 'KB손해보험'];
+        setInsuranceCompanies(fallback);
+        setInsuranceCompanyName(fallback[0]);
+      });
+  }, []);
+
+  // 보험사 변경 시 해당 상품 로드
+  useEffect(() => {
+    if (!insuranceCompanyName) return;
+    api.get('/insurance/companies')
+      .then((res) => {
+        const companies: { id: number; companyName: string; status: string }[] =
+          res.data.data.companies || [];
+        const company = companies.find((c) => c.companyName === insuranceCompanyName);
+        if (!company) return;
+        return api.get('/insurance/products', { params: { insuranceCompanyId: company.id } });
+      })
+      .then((res) => {
+        if (!res) return;
+        const products: { productName: string; baseAmount: number; status: string }[] =
+          (res.data.data.products || []).filter(
+            (p: { status: string }) => p.status === 'ON_SALE' || p.status === 'ACTIVE'
+          );
+        if (products.length > 0) {
+          setInsuranceProductName(products[0].productName);
+          setInsuranceProductBaseAmount(products[0].baseAmount ?? 0);
+        } else {
+          setInsuranceProductName('');
+          setInsuranceProductBaseAmount(0);
+        }
+      })
+      .catch(() => {
+        setInsuranceProductName('');
+        setInsuranceProductBaseAmount(0);
+      });
+  }, [insuranceCompanyName]);
 
   const handleSearchVehicleModels = async (keyword: string) => {
     const trimmedKeyword = keyword.trim();
@@ -139,13 +190,20 @@ export default function Onboarding({
       return;
     }
 
-    const parsedAnnualPremium = Number(annualPremium.replaceAll(',', '').replaceAll('원', '').trim());
-    if (!Number.isFinite(parsedAnnualPremium) || parsedAnnualPremium <= 0) {
-      setInsuranceErrorMessage('연간 보험료를 숫자로 입력해주세요.');
+    const PLAN_MULTIPLIERS = { BASIC: 0.8, STANDARD: 1.0, PREMIUM: 1.3 };
+    const parsedAnnualPremium = Math.round(insuranceProductBaseAmount * PLAN_MULTIPLIERS[selectedPlan]);
+    if (!parsedAnnualPremium || parsedAnnualPremium <= 0) {
+      setInsuranceErrorMessage('보험 상품 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
       return;
     }
     if (!insuranceStartedAt) {
       setInsuranceErrorMessage('보험 가입일을 입력해주세요.');
+      return;
+    }
+
+    const ageValue = Number(age);
+    if (!age || isNaN(ageValue) || ageValue <= 0 || ageValue > 120) {
+      setInsuranceErrorMessage('올바른 나이(1-120세)를 입력해주세요.');
       return;
     }
 
@@ -156,8 +214,11 @@ export default function Onboarding({
       await registerMyInsurance({
         userVehicleId,
         insuranceCompanyName,
+        insuranceProductName: insuranceProductName || undefined,
+        planType: selectedPlan,
         annualPremium: parsedAnnualPremium,
         insuranceStartedAt,
+        age: Number(age),
       });
       const onboardingResult = await completeMyOnboarding();
       const me = await fetchMe();
@@ -228,14 +289,18 @@ export default function Onboarding({
           {step === 2 && (
             <InsuranceStep
               insuranceCompanyName={insuranceCompanyName}
-              annualPremium={annualPremium}
+              insuranceCompanies={insuranceCompanies}
+              selectedPlan={selectedPlan}
+              productName={insuranceProductName}
+              productBaseAmount={insuranceProductBaseAmount}
               insuranceStartedAt={insuranceStartedAt}
-              insuranceCompanies={MOCK_INSURANCE_COMPANIES}
+              age={age}
               isSubmitting={isSubmitting}
               errorMessage={insuranceErrorMessage}
               onInsuranceCompanyChange={setInsuranceCompanyName}
-              onAnnualPremiumChange={setAnnualPremium}
+              onPlanChange={setSelectedPlan}
               onInsuranceStartedAtChange={setInsuranceStartedAt}
+              onAgeChange={setAge}
               onPrevStep={prevStep}
               onSubmit={submitInsurance}
             />
