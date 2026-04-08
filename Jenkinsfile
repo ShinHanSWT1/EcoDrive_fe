@@ -104,6 +104,13 @@ EOF
     }
 
     post {
+        always {
+            sh 'podman logout ${REGISTRY} || true'
+            sh 'podman rmi ${FULL_IMAGE_TAG} || true'
+            sh 'podman rmi ${LATEST_IMAGE_TAG} || true'
+            sh 'podman system prune -a -f || true'
+            cleanWs()
+        }
         success {
             echo 'DEV frontend 배포 완료'
         }
