@@ -16,30 +16,53 @@ export default function InsuranceDiscountPreview({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {items.map((item) => (
-          <div
-            key={item.name}
-            className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between"
-          >
-            <div>
-              <div className="text-xs text-slate-500 font-medium">
-                {item.name}
+        {items.length > 0 ? (
+          items.map((item) => (
+            <div
+              key={item.name}
+              className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between"
+            >
+              <div>
+                <div className="text-xs text-slate-500 font-medium">
+                  {item.name}
+                </div>
+                <div className="text-lg font-bold text-blue-600">
+                  {formatPercent(item.discountRate)} 할인
+                </div>
               </div>
-              <div className="text-lg font-bold text-blue-600">
-                {formatPercent(item.discountRate)} 할인
-              </div>
-            </div>
 
-            <div className="text-right">
-              <div className="text-xs text-slate-400">
-                다음 갱신 시 예상 보험료
-              </div>
-              <div className="text-sm font-bold">
-                {formatCurrency(item.premium)}
+              <div className="text-right">
+                <div className="text-xs text-slate-400">
+                  다음 갱신 시 예상 보험료
+                </div>
+                <div className="text-sm font-bold">
+                  {formatCurrency(item.premium)}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <>
+            {["삼성화재", "DB손해보험", "KB손해보험"].map((name) => (
+              <div
+                key={name}
+                className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between"
+              >
+                <div>
+                  <div className="text-xs text-slate-500 font-medium">{name}</div>
+                  <div className="text-lg font-bold text-blue-600">-- 할인</div>
+                </div>
+
+                <div className="text-right">
+                  <div className="text-xs text-slate-400">
+                    다음 갱신 시 예상 보험료
+                  </div>
+                  <div className="text-sm font-bold">--</div>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
       </div>
     </section>
   );

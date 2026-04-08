@@ -31,6 +31,7 @@ export interface DashboardData {
   totalSavings: number;
   pointBalance: number;
   expectedWeeklyPoints: number;
+  summaryNote: string;
   stats: DashboardStatCard[];
   savingsChart: SavingsChartItem[];
   todayDrivingSummary: TodayDrivingSummaryItem[];

@@ -4,12 +4,14 @@ import type { TodayDrivingSummaryItem } from "../dashboard.types";
 type DashboardSidePanelProps = {
   pointBalance: number;
   expectedWeeklyPoints: number;
+  summaryNote: string;
   todayDrivingSummary: TodayDrivingSummaryItem[];
 };
 
 export default function DashboardSidePanel({
   pointBalance,
   expectedWeeklyPoints,
+  summaryNote,
   todayDrivingSummary,
 }: DashboardSidePanelProps) {
   return (
@@ -32,7 +34,9 @@ export default function DashboardSidePanel({
         <div className="mt-3 text-[10px] text-slate-500 font-medium">
           이번 주{" "}
           <span className="text-blue-600 font-bold">
-            {expectedWeeklyPoints.toLocaleString("ko-KR")}P
+            {expectedWeeklyPoints > 0
+              ? `${expectedWeeklyPoints.toLocaleString("ko-KR")}P`
+              : "--"}
           </span>{" "}
           적립 예정
         </div>
@@ -71,8 +75,7 @@ export default function DashboardSidePanel({
 
           <div className="p-3 bg-blue-50 rounded-2xl text-[11px] text-blue-700 font-medium leading-relaxed">
             <Info size={14} className="inline mr-1 mb-0.5" />
-            정속 주행 비율이 높아 탄소 배출을{" "}
-            <span className="font-bold">0.8kg</span> 줄였습니다.
+            {summaryNote}
           </div>
         </div>
       </div>

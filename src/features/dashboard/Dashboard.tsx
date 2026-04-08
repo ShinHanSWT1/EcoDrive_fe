@@ -28,7 +28,7 @@ export default function Dashboard() {
     <div className="space-y-6">
       <PageHeader
         title="대시보드"
-        description={`현재까지 누적 예상 절감액 ${data.totalSavings.toLocaleString("ko-KR")}원입니다.`}
+        description="연동된 주행/탄소 데이터는 실제 값을 사용하고, 보험 및 미구현 지표는 화면 구조를 유지한 채 비워둡니다."
       />
 
       <DashboardOverview stats={data.stats} pointBalance={data.pointBalance} />
@@ -38,6 +38,7 @@ export default function Dashboard() {
         <DashboardSidePanel
           pointBalance={data.pointBalance}
           expectedWeeklyPoints={data.expectedWeeklyPoints}
+          summaryNote={data.summaryNote}
           todayDrivingSummary={data.todayDrivingSummary}
         />
       </div>

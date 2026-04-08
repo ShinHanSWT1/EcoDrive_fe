@@ -1,16 +1,40 @@
 import { motion } from "motion/react";
-import type { DrivingDay } from "../driving.types";
+import type { DrivingRecentSession } from "../driving.api";
+import type { DailyDrivingData, MonthlyHistoryItem, WeeklySummaryItem } from "../driving.types";
 import { MonthlyDrivingCard } from "./MonthlyDrivingCard";
 import { RecentDrivingRecordSection } from "./RecentDrivingRecordSection";
+import { WeeklyDrivingSummarySection } from "./WeeklyDrivingSummarySection";
 
 interface DrivingHistorySectionProps {
-  selectedDay: DrivingDay;
-  onDayChange: (day: DrivingDay) => void;
+  selectedDate: string;
+  selectedDailyData: DailyDrivingData;
+  minDate?: string;
+  maxDate: string;
+  selectedWeekKey: string;
+  weeklySummaries: WeeklySummaryItem[];
+  selectedWeeklySummary: WeeklySummaryItem | null;
+  monthlyHistory: MonthlyHistoryItem[];
+  recentSessions: DrivingRecentSession[];
+  onDateChange: (date: string) => void;
+  onGoToToday: () => void;
+  onWeekChange: (weekKey: string) => void;
+  isTodaySelected: boolean;
 }
 
 export function DrivingHistorySection({
-  selectedDay,
-  onDayChange,
+  selectedDate,
+  selectedDailyData,
+  minDate,
+  maxDate,
+  selectedWeekKey,
+  weeklySummaries,
+  selectedWeeklySummary,
+  monthlyHistory,
+  recentSessions,
+  onDateChange,
+  onGoToToday,
+  onWeekChange,
+  isTodaySelected,
 }: DrivingHistorySectionProps) {
   return (
     <motion.div
@@ -19,10 +43,24 @@ export function DrivingHistorySection({
       transition={{ duration: 0.4 }}
       className="space-y-8"
     >
-      <MonthlyDrivingCard />
       <RecentDrivingRecordSection
-        selectedDay={selectedDay}
-        onDayChange={onDayChange}
+        selectedDate={selectedDate}
+        selectedDailyData={selectedDailyData}
+        minDate={minDate}
+        maxDate={maxDate}
+        onDateChange={onDateChange}
+        onGoToToday={onGoToToday}
+        isTodaySelected={isTodaySelected}
+      />
+      <WeeklyDrivingSummarySection
+        weeklySummaries={weeklySummaries}
+        selectedWeekKey={selectedWeekKey}
+        selectedWeeklySummary={selectedWeeklySummary}
+        onWeekChange={onWeekChange}
+      />
+      <MonthlyDrivingCard
+        recentSessions={recentSessions}
+        monthlyHistory={monthlyHistory}
       />
     </motion.div>
   );
