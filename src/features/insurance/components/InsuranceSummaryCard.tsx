@@ -55,8 +55,14 @@ export default function InsuranceSummaryCard({
               <span className="text-sm text-slate-600">
                 안전 점수 80점 이상
               </span>
-              <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">
-                충족 ({currentSummary.safetyScore}점)
+              <span className={`text-xs font-bold px-2 py-1 rounded-lg ${
+                currentSummary.safetyScore == null ? 'text-slate-400 bg-slate-100'
+                  : currentSummary.safetyScore >= 80 ? 'text-blue-600 bg-blue-50'
+                  : 'text-red-600 bg-red-50'
+              }`}>
+                {currentSummary.safetyScore == null ? '주행 점수 없음'
+                  : currentSummary.safetyScore >= 80 ? `충족 (${currentSummary.safetyScore}점)`
+                  : `미충족 (${currentSummary.safetyScore}점)`}
               </span>
             </div>
 
@@ -64,17 +70,19 @@ export default function InsuranceSummaryCard({
               <span className="text-sm text-slate-600">
                 연간 주행 1.5만km 이하
               </span>
-              <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">
-                충족 ({formatMileageKm(currentSummary.annualMileageKm)})
-              </span>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-slate-600">
-                커넥티드카 데이터 연동
-              </span>
-              <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">
-                {currentSummary.connectedCarLinked ? "연동 완료" : "미연동"}
+              <span className={`text-xs font-bold px-2 py-1 rounded-lg ${
+                currentSummary.annualMileageKm === 0 
+                  ? 'text-slate-400 bg-slate-100' 
+                  : currentSummary.annualMileageKm <= 15000 
+                    ? 'text-blue-600 bg-blue-50' 
+                    : 'text-red-600 bg-red-50'
+              }`}>
+                {currentSummary.annualMileageKm === 0 
+                  ? '주행 기록 없음' 
+                  : currentSummary.annualMileageKm <= 15000 
+                    ? `충족 (${formatMileageKm(currentSummary.annualMileageKm)})` 
+                    : `미충족 (${formatMileageKm(currentSummary.annualMileageKm)})`
+                }
               </span>
             </div>
           </div>

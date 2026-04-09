@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import type { InsurancePreviewItem } from "../dashboard.types";
 import { formatCurrency, formatPercent } from "../../../shared/lib/format";
 
@@ -8,11 +9,18 @@ type InsuranceDiscountPreviewProps = {
 export default function InsuranceDiscountPreview({
   items,
 }: InsuranceDiscountPreviewProps) {
+  const navigate = useNavigate();
+
   return (
     <section className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
       <div className="flex justify-between items-center mb-6">
         <h3 className="font-bold text-lg">안전 점수 기반 보험사별 할인</h3>
-        <button className="text-sm text-blue-600 font-bold">전체 보기</button>
+        <button 
+          onClick={() => navigate("/insurance")}
+          className="text-sm text-blue-600 font-bold hover:underline transition-all"
+        >
+          전체 보기
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -1,4 +1,7 @@
-export function formatCurrency(value: number): string {
+export function formatCurrency(value: number | undefined | null): string {
+  if (value === undefined || value === null || isNaN(value)) {
+    return "0원";
+  }
   return `${value.toLocaleString("ko-KR")}원`;
 }
 

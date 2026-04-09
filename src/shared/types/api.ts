@@ -12,4 +12,5 @@ export interface UserMe {
   profileImageUrl: string | null;
   role: string;
   isOnboardingCompleted: boolean;
+  age: number | null;
 }

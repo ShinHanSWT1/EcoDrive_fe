@@ -17,8 +17,10 @@ export interface RegisterInsuranceRequest {
   userVehicleId: number;
   insuranceCompanyName: string;
   insuranceProductName?: string;
+  planType: string;
   annualPremium: number;
   insuranceStartedAt: string;
+  age: number;
 }
 
 export interface RegisterInsuranceResponse {
@@ -61,7 +63,7 @@ export async function registerMyVehicle(request: RegisterVehicleRequest) {
 
 export async function registerMyInsurance(request: RegisterInsuranceRequest) {
   const response = await api.post<ApiResponse<RegisterInsuranceResponse>>(
-    "/users/me/insurances",
+    "/users/me/onboarding/insurances",
     request,
   );
   return response.data.data;

@@ -9,6 +9,8 @@ import AdminLayout from "./layouts/AdminLayout";
 import DashboardPage from "../pages/DashboardPage";
 import ReportPage from "../pages/ReportPage";
 import InsurancePage from "../pages/InsurancePage";
+import InsuranceApplyPage from "../pages/InsuranceApplyPage";
+import InsuranceConfirmPage from "../pages/InsuranceConfirmPage";
 import PaymentPage from "../pages/PaymentPage";
 import ProfilePage from "../pages/ProfilePage";
 import LoginPage from "../pages/LoginPage";
@@ -196,6 +198,28 @@ export default function AppRouter({
               isOnboardingCompleted={isOnboardingCompleted}
             >
                 <InsurancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/insurance/apply"
+          element={
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+                <InsuranceApplyPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/insurance/confirm"
+          element={
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+                <InsuranceConfirmPage />
             </ProtectedRoute>
           }
         />
