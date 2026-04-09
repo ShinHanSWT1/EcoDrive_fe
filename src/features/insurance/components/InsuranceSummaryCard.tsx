@@ -55,8 +55,14 @@ export default function InsuranceSummaryCard({
               <span className="text-sm text-slate-600">
                 안전 점수 80점 이상
               </span>
-              <span className={`text-xs font-bold px-2 py-1 rounded-lg ${currentSummary.safetyScore != null ? 'text-blue-600 bg-blue-50' : 'text-slate-400 bg-slate-100'}`}>
-                {currentSummary.safetyScore != null ? `충족 (${currentSummary.safetyScore}점)` : '주행 점수 없음'}
+              <span className={`text-xs font-bold px-2 py-1 rounded-lg ${
+                currentSummary.safetyScore == null ? 'text-slate-400 bg-slate-100'
+                  : currentSummary.safetyScore >= 80 ? 'text-blue-600 bg-blue-50'
+                  : 'text-red-600 bg-red-50'
+              }`}>
+                {currentSummary.safetyScore == null ? '주행 점수 없음'
+                  : currentSummary.safetyScore >= 80 ? `충족 (${currentSummary.safetyScore}점)`
+                  : `미충족 (${currentSummary.safetyScore}점)`}
               </span>
             </div>
 

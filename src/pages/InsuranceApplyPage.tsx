@@ -2,13 +2,20 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { ChevronLeft, Search, Check } from "lucide-react";
 import { api } from "../shared/api/client";
+import type { PlanType } from "../features/insurance/insurance.constants";
+import { PLAN_RANK } from "../features/insurance/insurance.constants";
 
 export default function InsuranceApplyPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  
+
   const productId = Number(searchParams.get("productId"));
-  const selectedPlan = searchParams.get("plan") || "BASIC";
+  const planParam = searchParams.get("plan") ?? "";
+  const selectedPlan: PlanType = planParam in PLAN_RANK ? (planParam as PlanType) : "BASIC";
+
+  if (!productId || isNaN(productId)) {
+    return <div className="p-20 text-center font-bold text-red-500">잘못된 접근입니다. 보험 상품을 다시 선택해주세요.</div>;
+  }
   
   const [isLoading, setIsLoading] = useState(true);
   

@@ -16,7 +16,14 @@ import type { UserMe } from '../../shared/types/api';
 import VehicleStep from './VehicleStep';
 import InsuranceStep from './InsuranceStep';
 
-export default function Onboarding({
+import { PLAN_MULTIPLIERS } from '../insurance/insurance.constants';
+import type { PlanType } from '../insurance/insurance.constants';
+
+// ... (다른 임포트들 생략되지 않도록 주의)
+
+export default function Onboarding() {
+  // ... 생략
+
   onUserUpdate,
 }: {
   onUserUpdate: (user: UserMe) => void;
@@ -28,6 +35,7 @@ export default function Onboarding({
   const [selectedVehicleModel, setSelectedVehicleModel] = useState<VehicleModelSummary | null>(null);
   const [isVehicleDropdownOpen, setIsVehicleDropdownOpen] = useState(false);
   const [insuranceCompanies, setInsuranceCompanies] = useState<string[]>([]);
+  const [insuranceCompanyList, setInsuranceCompanyList] = useState<{ id: number; companyName: string }[]>([]);
   const [insuranceCompanyName, setInsuranceCompanyName] = useState('');
   const [insuranceProductName, setInsuranceProductName] = useState('');
   const [insuranceProductBaseAmount, setInsuranceProductBaseAmount] = useState(0);
@@ -50,6 +58,7 @@ export default function Onboarding({
         const rawCompanies: { id: number; companyName: string; status: string }[] =
           (res.data.data.companies || []).filter((c: { status: string }) => c.status === 'ACTIVE');
         const names = rawCompanies.map((c) => c.companyName);
+        setInsuranceCompanyList(rawCompanies.map(({ id, companyName }) => ({ id, companyName })));
         setInsuranceCompanies(names);
         if (names.length > 0) setInsuranceCompanyName(names[0]);
       })
@@ -60,19 +69,11 @@ export default function Onboarding({
       });
   }, []);
 
-  // 보험사 변경 시 해당 상품 로드
+  // 보험사 변경 시 해당 상품 로드 (이미 조회한 회사 목록 재사용)
   useEffect(() => {
     if (!insuranceCompanyName) return;
-    api.get('/insurance/companies')
-      .then((res) => {
-        const companies: { id: number; companyName: string; status: string }[] =
-          res.data.data.companies || [];
-        const company = companies.find((c) => c.companyName === insuranceCompanyName);
-        if (!company) return;
-        return api.get('/insurance/products', { params: { insuranceCompanyId: company.id } });
-      })
-      .then((res) => {
-        if (!res) return;
+    const company = insuranceCompanyList.find((c) => c.companyName === insuranceCompanyName);
+    if (!company) return;
         const products: { productName: string; baseAmount: number; status: string }[] =
           (res.data.data.products || []).filter(
             (p: { status: string }) => p.status === 'ON_SALE' || p.status === 'ACTIVE'
@@ -89,7 +90,7 @@ export default function Onboarding({
         setInsuranceProductName('');
         setInsuranceProductBaseAmount(0);
       });
-  }, [insuranceCompanyName]);
+  }, [insuranceCompanyName, insuranceCompanyList]);
 
   const handleSearchVehicleModels = async (keyword: string) => {
     const trimmedKeyword = keyword.trim();
@@ -190,7 +191,6 @@ export default function Onboarding({
       return;
     }
 
-    const PLAN_MULTIPLIERS = { BASIC: 0.8, STANDARD: 1.0, PREMIUM: 1.3 };
     const parsedAnnualPremium = Math.round(insuranceProductBaseAmount * PLAN_MULTIPLIERS[selectedPlan]);
     if (!parsedAnnualPremium || parsedAnnualPremium <= 0) {
       setInsuranceErrorMessage('보험 상품 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');

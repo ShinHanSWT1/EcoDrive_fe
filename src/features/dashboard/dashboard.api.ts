@@ -49,8 +49,9 @@ export async function getDashboardData(): Promise<DashboardData> {
         };
       }
 
+      const BASIC_PLAN_MULTIPLIER = 0.8;
       const baseAmount = companyProducts.length > 0 ? companyProducts[0].baseAmount : 600_000;
-      const adjustedPremium = Math.round(baseAmount * calc.ageFactor * calc.experienceFactor);
+      const adjustedPremium = Math.round(baseAmount * calc.ageFactor * calc.experienceFactor * BASIC_PLAN_MULTIPLIER);
       const premium = Math.round(adjustedPremium * (1 - calc.scoreDiscountRate));
       return {
         name: c.companyName,

@@ -1,14 +1,7 @@
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '../../shared/lib/utils';
-
-type PlanType = 'BASIC' | 'STANDARD' | 'PREMIUM';
-
-const PLAN_INFO: Record<PlanType, { label: string; desc: string; multiplier: number; color: string }> = {
-  BASIC:    { label: '기본형',    desc: '대인·대물 기본 보장',         multiplier: 0.8, color: 'border-slate-300 bg-slate-50' },
-  STANDARD: { label: '표준형',    desc: '기본 + 자기신체·무보험차',     multiplier: 1.0, color: 'border-blue-400 bg-blue-50'  },
-  PREMIUM:  { label: '프리미엄형', desc: '전항목 + 무제한 대인·긴급출동', multiplier: 1.3, color: 'border-indigo-400 bg-indigo-50' },
-};
+import { PLAN_INFO, type PlanType } from '../insurance/insurance.constants';
 
 interface InsuranceStepProps {
   insuranceCompanyName: string;

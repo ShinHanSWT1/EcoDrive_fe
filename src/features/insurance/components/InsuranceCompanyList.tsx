@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import type { InsuranceCompany, InsuranceCoverage } from "../insurance.types";
 import { formatCurrency, formatPercent } from "../../../shared/lib/format";
 import { getProductCoverages } from "../insurance.api";
+import { PLAN_RANK } from "../insurance.constants";
 
 type InsuranceCompanyListProps = {
   companies: InsuranceCompany[];
@@ -20,20 +21,25 @@ export default function InsuranceCompanyList({
   const [activeModalPlan, setActiveModalPlan] = useState<'BASIC' | 'STANDARD' | 'PREMIUM'>('BASIC');
   const [coverages, setCoverages] = useState<InsuranceCoverage[]>([]);
   const [isLoadingCoverages, setIsLoadingCoverages] = useState(false);
+  const [coverageError, setCoverageError] = useState(false);
 
   useEffect(() => {
     if (selectedCompany) {
       setIsLoadingCoverages(true);
+      setCoverageError(false);
       setActiveModalPlan('BASIC'); // 모달 열릴 때 기본형 우선 선택
       getProductCoverages(selectedCompany.id)
         .then(setCoverages)
+        .catch(() => {
+          setCoverages([]);
+          setCoverageError(true);
+        })
         .finally(() => setIsLoadingCoverages(false));
     } else {
       setCoverages([]);
+      setCoverageError(false);
     }
   }, [selectedCompany]);
-
-  const PLAN_RANK = { BASIC: 0, STANDARD: 1, PREMIUM: 2 };
 
   const handleApplyNavigation = () => {
     if (!selectedCompany) return;
@@ -198,6 +204,8 @@ export default function InsuranceCompanyList({
                   
                   {isLoadingCoverages ? (
                     <div className="py-12 text-center text-slate-400 font-bold">보장 내역을 불러오는 중...</div>
+                  ) : coverageError ? (
+                    <div className="py-12 text-center text-red-400 font-bold">보장 내역을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.</div>
                   ) : (
                     <div className="divide-y divide-slate-100 border border-slate-100 rounded-3xl overflow-hidden bg-white">
                       {coverages.map((cov) => {

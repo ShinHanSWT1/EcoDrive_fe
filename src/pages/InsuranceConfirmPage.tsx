@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronUp, ChevronDown, RotateCcw, ShieldCheck, Check } fr
 import { formatCurrency } from "../shared/lib/format";
 import { api } from "../shared/api/client";
 import { getInsuranceFactors, getProductCoverages, createInsuranceContract } from "../features/insurance/insurance.api";
+import { PLAN_RANK, PLAN_MULTIPLIERS, PLAN_LABELS } from "../features/insurance/insurance.constants";
 import type { InsuranceCoverage } from "../features/insurance/insurance.types";
 
 export default function InsuranceConfirmPage() {
@@ -23,44 +24,61 @@ export default function InsuranceConfirmPage() {
   const [selectedCoverageIds, setSelectedCoverageIds] = useState<number[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const PLAN_RANK = { BASIC: 0, STANDARD: 1, PREMIUM: 2 };
-  const PLAN_MULTIPLIERS = { BASIC: 0.8, STANDARD: 1.0, PREMIUM: 1.3 };
-  const PLAN_LABELS = {
-    BASIC: { title: "실속", icon: "➕", desc: "운전자 3대 필수 비용은 기본" },
-    STANDARD: { title: "표준", icon: "🏆", desc: "자동차 사고로 다쳤을 때 걱정없게" },
-    PREMIUM: { title: "고급", icon: "🛡️", desc: "사고 후 치료와 재활까지 꼼꼼하게", badge: "60개 보장" }
-  };
 
   useEffect(() => {
     async function fetchData() {
       try {
+        setIsError(false);
         const [productRes, factorData, coverageList] = await Promise.all([
           api.get(`/insurance/products/${productId}`),
           getInsuranceFactors(),
           getProductCoverages(productId)
         ]);
+
+        if (!coverageList || coverageList.length === 0) {
+          throw new Error("담보 내역을 불러올 수 없습니다.");
+        }
+
         setProductInfo(productRes.data.data);
         setFactors(factorData);
         setCoverages(coverageList);
-        
+
         const categories = Array.from(new Set(coverageList.map(c => c.category)));
         setExpandedCategories(categories);
-        
+
         const initialSelected = coverageList
           .filter(c => PLAN_RANK[initialPlan] >= PLAN_RANK[c.planType as keyof typeof PLAN_RANK])
           .map(c => c.id);
         setSelectedCoverageIds(initialSelected);
-        
+
       } catch (error) {
         console.error("데이터 로딩 실패:", error);
+        setIsError(true);
       } finally {
         setIsLoading(false);
       }
     }
     if (productId) fetchData();
   }, [productId, initialPlan]);
+
+  if (isLoading) return <div className="p-20 text-center font-bold">로딩 중...</div>;
+
+  if (isError) {
+    return (
+      <div className="p-20 text-center">
+        <div className="text-xl font-bold text-slate-900 mb-4">데이터를 불러오는 중 오류가 발생했습니다.</div>
+        <p className="text-slate-500 mb-8">잠시 후 다시 시도해 주세요.</p>
+        <button
+          onClick={() => navigate(-1)}
+          className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg shadow-blue-200"
+        >
+          뒤로가기
+        </button>
+      </div>
+    );
+  }
 
   const handlePlanChange = (type: "BASIC" | "STANDARD" | "PREMIUM") => {
     setSelectedPlan(type);
@@ -130,8 +148,6 @@ export default function InsuranceConfirmPage() {
       setIsSubmitting(false);
     }
   };
-
-  if (isLoading) return <div className="p-20 text-center font-bold">로딩 중...</div>;
 
   const currentPrices = calculatePremiums(selectedPlan);
   const groupedCoverages = coverages.reduce((acc, curr) => {
