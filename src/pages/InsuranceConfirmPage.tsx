@@ -106,6 +106,9 @@ export default function InsuranceConfirmPage() {
     if (isSubmitting) return;
     setIsSubmitting(true);
     try {
+      // 실제 가입 신청을 처리하려면 아래 API 호출을 활성화하세요.
+      // 현재는 테스트를 위해 DB 저장을 건너뛰고 성공 메시지만 표시합니다.
+      /*
       await createInsuranceContract({
         insuranceProductId: productId,
         phoneNumber: applicationData.phoneNumber || "010-0000-0000",
@@ -114,7 +117,12 @@ export default function InsuranceConfirmPage() {
         planType: selectedPlan,
         selectedCoverageIds,
       });
-      alert("보험 가입이 완료되었습니다!");
+      */
+      
+      // 시뮬레이션을 위한 지연 시간
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      alert("보험 가입 신청이 완료되었습니다! (테스트 모드: 실제 DB에는 저장되지 않았습니다.)");
       navigate("/insurance");
     } catch (error) {
       alert("가입 처리 중 오류가 발생했습니다.");
