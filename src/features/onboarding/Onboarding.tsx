@@ -21,9 +21,7 @@ import type { PlanType } from '../insurance/insurance.constants';
 
 // ... (다른 임포트들 생략되지 않도록 주의)
 
-export default function Onboarding() {
-  // ... 생략
-
+export default function Onboarding({
   onUserUpdate,
 }: {
   onUserUpdate: (user: UserMe) => void;
@@ -74,6 +72,8 @@ export default function Onboarding() {
     if (!insuranceCompanyName) return;
     const company = insuranceCompanyList.find((c) => c.companyName === insuranceCompanyName);
     if (!company) return;
+    api.get('/insurance/products', { params: { insuranceCompanyId: company.id } })
+      .then((res) => {
         const products: { productName: string; baseAmount: number; status: string }[] =
           (res.data.data.products || []).filter(
             (p: { status: string }) => p.status === 'ON_SALE' || p.status === 'ACTIVE'
