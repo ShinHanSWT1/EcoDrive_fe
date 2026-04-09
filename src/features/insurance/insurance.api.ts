@@ -56,7 +56,7 @@ export async function getProductCoverages(productId: number): Promise<InsuranceC
 }
 
 // 보험 할인 계산에 필요한 공통 데이터를 조회
-export async function getInsuranceFactors() {
+export async function getInsuranceFactors(experienceYears: number = 0) {
   const [companiesRes, productsRes] = await Promise.all([
     api.get("/insurance/companies"),
     api.get("/insurance/products"),
@@ -84,13 +84,13 @@ export async function getInsuranceFactors() {
 
   // 1. 현재 점수 기준 할인율 계산
   const calcRes = await api.get("/insurance/discount-policies/calculate", {
-    params: { age: userAge, score: safetyScore ?? 0, experienceYears: 3 },
+    params: { age: userAge, score: safetyScore ?? 0, experienceYears },
   });
   const calc: CalculateResponse = calcRes.data.data;
 
   // 2. 최대 점수(100점) 기준 할인율 계산 (비교 섹션용)
   const maxCalcRes = await api.get("/insurance/discount-policies/calculate", {
-    params: { age: userAge, score: 100, experienceYears: 3 },
+    params: { age: userAge, score: 100, experienceYears },
   });
   const maxCalc: CalculateResponse = maxCalcRes.data.data;
 
@@ -118,16 +118,7 @@ export async function createInsuranceContract(request: CreateContractRequest): P
 }
 
 export async function getInsurancePageData(): Promise<InsurancePageData> {
-  // 1~5. 공통 데이터 조회 및 최근 주행 기록 합산
-  const [factors, recentSessions] = await Promise.all([
-    getInsuranceFactors(),
-    getRecentDrivingSessions(20).catch(() => []),
-  ]);
-  const { companies, products, safetyScore, calc, maxCalc } = factors;
-
-  const totalDistance = recentSessions.reduce((sum, s) => sum + s.distanceKm, 0);
-
-  // 6. 내 보험 계약 목록
+  // 1. 계약 목록 먼저 조회 (experienceYears 계산용)
   let myContracts: ContractResponse[] = [];
   try {
     const contractsRes = await api.get("/insurance/contracts");
@@ -135,6 +126,23 @@ export async function getInsurancePageData(): Promise<InsurancePageData> {
   } catch {
     myContracts = [];
   }
+
+  // 온보딩 보험 시작일 기준 운전 경력 계산 (신규는 0년)
+  const oldestContract = myContracts
+    .filter((c) => c.startedAt)
+    .sort((a, b) => new Date(a.startedAt!).getTime() - new Date(b.startedAt!).getTime())[0];
+  const experienceYears = oldestContract?.startedAt
+    ? Math.max(0, Math.floor((Date.now() - new Date(oldestContract.startedAt).getTime()) / (1000 * 60 * 60 * 24 * 365)))
+    : 0;
+
+  // 2. 공통 데이터 조회 및 최근 주행 기록 합산
+  const [factors, recentSessions] = await Promise.all([
+    getInsuranceFactors(experienceYears),
+    getRecentDrivingSessions(20).catch(() => []),
+  ]);
+  const { companies, products, safetyScore, calc, maxCalc } = factors;
+
+  const totalDistance = recentSessions.reduce((sum, s) => sum + s.distanceKm, 0);
 
   // 8. 내 보험 목록
   let myInsurances: InsuranceResponse[] = [];
