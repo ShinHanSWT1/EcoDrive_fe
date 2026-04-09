@@ -92,7 +92,8 @@ function OnboardingRoute({
     return <Navigate to="/" replace />;
   }
 
-  return <OnboardingPage onUserUpdate={onUserUpdate} />;
+  // return <OnboardingPage onUserUpdate={onUserUpdate} />;
+    return <PaymentPage />;
 }
 
 function RedirectIfAuthenticated({

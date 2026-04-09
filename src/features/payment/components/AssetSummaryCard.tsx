@@ -1,11 +1,14 @@
 import { Coins, CreditCard, Plus, Ticket, TrendingUp, Wallet } from "lucide-react";
 import { motion } from "motion/react";
+import { chargeMoney } from "../payment.api";
 
+// props에 onRefresh(데이터 새로고침용) 추가를 권장합니다.
 interface AssetSummaryCardProps {
   balance: number;
   points: number;
   monthlyUsage: number;
   onOpenCoupons: () => void;
+  onRefresh: () => void;
 }
 
 export default function AssetSummaryCard({
@@ -13,7 +16,20 @@ export default function AssetSummaryCard({
   points,
   monthlyUsage,
   onOpenCoupons,
+  onRefresh,
 }: AssetSummaryCardProps) {
+
+  // 충전 버튼 클릭 핸들러
+  const handleChargeClick = async () => {
+    try {
+      await chargeMoney(10000); // 1만원 충전 요청
+      alert("10,000원이 충전되었습니다!");
+      if (onRefresh) onRefresh(); // 메인 페이지의 잔액 데이터를 다시 불러옴
+    } catch (err) {
+      alert("충전 실패: 서버 연결을 확인하세요.");
+    }
+  };
+
   const totalBalance = balance + points;
 
   return (
@@ -61,7 +77,10 @@ export default function AssetSummaryCard({
       </div>
 
       <div className="relative z-10 grid grid-cols-2 gap-3">
-        <button className="bg-white text-slate-900 rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] transition-transform">
+        <button
+            onClick={handleChargeClick} // 핸들러 연결
+            className="bg-white text-slate-900 rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] transition-transform"
+        >
           <Plus size={16} />
           충전하기
         </button>
