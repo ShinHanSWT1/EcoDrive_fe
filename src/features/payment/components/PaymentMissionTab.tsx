@@ -24,6 +24,25 @@ function MissionGroupSection({
   pulseClass: string;
   items: MissionItem[];
 }) {
+  // 미션 미노출 상태 가시성 확보함
+  if (items.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between px-2">
+          <h4 className="text-xl font-black text-slate-900 flex items-center gap-2">
+            {icon} {title}
+          </h4>
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            {subtitle}
+          </span>
+        </div>
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 text-sm font-semibold text-slate-500">
+          표시할 미션 데이터 없음
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between px-2">

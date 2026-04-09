@@ -22,9 +22,15 @@ export default function MissionListSection({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {missions.map((mission) => (
-          <MissionCard key={mission.id} mission={mission} />
-        ))}
+        {missions.length === 0 ? (
+          <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">
+            현재 기간에 표시할 미션이 없습니다
+          </div>
+        ) : (
+          missions.map((mission) => (
+            <MissionCard key={mission.id} mission={mission} />
+          ))
+        )}
       </div>
     </div>
   );
