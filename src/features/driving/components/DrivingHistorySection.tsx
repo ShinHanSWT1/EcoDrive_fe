@@ -1,6 +1,5 @@
 import { motion } from "motion/react";
-import type { DrivingRecentSession } from "../driving.api";
-import type { DailyDrivingData, MonthlyHistoryItem, WeeklySummaryItem } from "../driving.types";
+import type { DailyDrivingData, MonthlyHistoryItem, MonthlySummaryData, WeeklySummaryItem } from "../driving.types";
 import { MonthlyDrivingCard } from "./MonthlyDrivingCard";
 import { RecentDrivingRecordSection } from "./RecentDrivingRecordSection";
 import { WeeklyDrivingSummarySection } from "./WeeklyDrivingSummarySection";
@@ -14,7 +13,7 @@ interface DrivingHistorySectionProps {
   weeklySummaries: WeeklySummaryItem[];
   selectedWeeklySummary: WeeklySummaryItem | null;
   monthlyHistory: MonthlyHistoryItem[];
-  recentSessions: DrivingRecentSession[];
+  monthlySummaryData: MonthlySummaryData | null;
   onDateChange: (date: string) => void;
   onGoToToday: () => void;
   onWeekChange: (weekKey: string) => void;
@@ -30,7 +29,7 @@ export function DrivingHistorySection({
   weeklySummaries,
   selectedWeeklySummary,
   monthlyHistory,
-  recentSessions,
+  monthlySummaryData,
   onDateChange,
   onGoToToday,
   onWeekChange,
@@ -59,8 +58,8 @@ export function DrivingHistorySection({
         onWeekChange={onWeekChange}
       />
       <MonthlyDrivingCard
-        recentSessions={recentSessions}
         monthlyHistory={monthlyHistory}
+        monthlySummaryData={monthlySummaryData}
       />
     </motion.div>
   );

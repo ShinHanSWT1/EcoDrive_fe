@@ -3,11 +3,13 @@ import { Leaf } from "lucide-react";
 interface CarbonReductionCardProps {
   carbonReductionKg: number | null;
   rewardPoint: number | null;
+  monthLabel: string | null;
 }
 
 export function CarbonReductionCard({
   carbonReductionKg,
   rewardPoint,
+  monthLabel,
 }: CarbonReductionCardProps) {
   return (
     <div className="bg-emerald-500 p-6 rounded-[32px] text-white shadow-lg shadow-emerald-100 relative overflow-hidden h-full">
@@ -28,8 +30,8 @@ export function CarbonReductionCard({
         </div>
         <p className="text-sm font-medium text-emerald-50 leading-relaxed max-w-[240px]">
           {rewardPoint != null
-            ? `이번 달 친환경 운전으로 탄소 배출량을 줄이고 ${rewardPoint}P를 적립했습니다.`
-            : "이번 달 친환경 운전으로 탄소 배출량을 줄이고 포인트를 적립했습니다."}
+            ? `${monthLabel ?? "이번 달"} 친환경 운전으로 탄소 배출량을 줄이고 ${rewardPoint}P를 적립했습니다.`
+            : `${monthLabel ?? "이번 달"} 친환경 운전으로 탄소 배출량을 줄이고 포인트를 적립했습니다.`}
         </p>
       </div>
       <Leaf size={164} className="absolute -bottom-9 -right-9 text-white/10 -rotate-12" />

@@ -1,4 +1,5 @@
 import { Leaf } from "lucide-react";
+import type { DrivingMonthlySummary } from "../driving.api";
 import { CarbonReductionCard } from "./CarbonReductionCard";
 import { CarbonReductionFormulaCard } from "./CarbonReductionFormulaCard";
 import { CarbonReductionEquivalenceCard } from "./CarbonReductionEquivalenceCard";
@@ -6,11 +7,13 @@ import { CarbonReductionEquivalenceCard } from "./CarbonReductionEquivalenceCard
 interface CarbonReductionSectionProps {
   carbonReductionKg: number | null;
   rewardPoint: number | null;
+  monthlySummary: DrivingMonthlySummary | null;
 }
 
 export function CarbonReductionSection({
   carbonReductionKg,
   rewardPoint,
+  monthlySummary,
 }: CarbonReductionSectionProps) {
   return (
     <div className="space-y-6">
@@ -23,9 +26,16 @@ export function CarbonReductionSection({
         <CarbonReductionCard
           carbonReductionKg={carbonReductionKg}
           rewardPoint={rewardPoint}
+          monthLabel={monthlySummary ? `${monthlySummary.month}월` : null}
         />
         <div className="lg:col-span-2">
-          <CarbonReductionFormulaCard carbonReductionKg={carbonReductionKg} />
+          <CarbonReductionFormulaCard
+            carbonReductionKg={carbonReductionKg}
+            totalIdlingTimeMinutes={monthlySummary?.totalIdlingTimeMinutes ?? null}
+            rapidAccelCount={monthlySummary?.rapidAccelCount ?? null}
+            hardBrakeCount={monthlySummary?.hardBrakeCount ?? null}
+            steadyDrivingRatio={monthlySummary?.steadyDrivingRatio ?? null}
+          />
         </div>
       </div>
 

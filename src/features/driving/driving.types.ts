@@ -19,6 +19,13 @@ export interface MonthlyHistoryItem {
   distance: number;
 }
 
+export interface MonthlySummaryData {
+  label: string;
+  totalDistance: string | null;
+  sessionCount: number | null;
+  dayCount: number | null;
+}
+
 export interface WeeklySummaryItem {
   weekKey: string;
   label: string;
