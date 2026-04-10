@@ -6,7 +6,8 @@ import { ScoreCarbonSection } from "./components/ScoreCarbonSection";
 import PageHeader from "../../shared/ui/PageSectionHeader";
 
 export default function DrivingReport() {
-  const showDevDummyButton = import.meta.env.DEV;
+  const showDevDummyButton =
+    import.meta.env.DEV || import.meta.env.VITE_SHOW_DUMMY_BUTTON === "true";
   const {
     activeTab,
     setActiveTab,
