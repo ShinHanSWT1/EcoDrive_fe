@@ -246,7 +246,7 @@ export async function getInsurancePageData(): Promise<InsurancePageData> {
   );
 
   const representativeDiscount =
-    totalDistance <= 15000 ? 0 : representativeAdjusted - representativeFinal;
+    totalDistance > 15000 ? 0 : representativeAdjusted - representativeFinal;
 
   const planLabels: Record<string, string> = {
     BASIC: "기본형",
@@ -280,8 +280,8 @@ export async function getInsurancePageData(): Promise<InsurancePageData> {
       : 0,
     safetyScore,
     annualMileageKm: totalDistance,
-    expectedPremium: totalDistance <= 15000 ? representativeAdjusted : representativeFinal,
-    expectedDiscountRate: totalDistance <= 15000 ? 0 : Math.round(currentDiscountRate * 1000) / 10,
+    expectedPremium: totalDistance > 15000 ? representativeAdjusted : representativeFinal,
+    expectedDiscountRate: totalDistance > 15000 ? 0 : Math.round(currentDiscountRate * 1000) / 10,
     totalExpectedSavings: representativeDiscount,
   };
 
@@ -304,8 +304,8 @@ export async function getInsurancePageData(): Promise<InsurancePageData> {
       },
     ],
     totalDiscountRate:
-      totalDistance <= 15000 ? 0 : Math.round(currentDiscountRate * 1000) / 10,
-    finalPremium: totalDistance <= 15000 ? representativeAdjusted : representativeFinal,
+      totalDistance > 15000 ? 0 : Math.round(currentDiscountRate * 1000) / 10,
+    finalPremium: totalDistance > 15000 ? representativeAdjusted : representativeFinal,
     productNameLabel: `${currentProductLabel} ${currentPlanLabel}`.trim(),
   };
 
