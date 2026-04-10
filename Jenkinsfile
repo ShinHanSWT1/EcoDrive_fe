@@ -23,6 +23,7 @@ pipeline {
         // build-time env
         VITE_API_BASE_URL = "https://dev-gorani.lab.terminal-lab.kr/api"
         VITE_PAY_BASE_URL = "https://dev-gorani.lab.terminal-lab.kr/pay"
+        VITE_SHOW_DUMMY_BUTTON = "true"
     }
 
     stages {
@@ -54,6 +55,7 @@ pipeline {
                     podman build \
                       --build-arg VITE_API_BASE_URL=${VITE_API_BASE_URL} \
                       --build-arg VITE_PAY_BASE_URL=${VITE_PAY_BASE_URL} \
+                      --build-arg VITE_SHOW_DUMMY_BUTTON=${VITE_SHOW_DUMMY_BUTTON} \
                       -t ${FULL_IMAGE_TAG} .
                 """
                 sh "podman tag ${FULL_IMAGE_TAG} ${LATEST_IMAGE_TAG}"
