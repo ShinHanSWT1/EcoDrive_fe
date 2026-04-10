@@ -5,8 +5,10 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install -g npm@11
-RUN npm ci --no-audit --no-fund --foreground-scripts
+RUN npm ci --no-audit --no-fund --ignore-scripts
+RUN sync && sleep 1 && node node_modules/esbuild/install.js && sync
+#RUN npm install -g npm@11
+#RUN npm ci --no-audit --no-fund --foreground-scripts
 # RUN npm ci --no-audit --no-fund
 # RUN npm ci --ignore-scripts
 # RUN sync && node node_modules/esbuild/install.js
