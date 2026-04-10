@@ -21,19 +21,19 @@ export function DailyDrivingDetailCard({
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
           <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">오늘 총 주행거리</div>
-          <div className="text-lg font-black text-slate-900">{data.totalDistance ?? "--"}</div>
+          <div className="text-lg font-black text-slate-900">{data.totalDistance ?? "0.00km"}</div>
         </div>
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
           <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">공회전 시간</div>
-          <div className="text-lg font-black text-slate-900">{data.idling ?? "--"}</div>
+          <div className="text-lg font-black text-slate-900">{data.idling ?? "0분"}</div>
         </div>
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
           <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">평균 속도</div>
-          <div className="text-lg font-black text-slate-900">{data.avgSpeed ?? "--"}</div>
+          <div className="text-lg font-black text-slate-900">{data.avgSpeed ?? "0.00km/h"}</div>
         </div>
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
           <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">최고 속도</div>
-          <div className="text-lg font-black text-slate-900">{data.maxSpeed ?? "--"}</div>
+          <div className="text-lg font-black text-slate-900">{data.maxSpeed ?? "0.00km/h"}</div>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import type {
   DrivingTab,
 } from "./driving.types";
 import {
+  generateAndRefreshDummyDrivingData,
   getDrivingBehaviorSummary,
   getDrivingDailySummary,
   getDrivingMonthlySummary,
@@ -62,6 +63,7 @@ export function useDriving() {
   >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isGeneratingDummyData, setIsGeneratingDummyData] = useState(false);
   const [isError, setIsError] = useState(false);
 
   async function fetchBaseDrivingData() {
@@ -222,6 +224,20 @@ export function useDriving() {
     }
   }
 
+  async function addDummyDrivingData() {
+    try {
+      setIsGeneratingDummyData(true);
+      setIsError(false);
+      await generateAndRefreshDummyDrivingData();
+      await fetchDrivingData(selectedDate);
+    } catch (error) {
+      console.error("더미 주행 데이터 생성 실패:", error);
+      setIsError(true);
+    } finally {
+      setIsGeneratingDummyData(false);
+    }
+  }
+
   const availableDateKeys = Array.from(
     new Set(recentSessions.map((session) => session.sessionDate)),
   ).sort((a, b) => a.localeCompare(b));
@@ -258,7 +274,9 @@ export function useDriving() {
     scoreHistory: formatScoreHistoryItems(scoreHistoryResponses),
     isLoading,
     isRefreshing,
+    isGeneratingDummyData,
     isError,
     refresh,
+    addDummyDrivingData,
   };
 }

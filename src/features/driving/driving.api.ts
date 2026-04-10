@@ -95,6 +95,22 @@ export interface DrivingScoreHistoryResponse {
   changeDate: string;
 }
 
+export interface DummyDrivingAutomationResult {
+  generation: {
+    generatedBatches: number;
+    attemptedUsers: number;
+    generatedFiles: string[];
+  };
+  refresh: {
+    processedBatches: number;
+    insertedSessions: number;
+    insertedEvents: number;
+    updatedUsers: number;
+    failedFiles: number;
+    batchIds: string[];
+  };
+}
+
 export async function getLatestDrivingScore(): Promise<DrivingLatestScore> {
   const response = await api.get<ApiResponse<DrivingLatestScore>>(
     "/driving/scores/latest",
@@ -171,6 +187,13 @@ export async function getDrivingScoreHistory(
 ): Promise<DrivingScoreHistoryResponse[]> {
   const response = await api.get<ApiResponse<DrivingScoreHistoryResponse[]>>(
     `/driving/scores/history?limit=${limit}`,
+  );
+  return response.data.data;
+}
+
+export async function generateAndRefreshDummyDrivingData(): Promise<DummyDrivingAutomationResult> {
+  const response = await api.post<ApiResponse<DummyDrivingAutomationResult>>(
+    "/driving/admin/generate-and-refresh-dummy-data",
   );
   return response.data.data;
 }

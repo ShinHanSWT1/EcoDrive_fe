@@ -3,7 +3,7 @@ import type { DashboardData } from "./dashboard.types";
 export const dashboardMockData: DashboardData = {
   totalSavings: 155800,
   pointBalance: 12540,
-  expectedWeeklyPoints: 1200,
+  todayEarnedPoints: 1200,
   summaryNote: "대시보드 목업용 요약 문구",
 
   stats: [

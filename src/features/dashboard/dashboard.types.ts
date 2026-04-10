@@ -30,7 +30,7 @@ export interface InsurancePreviewItem {
 export interface DashboardData {
   totalSavings: number;
   pointBalance: number;
-  expectedWeeklyPoints: number;
+  todayEarnedPoints: number;
   summaryNote: string;
   stats: DashboardStatCard[];
   savingsChart: SavingsChartItem[];

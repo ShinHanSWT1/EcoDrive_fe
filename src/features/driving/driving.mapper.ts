@@ -37,15 +37,15 @@ export function getSelectedYearMonth(dateValue: string) {
 
 export function getEmptyDailyData(): DailyDrivingData {
   return {
-    totalDistance: null,
-    idling: null,
-    avgSpeed: null,
-    maxSpeed: null,
-    accel: null,
-    decel: null,
-    start: null,
-    night: null,
-    idlingTime: null,
+    totalDistance: "0.00km",
+    idling: "0분",
+    avgSpeed: "0.00km/h",
+    maxSpeed: "0.00km/h",
+    accel: 0,
+    decel: 0,
+    start: 0,
+    night: "0회",
+    idlingTime: "0분",
   };
 }
 
@@ -123,17 +123,17 @@ export function buildWeeklySummaries(
       averageDistance:
         summary.averageDistanceKm != null
           ? `${summary.averageDistanceKm.toFixed(2)}km`
-          : "--",
+          : "0.00km",
       averageIdling:
         summary.averageIdlingTimeMinutes != null
           ? `${summary.averageIdlingTimeMinutes.toFixed(0)}분`
-          : "--",
+          : "0분",
       averageSpeed:
         summary.averageSpeed != null
           ? `${summary.averageSpeed.toFixed(2)}km/h`
-          : "--",
+          : "0.00km/h",
       maxSpeed:
-        summary.maxSpeed != null ? `${summary.maxSpeed.toFixed(2)}km/h` : "--",
+        summary.maxSpeed != null ? `${summary.maxSpeed.toFixed(2)}km/h` : "0.00km/h",
     }))
     .sort((a, b) => a.weekKey.localeCompare(b.weekKey));
 }

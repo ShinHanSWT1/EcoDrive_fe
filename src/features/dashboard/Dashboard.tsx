@@ -37,7 +37,7 @@ export default function Dashboard() {
         <SavingsChartCard chartData={data.savingsChart} />
         <DashboardSidePanel
           pointBalance={data.pointBalance}
-          expectedWeeklyPoints={data.expectedWeeklyPoints}
+          todayEarnedPoints={data.todayEarnedPoints}
           summaryNote={data.summaryNote}
           todayDrivingSummary={data.todayDrivingSummary}
         />
