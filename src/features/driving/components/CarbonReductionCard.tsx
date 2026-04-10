@@ -19,7 +19,7 @@ export function CarbonReductionCard({
             <div className="text-emerald-100 text-xs font-bold uppercase tracking-widest mb-2">Carbon Reduction Achievement</div>
             <div className="flex items-baseline gap-2">
               <span className="text-6xl font-black drop-shadow-sm">
-                {carbonReductionKg != null ? carbonReductionKg.toFixed(2) : "--"}
+                {(carbonReductionKg ?? 0).toFixed(2)}
               </span>
               <span className="text-xl font-bold text-emerald-100">kg CO₂</span>
             </div>
@@ -29,9 +29,7 @@ export function CarbonReductionCard({
           </div>
         </div>
         <p className="text-sm font-medium text-emerald-50 leading-relaxed max-w-[240px]">
-          {rewardPoint != null
-            ? `${monthLabel ?? "이번 달"} 친환경 운전으로 탄소 배출량을 줄이고 ${rewardPoint}P를 적립했습니다.`
-            : `${monthLabel ?? "이번 달"} 친환경 운전으로 탄소 배출량을 줄이고 포인트를 적립했습니다.`}
+          {`${monthLabel ?? "이번 달"} 친환경 운전으로 탄소 배출량을 줄이고 ${rewardPoint ?? 0}P를 적립했습니다.`}
         </p>
       </div>
       <Leaf size={164} className="absolute -bottom-9 -right-9 text-white/10 -rotate-12" />

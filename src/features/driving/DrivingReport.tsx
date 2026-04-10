@@ -6,6 +6,7 @@ import { ScoreCarbonSection } from "./components/ScoreCarbonSection";
 import PageHeader from "../../shared/ui/PageSectionHeader";
 
 export default function DrivingReport() {
+  const showDevDummyButton = import.meta.env.DEV;
   const {
     activeTab,
     setActiveTab,
@@ -29,8 +30,10 @@ export default function DrivingReport() {
     scoreTrend,
     isLoading,
     isRefreshing,
+    isGeneratingDummyData,
     isError,
     refresh,
+    addDummyDrivingData,
   } = useDriving();
 
   return (
@@ -42,14 +45,26 @@ export default function DrivingReport() {
         />
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <DrivingReportTabs activeTab={activeTab} onTabChange={setActiveTab} />
-          <button
-            type="button"
-            onClick={() => void refresh()}
-            disabled={isLoading || isRefreshing}
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
-          >
-            {isRefreshing ? "새로고침 중..." : "리포트 새로고침"}
-          </button>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            {showDevDummyButton ? (
+              <button
+                type="button"
+                onClick={() => void addDummyDrivingData()}
+                disabled={isLoading || isRefreshing || isGeneratingDummyData}
+                className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700 shadow-sm transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400"
+              >
+                {isGeneratingDummyData ? "더미 주행 추가 중..." : "테스트용 더미 주행 추가"}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => void refresh()}
+              disabled={isLoading || isRefreshing || isGeneratingDummyData}
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
+            >
+              {isRefreshing ? "새로고침 중..." : "리포트 새로고침"}
+            </button>
+          </div>
         </div>
       </section>
 

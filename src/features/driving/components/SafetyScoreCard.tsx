@@ -20,12 +20,12 @@ export function SafetyScoreCard({
           <div>
             <div className="text-blue-600 text-[10px] font-bold uppercase tracking-widest mb-1">Current Safety Score</div>
             <div className="flex items-baseline gap-1">
-              <span className="text-5xl font-black text-slate-900">{score ?? "--"}</span>
+              <span className="text-5xl font-black text-slate-900">{score ?? 100}</span>
               <span className="text-lg font-bold text-slate-400">점</span>
             </div>
           </div>
           <div className="px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-xl text-blue-600 text-xs font-black">
-            {snapshotDate ?? "--"}
+            {snapshotDate ?? "기본값"}
           </div>
         </div>
 
@@ -37,7 +37,7 @@ export function SafetyScoreCard({
           <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
             <div className="text-[9px] text-slate-400 font-bold uppercase mb-0.5">이번 달 누적 주행거리</div>
             <div className="text-lg font-black text-slate-900">
-              {monthlyDistanceKm != null ? `${monthlyDistanceKm.toFixed(2)} km` : "--"}
+              {monthlyDistanceKm != null ? `${monthlyDistanceKm.toFixed(2)} km` : "0.00 km"}
             </div>
           </div>
         </div>

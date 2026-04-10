@@ -10,12 +10,12 @@ type DashboardOverviewProps = {
 
 const toneMap = {
   dark: {
-    card: "bg-slate-900 text-white shadow-xl shadow-slate-200",
-    iconWrap: "bg-white/10 text-white",
+    card: "bg-white border border-slate-200 shadow-sm",
+    iconWrap: "bg-slate-50 text-slate-700",
     change: "",
-    label: "text-slate-400",
-    value: "text-white",
-    subText: "text-blue-400",
+    label: "text-slate-500",
+    value: "text-slate-900",
+    subText: "text-slate-400",
   },
   orange: {
     card: "bg-white border border-slate-200 shadow-sm",

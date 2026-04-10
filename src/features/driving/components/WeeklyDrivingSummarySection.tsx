@@ -49,7 +49,7 @@ export function WeeklyDrivingSummarySection({
             평균 주행거리
           </div>
           <div className="text-lg font-black text-slate-900">
-            {selectedWeeklySummary?.averageDistance ?? "--"}
+            {selectedWeeklySummary?.averageDistance ?? "0.00km"}
           </div>
         </div>
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
@@ -57,7 +57,7 @@ export function WeeklyDrivingSummarySection({
             평균 공회전
           </div>
           <div className="text-lg font-black text-slate-900">
-            {selectedWeeklySummary?.averageIdling ?? "--"}
+            {selectedWeeklySummary?.averageIdling ?? "0분"}
           </div>
         </div>
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
@@ -65,7 +65,7 @@ export function WeeklyDrivingSummarySection({
             평균 속도
           </div>
           <div className="text-lg font-black text-slate-900">
-            {selectedWeeklySummary?.averageSpeed ?? "--"}
+            {selectedWeeklySummary?.averageSpeed ?? "0.00km/h"}
           </div>
         </div>
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
@@ -73,7 +73,7 @@ export function WeeklyDrivingSummarySection({
             최고 속도
           </div>
           <div className="text-lg font-black text-slate-900">
-            {selectedWeeklySummary?.maxSpeed ?? "--"}
+            {selectedWeeklySummary?.maxSpeed ?? "0.00km/h"}
           </div>
         </div>
       </div>

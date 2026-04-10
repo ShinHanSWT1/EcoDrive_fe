@@ -8,36 +8,33 @@ interface CarbonReductionEquivalenceCardProps {
 export function CarbonReductionEquivalenceCard({
   carbonReductionKg,
 }: CarbonReductionEquivalenceCardProps) {
-  const treeMonths =
-    carbonReductionKg != null ? Math.max(carbonReductionKg / 0.7, 0) : null;
-  const drivingKm =
-    carbonReductionKg != null ? Math.max(carbonReductionKg / 0.16, 0) : null;
-  const gasolineLiters =
-    carbonReductionKg != null ? Math.max(carbonReductionKg / 2.31, 0) : null;
-  const electricityKwh =
-    carbonReductionKg != null ? Math.max(carbonReductionKg / 0.424, 0) : null;
+  const normalizedCarbonReductionKg = carbonReductionKg ?? 0;
+  const treeMonths = Math.max(normalizedCarbonReductionKg / 0.7, 0);
+  const drivingKm = Math.max(normalizedCarbonReductionKg / 0.16, 0);
+  const gasolineLiters = Math.max(normalizedCarbonReductionKg / 2.31, 0);
+  const electricityKwh = Math.max(normalizedCarbonReductionKg / 0.424, 0);
 
   const items = [
     {
-      label: `도심 나무 1그루가 약 ${treeMonths != null ? treeMonths.toFixed(1) : "--"}개월 동안 흡수하는 양`,
+      label: `도심 나무 1그루가 약 ${treeMonths.toFixed(1)}개월 동안 흡수하는 양`,
       icon: Leaf,
       color: "text-emerald-600",
       bg: "bg-emerald-100/50",
     },
     {
-      label: `자동차로 약 ${drivingKm != null ? drivingKm.toFixed(1) : "--"}km 주행할 때 나오는 배출량`,
+      label: `자동차로 약 ${drivingKm.toFixed(1)}km 주행할 때 나오는 배출량`,
       icon: Navigation,
       color: "text-blue-600",
       bg: "bg-blue-100/50",
     },
     {
-      label: `휘발유 약 ${gasolineLiters != null ? gasolineLiters.toFixed(2) : "--"}L 사용 시 발생하는 배출량`,
+      label: `휘발유 약 ${gasolineLiters.toFixed(2)}L 사용 시 발생하는 배출량`,
       icon: Zap,
       color: "text-orange-600",
       bg: "bg-orange-100/50",
     },
     {
-      label: `전기 약 ${electricityKwh != null ? electricityKwh.toFixed(2) : "--"}kWh 사용 시 발생하는 배출량`,
+      label: `전기 약 ${electricityKwh.toFixed(2)}kWh 사용 시 발생하는 배출량`,
       icon: Activity,
       color: "text-indigo-600",
       bg: "bg-indigo-100/50",
@@ -48,7 +45,7 @@ export function CarbonReductionEquivalenceCard({
     <div className="bg-emerald-50 p-8 rounded-[32px] border border-emerald-100">
       <div className="mb-8">
         <h3 className="text-xl font-black mb-2 text-emerald-900">
-          이번 활동으로 줄인 {carbonReductionKg != null ? `${carbonReductionKg.toFixed(2)}kg CO₂` : "--kg CO₂"}는
+          이번 활동으로 줄인 {`${normalizedCarbonReductionKg.toFixed(2)}kg CO₂`}는
         </h3>
         <p className="text-sm text-emerald-600/70 font-medium">
           일상 속에서 다음과 같은 가치와 비슷합니다.

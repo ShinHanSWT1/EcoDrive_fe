@@ -14,10 +14,10 @@ export function CarbonReductionFormulaCard({
   steadyDrivingRatio,
 }: CarbonReductionFormulaCardProps) {
   const items = [
-    { label: '공회전 시간', value: totalIdlingTimeMinutes != null ? `${totalIdlingTimeMinutes}분` : '--' },
-    { label: '급가속 횟수', value: rapidAccelCount != null ? `${rapidAccelCount}회` : '--' },
-    { label: '급감속 횟수', value: hardBrakeCount != null ? `${hardBrakeCount}회` : '--' },
-    { label: '정속주행 비율', value: steadyDrivingRatio != null ? `${steadyDrivingRatio.toFixed(2)}%` : '--' },
+    { label: '공회전 시간', value: `${totalIdlingTimeMinutes ?? 0}분` },
+    { label: '급가속 횟수', value: `${rapidAccelCount ?? 0}회` },
+    { label: '급감속 횟수', value: `${hardBrakeCount ?? 0}회` },
+    { label: '정속주행 비율', value: `${(steadyDrivingRatio ?? 0).toFixed(2)}%` },
   ];
 
   return (
@@ -33,7 +33,7 @@ export function CarbonReductionFormulaCard({
       </div>
       <div className="mt-5 p-3.5 bg-emerald-50 rounded-2xl text-center">
         <p className="text-xs font-bold text-emerald-700">
-          위 데이터를 바탕으로 이번 달 총 {carbonReductionKg != null ? carbonReductionKg.toFixed(2) : "--"}kg의 탄소 절감량이 계산되었습니다.
+          위 데이터를 바탕으로 이번 달 총 {(carbonReductionKg ?? 0).toFixed(2)}kg의 탄소 절감량이 계산되었습니다.
         </p>
       </div>
     </div>

@@ -22,6 +22,9 @@ export async function getDashboardData(): Promise<DashboardData> {
     (sum, session) => sum + session.idlingTimeMinutes,
     0,
   );
+  const today = new Date().toISOString().slice(0, 10);
+  const todayEarnedPoints =
+    carbon.snapshotDate === today ? (carbon.rewardPoint ?? 0) : 0;
 
   // 보험 데이터 조회
   let insurancePreviews: InsurancePreviewItem[] = [];
@@ -91,7 +94,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   return {
     totalSavings: totalSavings ?? 0,
     pointBalance: carbon.rewardPoint ?? 0,
-    expectedWeeklyPoints: 0,
+    todayEarnedPoints,
     summaryNote:
       carbon.carbonReductionKg != null
         ? `정속 주행 비율이 높아 탄소 배출을 ${carbon.carbonReductionKg.toFixed(2)}kg 줄였습니다.`
@@ -120,23 +123,17 @@ export async function getDashboardData(): Promise<DashboardData> {
       {
         id: "score",
         label: "안전운전 점수",
-        value: score.score != null ? `${score.score}점` : "--",
+        value: `${score.score ?? 100}점`,
         subText: score.snapshotDate
           ? `기준일 ${score.snapshotDate}`
-          : "최근 기준 점수 상승",
+          : "온보딩 기본 점수 반영",
         tone: "blue",
       },
       {
         id: "carbon",
         label: "탄소 절감 성과",
-        value:
-          carbon.carbonReductionKg != null
-            ? `${carbon.carbonReductionKg.toFixed(2)}kg CO₂`
-            : "--",
-        subText:
-          carbon.rewardPoint != null
-            ? `적립 포인트 ${carbon.rewardPoint}P`
-            : "친환경 주행 실천 중",
+        value: `${(carbon.carbonReductionKg ?? 0).toFixed(2)}kg CO₂`,
+        subText: `적립 포인트 ${carbon.rewardPoint ?? 0}P`,
         tone: "green",
       },
     ],
@@ -153,7 +150,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       {
         id: "idling",
         title: "최근 공회전 시간",
-        description: "--",
+        description: `${totalIdling}분`,
         statusText: `${totalIdling}분`,
         statusTone: "normal",
         icon: "trendDown",
