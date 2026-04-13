@@ -43,8 +43,19 @@ export interface MonthOption {
 }
 
 export interface ScoreTrendItem {
+  fullDate: string;
   date: string;
   score: number;
+  deltaFromPrevious: number | null;
+}
+
+export interface ScoreChangeListItem {
+  fullDate: string;
+  dateLabel: string;
+  score: number;
+  deltaFromPrevious: number | null;
+  summary: string;
+  isToday: boolean;
 }
 
 export interface ScoreHistoryItem {

@@ -30,8 +30,11 @@ export default function DrivingReport() {
     monthlyHistory,
     monthlySummaryData,
     monthlySummary,
-    scoreHistory,
     scoreTrend,
+    scoreSectionMonthKey,
+    scoreSectionMonthOptions,
+    scoreChangeListItems,
+    setScoreSectionMonthKey,
     isLoading,
     isRefreshing,
     isGeneratingDummyData,
@@ -113,8 +116,11 @@ export default function DrivingReport() {
               latestCarbon={latestCarbon}
               recentSessions={recentSessions}
               monthlySummary={monthlySummary}
-              scoreHistory={scoreHistory}
               scoreTrend={scoreTrend}
+              scoreSectionMonthKey={scoreSectionMonthKey}
+              scoreSectionMonthOptions={scoreSectionMonthOptions}
+              scoreChangeListItems={scoreChangeListItems}
+              onScoreSectionMonthChange={setScoreSectionMonthKey}
             />
           )}
         </AnimatePresence>
