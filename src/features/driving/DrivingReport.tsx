@@ -17,6 +17,9 @@ export default function DrivingReport() {
     goToToday,
     todayKey,
     availableDateKeys,
+    selectedMonthKey,
+    setSelectedMonthKey,
+    availableMonthOptions,
     selectedWeekKey,
     setSelectedWeekKey,
     latestScore,
@@ -90,6 +93,8 @@ export default function DrivingReport() {
               selectedDailyData={selectedDailyData}
               minDate={availableDateKeys[0]}
               maxDate={todayKey}
+              availableMonthOptions={availableMonthOptions}
+              selectedMonthKey={selectedMonthKey}
               selectedWeekKey={selectedWeekKey}
               weeklySummaries={weeklySummaries}
               selectedWeeklySummary={selectedWeeklySummary}
@@ -97,6 +102,7 @@ export default function DrivingReport() {
               monthlySummaryData={monthlySummaryData}
               onDateChange={setSelectedDate}
               onGoToToday={goToToday}
+              onMonthChange={setSelectedMonthKey}
               onWeekChange={setSelectedWeekKey}
               isTodaySelected={selectedDate === todayKey}
             />

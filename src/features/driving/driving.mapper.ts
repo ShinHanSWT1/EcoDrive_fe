@@ -1,5 +1,6 @@
 import type {
   DailyDrivingData,
+  MonthOption,
   MonthlyHistoryItem,
   MonthlySummaryData,
   WeeklySummaryItem,
@@ -10,6 +11,7 @@ import type {
   DrivingMonthlySummary,
   DrivingScoreHistoryResponse,
   DrivingScoreTrendResponse,
+  DrivingRecentSession,
   DrivingWeeklySummary,
 } from "./driving.api";
 
@@ -33,6 +35,48 @@ export function getSelectedYearMonth(dateValue: string) {
     year: date.getFullYear(),
     month: date.getMonth() + 1,
   };
+}
+
+export function formatYearMonthKey(year: number, month: number): string {
+  return `${year}-${String(month).padStart(2, "0")}`;
+}
+
+export function parseYearMonthKey(yearMonthKey: string) {
+  const [year, month] = yearMonthKey.split("-").map(Number);
+  return { year, month };
+}
+
+export function shiftYearMonth(
+  year: number,
+  month: number,
+  offset: number,
+) {
+  const date = new Date(year, month - 1 + offset, 1);
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+  };
+}
+
+export function buildAvailableMonthOptions(
+  sessions: DrivingRecentSession[],
+): MonthOption[] {
+  return Array.from(
+    new Set(
+      sessions.map((session) => {
+        const { year, month } = getSelectedYearMonth(session.sessionDate);
+        return formatYearMonthKey(year, month);
+      }),
+    ),
+  )
+    .sort((a, b) => b.localeCompare(a))
+    .map((yearMonthKey) => {
+      const { year, month } = parseYearMonthKey(yearMonthKey);
+      return {
+        key: yearMonthKey,
+        label: `${year}년 ${month}월`,
+      };
+    });
 }
 
 export function getEmptyDailyData(): DailyDrivingData {
@@ -99,18 +143,16 @@ export function formatDailyData(
 }
 
 export function buildMonthlyHistory(
-  summary: DrivingMonthlySummary | null,
+  summaries: DrivingMonthlySummary[],
+  selectedYearMonthKey: string,
 ): MonthlyHistoryItem[] {
-  if (!summary || summary.sessionCount === 0) {
-    return [];
-  }
-
-  return [
-    {
-      month: `${summary.month}월`,
-      distance: Number(summary.totalDistanceKm.toFixed(2)),
-    },
-  ];
+  return summaries.map((summary) => ({
+    yearMonthKey: formatYearMonthKey(summary.year, summary.month),
+    month: `${summary.month}월`,
+    distance: Number(summary.totalDistanceKm.toFixed(2)),
+    isSelected:
+      formatYearMonthKey(summary.year, summary.month) === selectedYearMonthKey,
+  }));
 }
 
 export function buildWeeklySummaries(
