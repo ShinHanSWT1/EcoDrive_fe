@@ -30,7 +30,7 @@ export async function getPaymentData(): Promise<PaymentData> {
       ...paymentMockData.user,
       balance: accountData.balance, // 실제 DB 잔액으로 덮어쓰기
       points: accountData.points || 0,
-      monthlyUsage: 458000,
+      monthlyUsage: accountData.monthUsage || 0,
     },
     missionSummary: missionPageData.summary,
     missions: missionPageData.missions,
