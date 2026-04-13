@@ -55,7 +55,10 @@ export function usePayment() {
         if (!prev) return prev;
         return {
           ...prev,
-          balance: updatedAccount.balance,
+          user: {
+            ...prev.user,
+            balance: updatedAccount.balance,
+          }
         };
       });
 

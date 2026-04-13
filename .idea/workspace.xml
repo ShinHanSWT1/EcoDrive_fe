@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4168571b-8b68-43c2-ad6d-01b9149f6c5a" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/src/features/payment/components/ChargeModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/payment/Payment.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/payment/Payment.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/payment/components/AssetSummaryCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/payment/components/AssetSummaryCard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/payment/components/PaymentHomeTab.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/payment/components/PaymentHomeTab.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/payment/payment.api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/payment/payment.api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/features/payment/usePayment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/payment/usePayment.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -24,6 +20,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Node.js.payment.api.ts.executor": "Run",
     "git-widget-placeholder": "feature/KAN-91-fe-pay-연결",
     "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external"
   }
