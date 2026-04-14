@@ -1,60 +1,61 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { getPaymentData, chargeBalance } from "./payment.api";
+﻿import { useEffect, useState } from "react";
+import { chargeBalance, createMyWallet, getPaymentData } from "./payment.api";
 import type { PaymentData } from "./payment.types";
 
-export function usePayment(payUserId?: number) {
+export function usePayment() {
   const [data, setData] = useState<PaymentData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
-  const requestSeq = useRef(0);
-
-  // 초기 데이터 로드 (계좌 잔액, 미션 등)
-  const fetchData = useCallback(async () => {
-    if (!Number.isInteger(payUserId) || (payUserId as number) <= 0) {
-      setData(null);
-      setIsError(false);
-      setIsLoading(false);
-      return;
-    }
-
-    const seq = ++requestSeq.current;
-    setIsLoading(true);
-
-    try {
-      setIsError(false);
-
-      const result = await getPaymentData(payUserId);
-      if (requestSeq.current !== seq) return;
-      setData(result);
-    } catch (error) {
-      if (requestSeq.current !== seq) return;
-      console.error("payment 데이터 조회 실패:", error);
-      setIsError(true);
-    } finally {
-      if (requestSeq.current !== seq) return;
-      setIsLoading(false);
-    }
-  }, [payUserId]);
+  const [isCreatingWallet, setIsCreatingWallet] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+
+    async function fetchData() {
+      try {
+        setIsLoading(true);
+        setIsError(false);
+
+        const result = await getPaymentData();
+        if (mounted) {
+          setData(result);
+        }
+      } catch (error) {
+        console.error("payment 데이터 조회 실패:", error);
+        if (mounted) {
+          setIsError(true);
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
     fetchData();
-  }, [fetchData]);
 
-  // 금액 충전 로직 추가
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const handleCharge = async (amount: number) => {
-    if (!payUserId) return false;
     try {
-      const updatedAccount = await chargeBalance(payUserId, amount);
+      if (data?.walletMissing) {
+        alert("계좌를 먼저 생성해 주세요.");
+        return false;
+      }
 
-      // 충전 성공 시, BE에서 반환받은 최신 잔액으로 즉시 화면 상태 덮어쓰기
+      const updatedWallet = await chargeBalance(amount);
+
       setData((prev) => {
         if (!prev) return prev;
         return {
           ...prev,
           user: {
             ...prev.user,
-            balance: updatedAccount.balance,
-          }
+            balance: updatedWallet.balance,
+          },
         };
       });
 
@@ -62,7 +63,42 @@ export function usePayment(payUserId?: number) {
     } catch (error) {
       console.error("충전 요청 중 오류 발생:", error);
       alert("충전에 실패했습니다. 다시 시도해 주세요.");
-      return false; // 실패 반환
+      return false;
+    }
+  };
+
+  const handleCreateWallet = async () => {
+    try {
+      setIsCreatingWallet(true);
+      const wallet = await createMyWallet();
+
+      setData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          walletMissing: false,
+          wallet: {
+            payUserId: wallet.payUserId,
+            payAccountId: wallet.payAccountId,
+            accountNumber: wallet.accountNumber,
+            bankCode: wallet.bankCode,
+            ownerName: wallet.ownerName,
+            status: wallet.status,
+          },
+          user: {
+            ...prev.user,
+            balance: wallet.balance,
+          },
+        };
+      });
+
+      return true;
+    } catch (error) {
+      console.error("계좌 생성 요청 중 오류 발생:", error);
+      alert("계좌 생성에 실패했습니다. 다시 시도해 주세요.");
+      return false;
+    } finally {
+      setIsCreatingWallet(false);
     }
   };
 
@@ -70,6 +106,8 @@ export function usePayment(payUserId?: number) {
     data,
     isLoading,
     isError,
+    isCreatingWallet,
     handleCharge,
+    handleCreateWallet,
   };
 }
