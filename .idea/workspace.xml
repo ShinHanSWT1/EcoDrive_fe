@@ -2,11 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4168571b-8b68-43c2-ad6d-01b9149f6c5a" name="변경" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/features/payment/Payment.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/payment/Payment.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/payment/components/HistoryModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/payment/components/HistoryModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/payment/payment.api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/payment/payment.api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/payment/payment.types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/payment/payment.types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/payment/usePayment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/payment/usePayment.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/PaymentPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/PaymentPage.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,6 +31,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Node.js.payment.api.ts.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -59,7 +60,7 @@
       <option name="presentableId" value="Default" />
       <updated>1776126031034</updated>
       <workItem from="1776126033715" duration="34000" />
-      <workItem from="1776126338865" duration="5825000" />
+      <workItem from="1776126338865" duration="15201000" />
     </task>
     <servers />
   </component>
