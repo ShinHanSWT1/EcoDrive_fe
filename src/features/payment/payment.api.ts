@@ -7,41 +7,74 @@ import { api } from "../../shared/api/client";
 const INTERNAL_TOKEN = "local-dev-token";
 const PAY_SERVER_URL = import.meta.env.VITE_PAY_API_BASE_URL;
 
+// 실제 거래 내역(Transaction) 조회 API 추가
+export async function getTransactions(payUserId: number): Promise<any[]> {
+  try {
+    const response = await api.get(`/pay/account/${payUserId}/transactions`, {
+      baseURL: PAY_SERVER_URL,
+      headers: { "X-Internal-Token": INTERNAL_TOKEN }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("거래 내역 조회 실패:", error);
+    return [];
+  }
+}
+
 export async function getPaymentData(): Promise<PaymentData> {
-  // 1. 유저 ID (실제로는 로그인 세션 등에서 가져와야 함. 일단 1로 고정)
   const payUserId = 1;
 
-  // 2. 미션 데이터와 페이 계좌 정보를 병렬로 호출
-  const [missionPageData, accountResponse] = await Promise.all([
+  // 병렬 호출 리스트에 transactions 추가
+  const [missionPageData, accountResponse, transactionResponse] = await Promise.all([
     getMissionPageData(),
     api.get(`/pay/account/${payUserId}`, {
+      baseURL: PAY_SERVER_URL,
+      headers: { "X-Internal-Token": INTERNAL_TOKEN }
+    }),
+    api.get(`/pay/account/${payUserId}/transactions`, { // 추가된 부분
       baseURL: PAY_SERVER_URL,
       headers: { "X-Internal-Token": INTERNAL_TOKEN }
     })
   ]);
 
-  // Axios를 사용할 경우 응답 데이터는 .data 안에 담깁니다.
   const accountData = accountResponse.data;
+  const transactions = transactionResponse.data;
+  console.log("백엔드 거래 내역 데이터:", transactions);
 
-  // 3. Mock 데이터의 껍데기(상품, 내역 등)에 실제 DB 잔액을 덮어씌워서 반환
+  // 백엔드 Transaction 데이터를 FE의 PaymentHistoryItem 형식으로 변환
+  const mappedHistory = transactions.map((tx: any) => ({
+    id: tx.id,
+    title: tx.type === "CHARGE" ? "잔액 충전" : (tx.description || "결제 내역"),
+    date: new Date(tx.createdAt).toLocaleDateString('ko-KR', {
+      month: 'long',
+      day: 'numeric'
+    }),
+    amount: tx.amount,
+    type: tx.transactionType === "CHARGE" ? "earn" : "pay",
+
+    category: tx.transactionType === "CHARGE" ? "충전" : "결제"
+  }));
+
   return {
-    ...paymentMockData, // 상품, 카테고리, 결제 내역 등 아직 API가 없는 데이터 유지
+    ...paymentMockData,
     user: {
       ...paymentMockData.user,
-      balance: accountData.balance, // 실제 DB 잔액으로 덮어쓰기
+      balance: accountData.balance,
       points: accountData.points || 0,
       monthlyUsage: accountData.monthUsage || 0,
     },
+    recentHistory: mappedHistory.slice(0, 4),
+    allHistory: mappedHistory,
     missionSummary: missionPageData.summary,
     missions: missionPageData.missions,
   };
 }
 
-// 실제 충전 API 연결
+// 실제 충전 API
 export async function chargeBalance(payUserId: number, amount: number) {
   const response = await api.post(
       "/pay/charge",
-      { payUserId, amount }, // body 내용
+      { payUserId, amount },
       {
         baseURL: PAY_SERVER_URL,
         headers: {
@@ -51,6 +84,5 @@ export async function chargeBalance(payUserId: number, amount: number) {
       }
   );
 
-  // 충전 성공 시 업데이트된 PayAccount 객체 반환
   return response.data;
 }

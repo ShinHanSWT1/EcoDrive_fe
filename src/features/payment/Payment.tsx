@@ -83,7 +83,7 @@ export default function Payment() {
       <HistoryModal
         isOpen={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
-        history={data.recentHistory}
+        history={data.allHistory || []}
       />
     </div>
   );
