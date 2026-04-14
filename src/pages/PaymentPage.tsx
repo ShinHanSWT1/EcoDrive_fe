@@ -5,15 +5,17 @@ export default function PaymentPage() {
   const [payUserId, setPayUserId] = useState<number | undefined>(undefined);
 
   useEffect(() => {
+    // fetchMe()로부터 인증된 사용자 ID 사용 (전역 상태에서 가져오기)
+    // const authenticatedUser = useContext(AuthContext); // 예시
+    // if (authenticatedUser?.id && Number.isInteger(authenticatedUser.id)) {
+    //   setPayUserId(authenticatedUser.id);
+    // }
+    // 또는 localStorage를 캐시로만 사용:
     const storedUserId = localStorage.getItem("userId");
-
-    if (storedUserId) {
-      setPayUserId(Number(storedUserId));
-    } else {
-      // 🚨 2. 테스트용 방어 코드: 아직 로그인 기능이 없어 유저 ID가 없다면,
-      // 에러가 나지 않도록 일단 '1번 유저'로 강제 세팅합니다. (나중에 지울 부분)
-      setPayUserId(1);
-    }
+    const parsed = storedUserId ? Number(storedUserId) : NaN;
+    if (Number.isInteger(parsed) && parsed > 0) {
+      setPayUserId(parsed);
+      }
   }, []);
 
   if (payUserId === undefined) {
