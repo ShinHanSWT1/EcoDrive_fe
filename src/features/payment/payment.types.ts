@@ -60,6 +60,7 @@ export interface PaymentHistorySummary {
 
 export interface PaymentData {
   user: PaymentUserSummary;
+  walletMissing: boolean;
   categories: PaymentCategory[];
   products: PaymentProduct[];
   recentHistory: PaymentHistoryItem[];

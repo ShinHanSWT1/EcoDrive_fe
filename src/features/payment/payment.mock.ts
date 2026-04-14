@@ -10,6 +10,7 @@ export const paymentMockData: PaymentData = {
     balance: 128450,
     monthlyUsage: 41200,
   },
+  walletMissing: false,
 
   categories: [
     { id: "all", label: "전체" },
