@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  MoreHorizontal, 
   Trophy, 
   Settings, 
   LogOut, 
@@ -9,12 +8,14 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import type { UserMe } from '../types/api';
 
 interface MoreMenuProps {
+  currentUser: UserMe | null;
   onLogout: () => void;
 }
 
-export default function MoreMenu({ onLogout }: MoreMenuProps) {
+export default function MoreMenu({ currentUser, onLogout }: MoreMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -32,10 +33,22 @@ export default function MoreMenu({ onLogout }: MoreMenuProps) {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 p-2 text-slate-500 hover:bg-slate-100 rounded-xl transition-all"
+        className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-1 pr-3 text-slate-700 transition-all hover:border-blue-200 hover:bg-white"
       >
-        <MoreHorizontal size={20} />
-        <ChevronDown size={14} className={cn("transition-transform", isOpen && "rotate-180")} />
+        <div className="h-8 w-8 overflow-hidden rounded-xl bg-slate-200">
+          <img
+            src={currentUser?.profileImageUrl ?? "https://picsum.photos/seed/user/100/100"}
+            alt="Profile"
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <span className="hidden text-xs font-bold md:block">
+          {currentUser?.nickname ?? "사용자"}님
+        </span>
+        <ChevronDown
+          size={14}
+          className={cn("transition-transform", isOpen && "rotate-180")}
+        />
       </button>
 
       {isOpen && (

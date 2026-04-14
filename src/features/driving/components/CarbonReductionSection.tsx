@@ -1,7 +1,6 @@
 import { Leaf } from "lucide-react";
 import type { DrivingMonthlySummary } from "../driving.api";
 import { CarbonReductionCard } from "./CarbonReductionCard";
-import { CarbonReductionFormulaCard } from "./CarbonReductionFormulaCard";
 import { CarbonReductionEquivalenceCard } from "./CarbonReductionEquivalenceCard";
 
 interface CarbonReductionSectionProps {
@@ -22,24 +21,16 @@ export function CarbonReductionSection({
         <h3 className="text-2xl font-black text-slate-900">탄소 절감 성과</h3>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <CarbonReductionCard
           carbonReductionKg={carbonReductionKg}
           rewardPoint={rewardPoint}
           monthLabel={monthlySummary ? `${monthlySummary.month}월` : null}
         />
         <div className="lg:col-span-2">
-          <CarbonReductionFormulaCard
-            carbonReductionKg={carbonReductionKg}
-            totalIdlingTimeMinutes={monthlySummary?.totalIdlingTimeMinutes ?? null}
-            rapidAccelCount={monthlySummary?.rapidAccelCount ?? null}
-            hardBrakeCount={monthlySummary?.hardBrakeCount ?? null}
-            steadyDrivingRatio={monthlySummary?.steadyDrivingRatio ?? null}
-          />
+          <CarbonReductionEquivalenceCard carbonReductionKg={carbonReductionKg} />
         </div>
       </div>
-
-      <CarbonReductionEquivalenceCard carbonReductionKg={carbonReductionKg} />
     </div>
   );
 }
