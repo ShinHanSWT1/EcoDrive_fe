@@ -6,6 +6,7 @@ interface AssetSummaryCardProps {
   points: number;
   monthlyUsage: number;
   onOpenCoupons: () => void;
+  onChargeClick: () => void;
 }
 
 export default function AssetSummaryCard({
@@ -13,6 +14,7 @@ export default function AssetSummaryCard({
   points,
   monthlyUsage,
   onOpenCoupons,
+  onChargeClick,
 }: AssetSummaryCardProps) {
   const totalBalance = balance + points;
 
@@ -61,7 +63,9 @@ export default function AssetSummaryCard({
       </div>
 
       <div className="relative z-10 grid grid-cols-2 gap-3">
-        <button className="bg-white text-slate-900 rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] transition-transform">
+        <button
+            onClick={onChargeClick}
+            className="bg-white text-slate-900 rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] transition-transform">
           <Plus size={16} />
           충전하기
         </button>

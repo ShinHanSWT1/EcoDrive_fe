@@ -14,7 +14,7 @@ export default function Payment() {
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [selectedCouponCategory, setSelectedCouponCategory] = useState<string | null>(null);
-  const { data, isLoading, isError } = usePayment();
+  const { data, isLoading, isError, handleCharge } = usePayment();
 
   const handleOpenCoupons = (category: string | null = null) => {
     setSelectedCouponCategory(category);
@@ -59,6 +59,7 @@ export default function Payment() {
               recentHistory={data.recentHistory}
               onOpenCoupons={handleOpenCoupons}
               onOpenHistory={() => setIsHistoryModalOpen(true)}
+              onCharge={handleCharge}
             />
           </motion.div>
         ) : (
