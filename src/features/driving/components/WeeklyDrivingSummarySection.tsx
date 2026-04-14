@@ -1,17 +1,23 @@
 import { BarChart3 } from "lucide-react";
-import type { WeeklySummaryItem } from "../driving.types";
+import type { MonthOption, WeeklySummaryItem } from "../driving.types";
 
 interface WeeklyDrivingSummarySectionProps {
+  availableMonthOptions: MonthOption[];
+  selectedMonthKey: string;
   weeklySummaries: WeeklySummaryItem[];
   selectedWeekKey: string;
   selectedWeeklySummary: WeeklySummaryItem | null;
+  onMonthChange: (monthKey: string) => void;
   onWeekChange: (weekKey: string) => void;
 }
 
 export function WeeklyDrivingSummarySection({
+  availableMonthOptions,
+  selectedMonthKey,
   weeklySummaries,
   selectedWeekKey,
   selectedWeeklySummary,
+  onMonthChange,
   onWeekChange,
 }: WeeklyDrivingSummarySectionProps) {
   return (
@@ -25,14 +31,26 @@ export function WeeklyDrivingSummarySection({
             보고 싶은 주차를 선택해 평균 주행 데이터를 확인하세요.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
             <BarChart3 size={20} />
           </div>
           <select
+            value={selectedMonthKey}
+            onChange={(event) => onMonthChange(event.target.value)}
+            className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-700 outline-none"
+          >
+            {availableMonthOptions.map((option) => (
+              <option key={option.key} value={option.key}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <select
             value={selectedWeekKey}
             onChange={(event) => onWeekChange(event.target.value)}
             className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-700 outline-none"
+            disabled={weeklySummaries.length === 0}
           >
             {weeklySummaries.map((item) => (
               <option key={item.weekKey} value={item.weekKey}>

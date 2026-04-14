@@ -1,13 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import type {
-  DrivingTab,
-} from "./driving.types";
+import type { DrivingTab } from "./driving.types";
 import {
   generateAndRefreshDummyDrivingData,
   getDrivingBehaviorSummary,
   getDrivingDailySummary,
   getDrivingMonthlySummary,
-  getDrivingScoreHistory,
   getDrivingScoreTrend,
   getDrivingWeeklySummaries,
   getLatestDrivingCarbon,
@@ -19,33 +16,56 @@ import {
   type DrivingLatestScore,
   type DrivingMonthlySummary,
   type DrivingRecentSession,
-  type DrivingScoreHistoryResponse,
   type DrivingScoreTrendResponse,
   type DrivingWeeklySummary,
 } from "./driving.api";
 import {
+  buildAvailableMonthOptions,
   buildMonthlyHistory,
   buildMonthlySummaryData,
+  buildRollingMonthOptions,
+  buildScoreChangeListItems,
   buildWeeklySummaries,
   formatDailyData,
   formatDateKey,
-  formatScoreHistoryItems,
   formatScoreTrendItems,
+  formatYearMonthKey,
   getMonthWeekKey,
   getSelectedYearMonth,
   mergeBehaviorData,
+  parseYearMonthKey,
+  shiftYearMonth,
 } from "./driving.mapper";
+
+const HISTORY_MONTH_SPAN = 6;
+const SCORE_SECTION_MONTH_SPAN = 6;
+const RECENT_SESSION_LIMIT = 180;
 
 export function useDriving() {
   const todayKey = formatDateKey(new Date());
+  const todayYearMonth = getSelectedYearMonth(todayKey);
+  const todayMonthKey = formatYearMonthKey(
+    todayYearMonth.year,
+    todayYearMonth.month,
+  );
   const currentWeekKey = getMonthWeekKey(todayKey);
   const hasInitializedRef = useRef(false);
+
   const [activeTab, setActiveTab] = useState<DrivingTab>("history");
   const [selectedDate, setSelectedDate] = useState(todayKey);
+  const [selectedMonthKey, setSelectedMonthKey] = useState(todayMonthKey);
   const [selectedWeekKey, setSelectedWeekKey] = useState(currentWeekKey);
+
+  const [scoreSectionMonthKey, setScoreSectionMonthKey] =
+    useState(todayMonthKey);
+
   const [latestScore, setLatestScore] = useState<DrivingLatestScore | null>(null);
-  const [latestCarbon, setLatestCarbon] = useState<DrivingLatestCarbon | null>(null);
-  const [recentSessions, setRecentSessions] = useState<DrivingRecentSession[]>([]);
+  const [latestCarbon, setLatestCarbon] = useState<DrivingLatestCarbon | null>(
+    null,
+  );
+  const [recentSessions, setRecentSessions] = useState<DrivingRecentSession[]>(
+    [],
+  );
   const [selectedDailySummary, setSelectedDailySummary] =
     useState<DrivingDailySummary | null>(null);
   const [selectedBehaviorSummary, setSelectedBehaviorSummary] =
@@ -55,62 +75,139 @@ export function useDriving() {
   >([]);
   const [monthlySummary, setMonthlySummary] =
     useState<DrivingMonthlySummary | null>(null);
-  const [scoreTrendResponses, setScoreTrendResponses] = useState<
+  const [monthlyHistoryResponses, setMonthlyHistoryResponses] = useState<
+    DrivingMonthlySummary[]
+  >([]);
+  const [scoreSectionTrendResponses, setScoreSectionTrendResponses] = useState<
     DrivingScoreTrendResponse[]
   >([]);
-  const [scoreHistoryResponses, setScoreHistoryResponses] = useState<
-    DrivingScoreHistoryResponse[]
-  >([]);
+  const [scoreSectionBehaviorsByDate, setScoreSectionBehaviorsByDate] =
+    useState<Record<string, DrivingBehaviorSummary | null>>({});
+
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isGeneratingDummyData, setIsGeneratingDummyData] = useState(false);
   const [isError, setIsError] = useState(false);
 
-  async function fetchBaseDrivingData() {
-    const [score, carbon, sessions, scoreHistory] = await Promise.all([
+  async function loadBaseDrivingData() {
+    const [latestScoreResponse, latestCarbonResponse, recentSessionResponses] =
+      await Promise.all([
       getLatestDrivingScore(),
       getLatestDrivingCarbon(),
-      getRecentDrivingSessions(20),
-      getDrivingScoreHistory(10),
+      getRecentDrivingSessions(RECENT_SESSION_LIMIT),
     ]);
 
-    setLatestScore(score);
-    setLatestCarbon(carbon);
-    setRecentSessions(sessions);
-    setScoreHistoryResponses(scoreHistory);
+    return {
+      latestScore: latestScoreResponse,
+      latestCarbon: latestCarbonResponse,
+      recentSessions: recentSessionResponses,
+    };
   }
 
-  async function fetchMonthScopedData(date: string) {
-    const { year, month } = getSelectedYearMonth(date);
-    const [weeklySummaries, monthly, scoreTrend] = await Promise.all([
+  function applyBaseDrivingData(data: {
+    latestScore: DrivingLatestScore | null;
+    latestCarbon: DrivingLatestCarbon | null;
+    recentSessions: DrivingRecentSession[];
+  }) {
+    setLatestScore(data.latestScore);
+    setLatestCarbon(data.latestCarbon);
+    setRecentSessions(data.recentSessions);
+  }
+
+  async function loadHistoryMonthData(year: number, month: number) {
+    const historyTargets = Array.from({ length: HISTORY_MONTH_SPAN }, (_, index) =>
+      shiftYearMonth(year, month, index - (HISTORY_MONTH_SPAN - 1)),
+    );
+
+    const [weeklySummaryResponses, monthlySummaryResponse, monthlyHistoryResponses] =
+      await Promise.all([
       getDrivingWeeklySummaries(year, month),
       getDrivingMonthlySummary(year, month),
-      getDrivingScoreTrend(year, month),
+      Promise.all(
+        historyTargets.map((target) =>
+          getDrivingMonthlySummary(target.year, target.month),
+        ),
+      ),
     ]);
 
-    setWeeklySummaryResponses(weeklySummaries);
-    setMonthlySummary(monthly);
-    setScoreTrendResponses(scoreTrend);
+    return {
+      weeklySummaryResponses,
+      monthlySummary: monthlySummaryResponse,
+      monthlyHistoryResponses,
+    };
   }
 
-  async function fetchSelectionDrivingData(date: string) {
+  function applyHistoryMonthData(data: {
+    weeklySummaryResponses: DrivingWeeklySummary[];
+    monthlySummary: DrivingMonthlySummary | null;
+    monthlyHistoryResponses: DrivingMonthlySummary[];
+  }) {
+    setWeeklySummaryResponses(data.weeklySummaryResponses);
+    setMonthlySummary(data.monthlySummary);
+    setMonthlyHistoryResponses(data.monthlyHistoryResponses);
+  }
+
+  async function loadHistorySelection(date: string) {
     const [dailySummary, behaviorSummary] = await Promise.all([
       getDrivingDailySummary(date),
       getDrivingBehaviorSummary(date),
     ]);
 
-    setSelectedDailySummary(dailySummary);
-    setSelectedBehaviorSummary(behaviorSummary);
+    return { dailySummary, behaviorSummary };
   }
 
-  async function fetchDrivingData(date = selectedDate) {
+  function applyHistorySelection(data: {
+    dailySummary: DrivingDailySummary | null;
+    behaviorSummary: DrivingBehaviorSummary | null;
+  }) {
+    setSelectedDailySummary(data.dailySummary);
+    setSelectedBehaviorSummary(data.behaviorSummary);
+  }
+
+  async function loadScoreSectionData(monthKey: string) {
+    const { year, month } = parseYearMonthKey(monthKey);
+    const scoreTrend = await getDrivingScoreTrend(year, month);
+    const behaviorEntries = await Promise.all(
+      scoreTrend.map(async (item) => {
+        const behavior = await getDrivingBehaviorSummary(item.snapshotDate);
+        return [item.snapshotDate, behavior] as const;
+      }),
+    );
+
+    return {
+      scoreTrendResponses: scoreTrend,
+      scoreSectionBehaviorsByDate: Object.fromEntries(behaviorEntries),
+    };
+  }
+
+  function applyScoreSectionData(data: {
+    scoreTrendResponses: DrivingScoreTrendResponse[];
+    scoreSectionBehaviorsByDate: Record<string, DrivingBehaviorSummary | null>;
+  }) {
+    setScoreSectionTrendResponses(data.scoreTrendResponses);
+    setScoreSectionBehaviorsByDate(data.scoreSectionBehaviorsByDate);
+  }
+
+  async function fetchDrivingData(
+    historyDate = selectedDate,
+    historyMonthKey = selectedMonthKey,
+    scoreMonthKey = scoreSectionMonthKey,
+  ) {
     try {
       setIsError(false);
-      await Promise.all([
-        fetchBaseDrivingData(),
-        fetchSelectionDrivingData(date),
-        fetchMonthScopedData(date),
-      ]);
+      const historyMonth = parseYearMonthKey(historyMonthKey);
+      const [baseData, historySelectionData, historyMonthData, scoreSectionData] =
+        await Promise.all([
+          loadBaseDrivingData(),
+          loadHistorySelection(historyDate),
+          loadHistoryMonthData(historyMonth.year, historyMonth.month),
+          loadScoreSectionData(scoreMonthKey),
+        ]);
+
+      applyBaseDrivingData(baseData);
+      applyHistorySelection(historySelectionData);
+      applyHistoryMonthData(historyMonthData);
+      applyScoreSectionData(scoreSectionData);
     } catch (error) {
       console.error("주행 데이터 조회 실패:", error);
       setIsError(true);
@@ -123,7 +220,7 @@ export function useDriving() {
     async function initialize() {
       try {
         setIsLoading(true);
-        await fetchDrivingData(todayKey);
+        await fetchDrivingData(todayKey, todayMonthKey, todayMonthKey);
         hasInitializedRef.current = true;
       } finally {
         if (mounted) {
@@ -132,7 +229,7 @@ export function useDriving() {
       }
     }
 
-    initialize();
+    void initialize();
 
     return () => {
       mounted = false;
@@ -140,52 +237,21 @@ export function useDriving() {
   }, []);
 
   useEffect(() => {
-    if (isLoading || !hasInitializedRef.current) {
+    if (!hasInitializedRef.current) {
       return;
     }
 
     let active = true;
 
-    async function fetchSummariesForSelection() {
+    async function fetchHistoryDailySelection() {
       try {
-        const selectedYearMonth = getSelectedYearMonth(selectedDate);
-        const loadedYearMonth = monthlySummary
-          ? { year: monthlySummary.year, month: monthlySummary.month }
-          : null;
-        const shouldRefreshMonthScoped =
-          !loadedYearMonth ||
-          loadedYearMonth.year !== selectedYearMonth.year ||
-          loadedYearMonth.month !== selectedYearMonth.month;
-
-        const [dailySummary, behaviorSummary] = await Promise.all([
-          getDrivingDailySummary(selectedDate),
-          getDrivingBehaviorSummary(selectedDate),
-        ]);
+        const historySelectionData = await loadHistorySelection(selectedDate);
 
         if (!active) {
           return;
         }
 
-        setSelectedDailySummary(dailySummary);
-        setSelectedBehaviorSummary(behaviorSummary);
-
-        if (!shouldRefreshMonthScoped) {
-          return;
-        }
-
-        const [weeklySummaries, monthly, scoreTrend] = await Promise.all([
-          getDrivingWeeklySummaries(selectedYearMonth.year, selectedYearMonth.month),
-          getDrivingMonthlySummary(selectedYearMonth.year, selectedYearMonth.month),
-          getDrivingScoreTrend(selectedYearMonth.year, selectedYearMonth.month),
-        ]);
-
-        if (!active) {
-          return;
-        }
-
-        setWeeklySummaryResponses(weeklySummaries);
-        setMonthlySummary(monthly);
-        setScoreTrendResponses(scoreTrend);
+        applyHistorySelection(historySelectionData);
       } catch (error) {
         console.error("선택 기준 주행 요약 조회 실패:", error);
         if (active) {
@@ -194,12 +260,91 @@ export function useDriving() {
       }
     }
 
-    void fetchSummariesForSelection();
+    void fetchHistoryDailySelection();
 
     return () => {
       active = false;
     };
-  }, [selectedDate, isLoading, monthlySummary]);
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (!hasInitializedRef.current) {
+      return;
+    }
+
+    const selectedDateYearMonth = getSelectedYearMonth(selectedDate);
+    const dateMonthKey = formatYearMonthKey(
+      selectedDateYearMonth.year,
+      selectedDateYearMonth.month,
+    );
+
+    if (dateMonthKey !== selectedMonthKey) {
+      setSelectedMonthKey(dateMonthKey);
+    }
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (!hasInitializedRef.current) {
+      return;
+    }
+
+    let active = true;
+
+    async function fetchSelectedHistoryMonthData() {
+      try {
+        const { year, month } = parseYearMonthKey(selectedMonthKey);
+        const historyMonthData = await loadHistoryMonthData(year, month);
+
+        if (!active) {
+          return;
+        }
+
+        applyHistoryMonthData(historyMonthData);
+      } catch (error) {
+        console.error("선택 월 주행 요약 조회 실패:", error);
+        if (active) {
+          setIsError(true);
+        }
+      }
+    }
+
+    void fetchSelectedHistoryMonthData();
+
+    return () => {
+      active = false;
+    };
+  }, [selectedMonthKey]);
+
+  useEffect(() => {
+    if (!hasInitializedRef.current) {
+      return;
+    }
+
+    let active = true;
+
+    async function fetchSelectedScoreSection() {
+      try {
+        const scoreSectionData = await loadScoreSectionData(scoreSectionMonthKey);
+
+        if (!active) {
+          return;
+        }
+
+        applyScoreSectionData(scoreSectionData);
+      } catch (error) {
+        console.error("안전 점수 조회 실패:", error);
+        if (active) {
+          setIsError(true);
+        }
+      }
+    }
+
+    void fetchSelectedScoreSection();
+
+    return () => {
+      active = false;
+    };
+  }, [scoreSectionMonthKey]);
 
   useEffect(() => {
     const weeklyItems = buildWeeklySummaries(weeklySummaryResponses);
@@ -207,18 +352,18 @@ export function useDriving() {
       return;
     }
 
-    const hasSelectedWeek = weeklyItems.some((item) => item.weekKey === selectedWeekKey);
+    const hasSelectedWeek = weeklyItems.some(
+      (item) => item.weekKey === selectedWeekKey,
+    );
     if (!hasSelectedWeek) {
-      const selectedDateWeekKey = getMonthWeekKey(selectedDate);
-      const matchingWeek = weeklyItems.find((item) => item.weekKey === selectedDateWeekKey);
-      setSelectedWeekKey(matchingWeek?.weekKey ?? weeklyItems[0].weekKey);
+      setSelectedWeekKey(weeklyItems[weeklyItems.length - 1].weekKey);
     }
-  }, [weeklySummaryResponses, selectedWeekKey, selectedDate]);
+  }, [weeklySummaryResponses, selectedWeekKey]);
 
   async function refresh() {
     try {
       setIsRefreshing(true);
-      await fetchDrivingData(selectedDate);
+      await fetchDrivingData(selectedDate, selectedMonthKey, scoreSectionMonthKey);
     } finally {
       setIsRefreshing(false);
     }
@@ -229,7 +374,7 @@ export function useDriving() {
       setIsGeneratingDummyData(true);
       setIsError(false);
       await generateAndRefreshDummyDrivingData();
-      await fetchDrivingData(selectedDate);
+      await fetchDrivingData(selectedDate, selectedMonthKey, scoreSectionMonthKey);
     } catch (error) {
       console.error("더미 주행 데이터 생성 실패:", error);
       setIsError(true);
@@ -241,6 +386,11 @@ export function useDriving() {
   const availableDateKeys = Array.from(
     new Set(recentSessions.map((session) => session.sessionDate)),
   ).sort((a, b) => a.localeCompare(b));
+  const availableMonthOptions = buildAvailableMonthOptions(recentSessions);
+  const scoreSectionMonthOptions = buildRollingMonthOptions(
+    todayKey,
+    SCORE_SECTION_MONTH_SPAN,
+  );
   const weeklySummaries = buildWeeklySummaries(weeklySummaryResponses);
   const selectedWeeklySummary =
     weeklySummaries.find((item) => item.weekKey === selectedWeekKey) ?? null;
@@ -248,9 +398,17 @@ export function useDriving() {
     formatDailyData(selectedDailySummary),
     selectedBehaviorSummary,
   );
-  const monthlyHistory = buildMonthlyHistory(monthlySummary);
+  const monthlyHistory = buildMonthlyHistory(
+    monthlyHistoryResponses,
+    selectedMonthKey,
+  );
   const monthlySummaryData = buildMonthlySummaryData(monthlySummary);
-
+  const scoreTrend = formatScoreTrendItems(scoreSectionTrendResponses);
+  const scoreChangeListItems = buildScoreChangeListItems(
+    scoreTrend,
+    scoreSectionBehaviorsByDate,
+    todayKey,
+  );
   return {
     activeTab,
     setActiveTab,
@@ -259,8 +417,15 @@ export function useDriving() {
     goToToday: () => setSelectedDate(todayKey),
     todayKey,
     availableDateKeys,
+    selectedMonthKey,
+    setSelectedMonthKey,
+    availableMonthOptions,
     selectedWeekKey,
     setSelectedWeekKey,
+    scoreSectionMonthKey,
+    setScoreSectionMonthKey,
+    scoreSectionMonthOptions,
+    scoreChangeListItems,
     latestScore,
     latestCarbon,
     recentSessions,
@@ -270,8 +435,7 @@ export function useDriving() {
     monthlyHistory,
     monthlySummaryData,
     monthlySummary,
-    scoreTrend: formatScoreTrendItems(scoreTrendResponses),
-    scoreHistory: formatScoreHistoryItems(scoreHistoryResponses),
+    scoreTrend,
     isLoading,
     isRefreshing,
     isGeneratingDummyData,

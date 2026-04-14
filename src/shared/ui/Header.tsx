@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Bell, ShieldCheck, User } from 'lucide-react';
+import { Bell, ShieldCheck } from 'lucide-react';
 import HeaderNav from './HeaderNav';
 import MoreMenu from './MoreMenu';
 import type { UserMe } from '../types/api';
@@ -30,18 +30,7 @@ export default function Header({ currentUser, isAuthenticated, onLogout }: Heade
               <Bell size={20} />
               <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
             </button>
-            <Link to="/profile" className="hidden md:flex items-center gap-3 p-1 pr-3 bg-slate-50 rounded-2xl border border-slate-200 hover:border-blue-200 transition-all">
-              <div className="w-8 h-8 bg-slate-200 rounded-xl overflow-hidden">
-                <img
-                  src={currentUser?.profileImageUrl ?? "https://picsum.photos/seed/user/100/100"}
-                  alt="Profile"
-                />
-              </div>
-              <span className="text-xs font-bold text-slate-700">
-                {currentUser?.nickname ?? "사용자"}님
-              </span>
-            </Link>
-            <MoreMenu onLogout={onLogout} />
+            <MoreMenu currentUser={currentUser} onLogout={onLogout} />
           </>
         ) : (
           <Link to="/login" className="px-6 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
