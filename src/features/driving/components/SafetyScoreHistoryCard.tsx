@@ -1,8 +1,6 @@
-import { ChevronDown, History, TrendingDown, TrendingUp } from "lucide-react";
+import { Activity, ChevronDown, History, TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "../../../shared/lib/utils";
 import type { MonthOption, ScoreChangeListItem } from "../driving.types";
-
-const MAX_VISIBLE_ITEMS = 12;
 
 interface SafetyScoreHistoryCardProps {
   monthOptions: MonthOption[];
@@ -17,7 +15,7 @@ export function SafetyScoreHistoryCard({
   items,
   onMonthChange,
 }: SafetyScoreHistoryCardProps) {
-  const visibleItems = items.slice(0, MAX_VISIBLE_ITEMS);
+  const visibleItems = items;
   const orderedMonthOptions = [...monthOptions].sort((left, right) =>
     left.key.localeCompare(right.key),
   );
@@ -25,7 +23,7 @@ export function SafetyScoreHistoryCard({
   return (
     <div className="flex h-full flex-col rounded-3xl border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-100 px-6 pb-5 pt-6">
-        <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="flex min-h-[52px] items-start justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
               <History size={16} />
@@ -33,7 +31,7 @@ export function SafetyScoreHistoryCard({
             <div>
               <h3 className="text-base font-bold text-slate-900">최근 점수 변화</h3>
               <p className="mt-1 text-xs font-medium text-slate-400">
-                최근 6개월 간의 점수 변화 이력만 확인할 수 있습니다.
+                선택한 월 기준으로 점수 변화 이력을 확인합니다.
               </p>
             </div>
           </div>
@@ -153,8 +151,23 @@ function ScoreChangeRow({
 }
 
 function DeltaBadge({ delta }: { delta: number | null }) {
-  const safeDelta = delta ?? 0;
-  const isPositive = safeDelta >= 0;
+  if (delta === null) {
+    return (
+      <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-500">
+        비교 기준 없음
+      </div>
+    );
+  }
+
+  if (delta === 0) {
+    return (
+      <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-500">
+        변동 없음
+      </div>
+    );
+  }
+
+  const isPositive = delta > 0;
 
   return (
     <div
@@ -165,20 +178,23 @@ function DeltaBadge({ delta }: { delta: number | null }) {
     >
       {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
       {isPositive ? "+" : ""}
-      {safeDelta}점
+      {delta}점
     </div>
   );
 }
 
 function EmptyState() {
   return (
-    <div className="flex h-full min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-center">
+    <div className="flex h-full min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-center">
       <div>
-        <div className="text-sm font-semibold text-slate-700">
-          선택한 월에 점수 변화가 없습니다
+        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+          <Activity size={18} />
+        </div>
+        <div className="mt-4 text-sm font-semibold text-slate-700">
+          선택한 월에는 점수 변화 이력이 없습니다
         </div>
         <div className="mt-1 text-xs font-medium text-slate-400">
-          다른 월을 선택하면 최근 점수 변화 이력을 확인할 수 있습니다.
+          다른 월을 선택해 다시 확인해 보세요.
         </div>
       </div>
     </div>

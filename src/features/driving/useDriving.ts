@@ -237,7 +237,7 @@ export function useDriving() {
   }, []);
 
   useEffect(() => {
-    if (isLoading || !hasInitializedRef.current) {
+    if (!hasInitializedRef.current) {
       return;
     }
 
@@ -265,10 +265,10 @@ export function useDriving() {
     return () => {
       active = false;
     };
-  }, [selectedDate, isLoading]);
+  }, [selectedDate]);
 
   useEffect(() => {
-    if (isLoading || !hasInitializedRef.current) {
+    if (!hasInitializedRef.current) {
       return;
     }
 
@@ -281,10 +281,10 @@ export function useDriving() {
     if (dateMonthKey !== selectedMonthKey) {
       setSelectedMonthKey(dateMonthKey);
     }
-  }, [selectedDate, selectedMonthKey, isLoading]);
+  }, [selectedDate]);
 
   useEffect(() => {
-    if (isLoading || !hasInitializedRef.current) {
+    if (!hasInitializedRef.current) {
       return;
     }
 
@@ -313,10 +313,10 @@ export function useDriving() {
     return () => {
       active = false;
     };
-  }, [selectedMonthKey, isLoading]);
+  }, [selectedMonthKey]);
 
   useEffect(() => {
-    if (isLoading || !hasInitializedRef.current) {
+    if (!hasInitializedRef.current) {
       return;
     }
 
@@ -344,7 +344,7 @@ export function useDriving() {
     return () => {
       active = false;
     };
-  }, [scoreSectionMonthKey, isLoading]);
+  }, [scoreSectionMonthKey]);
 
   useEffect(() => {
     const weeklyItems = buildWeeklySummaries(weeklySummaryResponses);

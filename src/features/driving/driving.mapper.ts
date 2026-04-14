@@ -23,18 +23,36 @@ export function formatDateKey(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-export function getMonthWeekKey(dateValue: string): string {
-  const date = new Date(dateValue);
-  const month = date.getMonth() + 1;
-  const week = Math.ceil(date.getDate() / 7);
-  return `${date.getFullYear()}-${String(month).padStart(2, "0")}-${week}`;
-}
+function parseCalendarDate(dateValue: string) {
+  const matched = dateValue.match(/^(\d{4})-(\d{2})-(\d{2})$/);
 
-export function getSelectedYearMonth(dateValue: string) {
+  if (matched) {
+    return {
+      year: Number(matched[1]),
+      month: Number(matched[2]),
+      day: Number(matched[3]),
+    };
+  }
+
   const date = new Date(dateValue);
   return {
     year: date.getFullYear(),
     month: date.getMonth() + 1,
+    day: date.getDate(),
+  };
+}
+
+export function getMonthWeekKey(dateValue: string): string {
+  const { year, month, day } = parseCalendarDate(dateValue);
+  const week = Math.ceil(day / 7);
+  return `${year}-${String(month).padStart(2, "0")}-${week}`;
+}
+
+export function getSelectedYearMonth(dateValue: string) {
+  const { year, month } = parseCalendarDate(dateValue);
+  return {
+    year,
+    month,
   };
 }
 
