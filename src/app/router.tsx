@@ -19,6 +19,7 @@ import AdminPage from "../pages/AdminPage";
 import MissionPage from "../pages/MissionPage";
 import LandingPage from "../pages/LandingPage";
 import OAuthCallbackPage from "../pages/OAuthCallbackPage";
+import DashboardPreviewPage from "../pages/DashboardPreviewPage";
 import type { UserMe } from "../shared/types/api";
 
 interface RouterProps {
@@ -281,13 +282,7 @@ export default function AppRouter({
         <Route
           path="/dashboard-preview"
           element={
-            canAccessMainApp ? (
-              <Navigate to="/" replace />
-            ) : !isAuthenticated ? (
-              <Navigate to="/login" replace />
-            ) : (
-              <Navigate to="/onboarding" replace />
-            )
+            canAccessMainApp ? <Navigate to="/" replace /> : <DashboardPreviewPage />
           }
         />
         <Route

@@ -1,6 +1,15 @@
-import type { MissionItem, MissionSummary } from "../mission/mission.types";
+﻿import type { MissionItem, MissionSummary } from "../mission/mission.types";
 
 export type PaymentTab = "home" | "history" | "mission";
+
+export interface PaymentWalletInfo {
+  payUserId: number;
+  payAccountId: number;
+  accountNumber: string;
+  bankCode: string | null;
+  ownerName: string;
+  status: string;
+}
 
 export interface PaymentUserSummary {
   name: string;
@@ -61,10 +70,12 @@ export interface PaymentHistorySummary {
 export interface PaymentData {
   user: PaymentUserSummary;
   walletMissing: boolean;
+  wallet: PaymentWalletInfo | null;
   categories: PaymentCategory[];
   products: PaymentProduct[];
   recentHistory: PaymentHistoryItem[];
   pointHistory: PaymentPointHistoryItem[];
+  allHistory: PaymentHistoryItem[];
   coupons: PaymentCouponItem[];
   historySummary: PaymentHistorySummary;
   missionSummary: MissionSummary;

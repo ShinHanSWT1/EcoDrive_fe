@@ -4,7 +4,6 @@ import {
   TrendingUp, 
   ShoppingBag, 
   ChevronRight,
-  ArrowRight,
   CheckCircle2,
   Car,
   Wallet,
@@ -12,8 +11,15 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
+import DashboardOverview from '../dashboard/components/DashboardOverview';
+import SavingsChartCard from '../dashboard/components/SavingsChartCard';
+import DashboardSidePanel from '../dashboard/components/DashboardSidePanel';
+import InsuranceDiscountPreview from '../dashboard/components/InsuranceDiscountPreview';
+import { dashboardMockData } from '../dashboard/dashboard.mock';
 
 export default function Landing() {
+  const previewData = dashboardMockData;
+
   return (
     <div className="bg-white -m-4 md:-m-8 min-h-screen">
       {/* Hero Section */}
@@ -55,10 +61,12 @@ export default function Landing() {
             >
               <Link 
                 to="/login"
-                className="w-full sm:w-auto px-8 py-4 bg-[#03C755] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#02b34c] transition-all shadow-lg shadow-green-100"
+                className="w-full sm:w-auto px-8 py-4 bg-[#FEE500] text-[#191600] rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#f7dc00] transition-all shadow-lg shadow-yellow-100"
               >
-                <img src="https://upload.wikimedia.org/wikipedia/commons/2/21/Naver_Square_Logo.svg" alt="Naver" className="w-5 h-5 invert brightness-0" />
-                네이버로 시작하기
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#191600] text-xs font-black text-[#FEE500]">
+                  K
+                </span>
+                카카오로 시작하기
               </Link>
               <Link 
                 to="/login"
@@ -183,37 +191,31 @@ export default function Landing() {
       </section>
 
       {/* Dashboard Preview Section */}
-      <section className="py-24 bg-slate-900 text-white overflow-hidden">
+      <section className="py-24 bg-slate-50 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">데이터가 돈이 되는 대시보드</h2>
-            <p className="text-slate-400">로그인 후 만나게 될 개인화된 금융 리포트</p>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">데이터가 돈이 되는 대시보드</h2>
+            <p className="text-slate-500">로그인 후 보게 될 메인 대시보드 화면을 그대로 미리 확인해보세요.</p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-slate-800 p-6 rounded-3xl border border-slate-700">
-              <ShieldCheck className="text-blue-400 mb-4" size={24} />
-              <div className="text-xs text-slate-500 font-bold uppercase mb-1">다음 달 예상 보험료</div>
-              <div className="text-2xl font-black">854,200원</div>
-              <div className="text-[10px] text-blue-400 font-bold mt-2">전월 대비 12,400원 절감</div>
+
+          <div className="rounded-[40px] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+            <DashboardOverview
+              stats={previewData.stats}
+              pointBalance={previewData.pointBalance}
+            />
+
+            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <SavingsChartCard chartData={previewData.savingsChart} />
+              <DashboardSidePanel
+                pointBalance={previewData.pointBalance}
+                todayEarnedPoints={previewData.todayEarnedPoints}
+                summaryNote={previewData.summaryNote}
+                todayDrivingSummary={previewData.todayDrivingSummary}
+              />
             </div>
-            <div className="bg-slate-800 p-6 rounded-3xl border border-slate-700">
-              <TrendingUp className="text-orange-400 mb-4" size={24} />
-              <div className="text-xs text-slate-500 font-bold uppercase mb-1">예상 보험 할인율</div>
-              <div className="text-2xl font-black">15.4%</div>
-              <div className="text-[10px] text-orange-400 font-bold mt-2">연간 약 18만원 절감</div>
-            </div>
-            <div className="bg-slate-800 p-6 rounded-3xl border border-slate-700">
-              <CheckCircle2 className="text-emerald-400 mb-4" size={24} />
-              <div className="text-xs text-slate-500 font-bold uppercase mb-1">안전운전 점수</div>
-              <div className="text-2xl font-black">88점</div>
-              <div className="text-[10px] text-emerald-400 font-bold mt-2">상위 12% 드라이버</div>
-            </div>
-            <div className="bg-slate-800 p-6 rounded-3xl border border-slate-700">
-              <Zap className="text-yellow-400 mb-4" size={24} />
-              <div className="text-xs text-slate-500 font-bold uppercase mb-1">탄소 절감 성과</div>
-              <div className="text-2xl font-black">12.4kg</div>
-              <div className="text-[10px] text-yellow-400 font-bold mt-2">나무 2.4그루 식재 효과</div>
+
+            <div className="mt-6">
+              <InsuranceDiscountPreview items={previewData.insurancePreviews} />
             </div>
           </div>
         </div>
@@ -228,10 +230,12 @@ export default function Landing() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link 
               to="/login"
-              className="w-full sm:w-auto px-10 py-5 bg-[#03C755] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#02b34c] transition-all shadow-xl shadow-blue-900/20"
+              className="w-full sm:w-auto px-10 py-5 bg-[#FEE500] text-[#191600] rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#f7dc00] transition-all shadow-xl shadow-blue-900/20"
             >
-              <img src="https://upload.wikimedia.org/wikipedia/commons/2/21/Naver_Square_Logo.svg" alt="Naver" className="w-5 h-5 invert brightness-0" />
-              네이버로 시작하기
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#191600] text-xs font-black text-[#FEE500]">
+                K
+              </span>
+              카카오로 시작하기
             </Link>
             <Link 
               to="/login"

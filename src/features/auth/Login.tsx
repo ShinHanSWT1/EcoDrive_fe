@@ -1,7 +1,5 @@
 import {
   ShieldCheck,
-  Mail,
-  Lock,
 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "motion/react";
@@ -51,18 +49,15 @@ export default function Login() {
 
           <button
             onClick={handleSocialLogin}
-            className="w-full bg-[#03C755] text-white py-4 rounded-2xl font-bold shadow-lg shadow-green-50 hover:bg-[#02b34c] transition-all flex items-center justify-center gap-3"
+            className="w-full bg-[#FEE500] text-[#191600] py-4 rounded-2xl font-bold shadow-lg shadow-yellow-100 hover:bg-[#f7dc00] transition-all flex items-center justify-center gap-3"
           >
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/2/21/Naver_Square_Logo.svg"
-              alt="Kakao"
-              className="w-5 h-5 invert brightness-0"
-            />
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#191600] text-xs font-black text-[#FEE500]">
+              K
+            </span>
             카카오로 시작하기
           </button>
 
           <button
-            onClick={handleSocialLogin}
             className="w-full bg-white border border-slate-200 text-slate-900 py-4 rounded-2xl font-bold shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center gap-3"
           >
             <img
@@ -72,48 +67,6 @@ export default function Login() {
             />
             구글로 시작하기
           </button>
-        </div>
-
-        <div className="mt-10">
-          <div className="relative flex items-center justify-center mb-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-100"></div>
-            </div>
-            <span className="relative bg-white px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-              Or login with email
-            </span>
-          </div>
-
-          <div className="space-y-4 opacity-60 pointer-events-none">
-            <div className="space-y-2">
-              <div className="relative">
-                <Mail
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                  size={18}
-                />
-                <input
-                  type="email"
-                  placeholder="이메일 주소"
-                  className="w-full bg-slate-50 border-none rounded-2xl py-3 pl-12 pr-4 text-sm font-medium outline-none"
-                  disabled
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="relative">
-                <Lock
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                  size={18}
-                />
-                <input
-                  type="password"
-                  placeholder="비밀번호"
-                  className="w-full bg-slate-50 border-none rounded-2xl py-3 pl-12 pr-4 text-sm font-medium outline-none"
-                  disabled
-                />
-              </div>
-            </div>
-          </div>
         </div>
 
         <p className="mt-10 text-center text-xs text-slate-400 font-medium">

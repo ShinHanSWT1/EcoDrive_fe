@@ -17,6 +17,9 @@ export default function DrivingReport() {
     goToToday,
     todayKey,
     availableDateKeys,
+    selectedMonthKey,
+    setSelectedMonthKey,
+    availableMonthOptions,
     selectedWeekKey,
     setSelectedWeekKey,
     latestScore,
@@ -27,8 +30,11 @@ export default function DrivingReport() {
     monthlyHistory,
     monthlySummaryData,
     monthlySummary,
-    scoreHistory,
     scoreTrend,
+    scoreSectionMonthKey,
+    scoreSectionMonthOptions,
+    scoreChangeListItems,
+    setScoreSectionMonthKey,
     isLoading,
     isRefreshing,
     isGeneratingDummyData,
@@ -90,6 +96,8 @@ export default function DrivingReport() {
               selectedDailyData={selectedDailyData}
               minDate={availableDateKeys[0]}
               maxDate={todayKey}
+              availableMonthOptions={availableMonthOptions}
+              selectedMonthKey={selectedMonthKey}
               selectedWeekKey={selectedWeekKey}
               weeklySummaries={weeklySummaries}
               selectedWeeklySummary={selectedWeeklySummary}
@@ -97,6 +105,7 @@ export default function DrivingReport() {
               monthlySummaryData={monthlySummaryData}
               onDateChange={setSelectedDate}
               onGoToToday={goToToday}
+              onMonthChange={setSelectedMonthKey}
               onWeekChange={setSelectedWeekKey}
               isTodaySelected={selectedDate === todayKey}
             />
@@ -107,8 +116,11 @@ export default function DrivingReport() {
               latestCarbon={latestCarbon}
               recentSessions={recentSessions}
               monthlySummary={monthlySummary}
-              scoreHistory={scoreHistory}
               scoreTrend={scoreTrend}
+              scoreSectionMonthKey={scoreSectionMonthKey}
+              scoreSectionMonthOptions={scoreSectionMonthOptions}
+              scoreChangeListItems={scoreChangeListItems}
+              onScoreSectionMonthChange={setScoreSectionMonthKey}
             />
           )}
         </AnimatePresence>

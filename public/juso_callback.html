@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>주소 검색 콜백</title>
+</head>
+<body onload="init();">
+    <script type="text/javascript">
+        function init() {
+            var url = location.href;
+            var confmKey = "devU01TX0FVVEgyMDI2MDQxNDA5NDgwMTExNzkyMzg="; // 사용자가 알려준 키
+            var inputYn = "N"; // 초기 로드 시 N
+
+            // URL 쿼리 파라미터 파싱
+            var params = new URLSearchParams(window.location.search);
+            inputYn = params.get("inputYn") || "N";
+
+            if (inputYn !== "Y") {
+                // 주소창 검색 화면을 요청
+                document.form.confmKey.value = confmKey;
+                document.form.returnUrl.value = url;
+                document.form.resultType.value = "4"; // iframe 방식
+                document.form.action = "https://business.juso.go.kr/addrlink/addrLinkUrl.do";
+                document.form.submit();
+            } else {
+                // 주소가 선택되어 돌아왔을 때 부모 창의 함수 호출
+                // 주소 시스템은 보통 쿼리 대신 POST로 데이터를 보내므로 파라미터를 받아야 함
+                // 하지만 iframe 방식은 returnUrl에 쿼리로 붙어서 오거나 부모창을 직접 제어함
+                if (window.parent && window.parent.jusoCallBackFn) {
+                    window.parent.jusoCallBackFn(
+                        params.get("roadFullAddr"),
+                        params.get("roadAddrPart1"),
+                        params.get("addrDetail"),
+                        params.get("roadAddrPart2"),
+                        params.get("engAddr"),
+                        params.get("jibunAddr"),
+                        params.get("zipNo")
+                    );
+                }
+            }
+        }
+    </script>
+    <form name="form" id="form" method="post">
+        <input type="hidden" name="confmKey" value=""/>
+        <input type="hidden" name="returnUrl" value=""/>
+        <input type="hidden" name="resultType" value=""/>
+    </form>
+</body>
+</html>

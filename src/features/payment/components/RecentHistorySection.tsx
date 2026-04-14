@@ -1,4 +1,4 @@
-import { ArrowDownLeft, ArrowUpRight, ChevronRight, History } from "lucide-react";
+﻿import { ArrowDownLeft, ArrowUpRight, ChevronRight, History } from "lucide-react";
 import { cn } from "../../../shared/lib/utils";
 import type { PaymentHistoryItem } from "../payment.types";
 
@@ -30,44 +30,48 @@ export function RecentHistorySection({
         </button>
       </div>
       <div className="divide-y divide-slate-50 flex-1 overflow-y-auto">
-        {history.map((item) => (
-          <div
-            key={item.id}
-            className="p-5 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group"
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className={cn(
-                  "w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:scale-110 shadow-sm",
-                  item.type === "earn"
-                    ? "bg-emerald-50 text-emerald-600"
-                    : "bg-slate-100 text-slate-600",
-                )}
-              >
-                {item.type === "earn" ? (
-                  <ArrowDownLeft size={16} />
-                ) : (
-                  <ArrowUpRight size={16} />
-                )}
-              </div>
-              <div>
-                <div className="font-bold text-slate-900 text-sm">{item.title}</div>
-                <div className="text-[11px] text-slate-400 font-medium mt-0.5">
-                  {item.date} · {item.category}
+        {history.length === 0 ? (
+          <div className="p-6 text-sm text-slate-400">최근 거래내역이 없습니다.</div>
+        ) : (
+          history.map((item) => (
+            <div
+              key={item.id}
+              className="p-5 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group"
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={cn(
+                    "w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:scale-110 shadow-sm",
+                    item.type === "earn"
+                      ? "bg-emerald-50 text-emerald-600"
+                      : "bg-slate-100 text-slate-600",
+                  )}
+                >
+                  {item.type === "earn" ? (
+                    <ArrowDownLeft size={16} />
+                  ) : (
+                    <ArrowUpRight size={16} />
+                  )}
+                </div>
+                <div>
+                  <div className="font-bold text-slate-900 text-sm">{item.title}</div>
+                  <div className="text-[11px] text-slate-400 font-medium mt-0.5">
+                    {item.date} · {item.category}
+                  </div>
                 </div>
               </div>
+              <div
+                className={cn(
+                  "text-sm font-black",
+                  item.type === "earn" ? "text-emerald-600" : "text-slate-900",
+                )}
+              >
+                {item.type === "earn" ? "+" : "-"}
+                {item.amount.toLocaleString("ko-KR")}원
+              </div>
             </div>
-            <div
-              className={cn(
-                "text-sm font-black",
-                item.type === "earn" ? "text-emerald-600" : "text-slate-900",
-              )}
-            >
-              {item.type === "earn" ? "+" : "-"}
-              {item.amount.toLocaleString("ko-KR")}원
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

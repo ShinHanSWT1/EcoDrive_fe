@@ -1,5 +1,5 @@
-﻿import { useState, useEffect } from "react";
-import { getPaymentData, chargeBalance, createMyWallet } from "./payment.api";
+﻿import { useEffect, useState } from "react";
+import { chargeBalance, createMyWallet, getPaymentData } from "./payment.api";
 import type { PaymentData } from "./payment.types";
 
 export function usePayment() {
@@ -8,7 +8,6 @@ export function usePayment() {
   const [isError, setIsError] = useState(false);
   const [isCreatingWallet, setIsCreatingWallet] = useState(false);
 
-  // 초기 데이터 로드 (지갑 정보, 미션 포함)
   useEffect(() => {
     let mounted = true;
 
@@ -18,7 +17,6 @@ export function usePayment() {
         setIsError(false);
 
         const result = await getPaymentData();
-
         if (mounted) {
           setData(result);
         }
@@ -41,7 +39,6 @@ export function usePayment() {
     };
   }, []);
 
-  // 금액 충전
   const handleCharge = async (amount: number) => {
     try {
       if (data?.walletMissing) {
@@ -70,7 +67,6 @@ export function usePayment() {
     }
   };
 
-  // 계좌 생성
   const handleCreateWallet = async () => {
     try {
       setIsCreatingWallet(true);
@@ -81,12 +77,21 @@ export function usePayment() {
         return {
           ...prev,
           walletMissing: false,
+          wallet: {
+            payUserId: wallet.payUserId,
+            payAccountId: wallet.payAccountId,
+            accountNumber: wallet.accountNumber,
+            bankCode: wallet.bankCode,
+            ownerName: wallet.ownerName,
+            status: wallet.status,
+          },
           user: {
             ...prev.user,
             balance: wallet.balance,
           },
         };
       });
+
       return true;
     } catch (error) {
       console.error("계좌 생성 요청 중 오류 발생:", error);
@@ -101,8 +106,8 @@ export function usePayment() {
     data,
     isLoading,
     isError,
+    isCreatingWallet,
     handleCharge,
     handleCreateWallet,
-    isCreatingWallet,
   };
 }

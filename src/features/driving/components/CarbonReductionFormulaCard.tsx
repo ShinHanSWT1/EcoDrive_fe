@@ -14,26 +14,67 @@ export function CarbonReductionFormulaCard({
   steadyDrivingRatio,
 }: CarbonReductionFormulaCardProps) {
   const items = [
-    { label: '공회전 시간', value: `${totalIdlingTimeMinutes ?? 0}분` },
-    { label: '급가속 횟수', value: `${rapidAccelCount ?? 0}회` },
-    { label: '급감속 횟수', value: `${hardBrakeCount ?? 0}회` },
-    { label: '정속주행 비율', value: `${(steadyDrivingRatio ?? 0).toFixed(2)}%` },
+    {
+      label: "공회전 시간",
+      value: `${totalIdlingTimeMinutes ?? 0}분`,
+      hint: "엔진이 불필요하게 켜져 있는 시간",
+    },
+    {
+      label: "급가속 횟수",
+      value: `${rapidAccelCount ?? 0}회`,
+      hint: "가속 패턴이 크게 변한 횟수",
+    },
+    {
+      label: "급감속 횟수",
+      value: `${hardBrakeCount ?? 0}회`,
+      hint: "제동 패턴이 크게 변한 횟수",
+    },
+    {
+      label: "정속주행 비율",
+      value: `${(steadyDrivingRatio ?? 0).toFixed(2)}%`,
+      hint: "안정적으로 속도를 유지한 비율",
+    },
   ];
 
   return (
-    <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
-      <h3 className="font-bold text-lg mb-5">탄소 절감 산정 근거</h3>
-      <div className="space-y-3">
-        {items.map((item, i) => (
-          <div key={i} className="flex justify-between items-center py-2.5 border-b border-slate-50 last:border-0">
-            <span className="text-sm text-slate-500 font-medium">{item.label}</span>
-            <span className="text-sm font-black text-slate-900">{item.value}</span>
+    <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm sm:p-6">
+      <div className="border-b border-slate-100 pb-5">
+        <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-600">
+          Driving Pattern
+        </div>
+        <h3 className="mt-2 font-bold text-lg text-slate-900">이번 달 주행 패턴 요약</h3>
+        <p className="mt-2 text-sm font-medium leading-relaxed text-slate-500">
+          탄소 절감량 산정에 반영되는 주요 주행 지표를 한눈에 볼 수 있도록 정리했습니다.
+        </p>
+      </div>
+
+      <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
+        {items.map((item) => (
+          <div
+            key={item.label}
+            className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-sm font-bold text-slate-900">{item.label}</div>
+                <div className="mt-1 text-xs font-semibold text-slate-400">
+                  {item.hint}
+                </div>
+              </div>
+              <div className="rounded-2xl bg-white px-3 py-2 text-right shadow-sm">
+                <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                  Current
+                </div>
+                <div className="mt-1 text-lg font-black text-slate-950">{item.value}</div>
+              </div>
+            </div>
           </div>
         ))}
       </div>
-      <div className="mt-5 p-3.5 bg-emerald-50 rounded-2xl text-center">
-        <p className="text-xs font-bold text-emerald-700">
-          위 데이터를 바탕으로 이번 달 총 {(carbonReductionKg ?? 0).toFixed(2)}kg의 탄소 절감량이 계산되었습니다.
+
+      <div className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-4">
+        <p className="text-sm font-bold text-emerald-900">
+          위 주행 지표를 기준으로 이번 달 총 {(carbonReductionKg ?? 0).toFixed(2)}kg의 탄소 절감량이 계산되었습니다.
         </p>
       </div>
     </div>
