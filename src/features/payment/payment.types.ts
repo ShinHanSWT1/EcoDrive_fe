@@ -64,6 +64,7 @@ export interface PaymentData {
   products: PaymentProduct[];
   recentHistory: PaymentHistoryItem[];
   pointHistory: PaymentPointHistoryItem[];
+  allHistory: PaymentHistoryItem[];
   coupons: PaymentCouponItem[];
   historySummary: PaymentHistorySummary;
   missionSummary: MissionSummary;
