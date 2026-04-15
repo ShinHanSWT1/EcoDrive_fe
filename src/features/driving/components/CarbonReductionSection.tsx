@@ -14,6 +14,8 @@ export function CarbonReductionSection({
   rewardPoint,
   monthlySummary,
 }: CarbonReductionSectionProps) {
+  const monthLabel = monthlySummary ? `${monthlySummary.month}월` : null;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2 px-2">
@@ -25,7 +27,7 @@ export function CarbonReductionSection({
         <CarbonReductionCard
           carbonReductionKg={carbonReductionKg}
           rewardPoint={rewardPoint}
-          monthLabel={monthlySummary ? `${monthlySummary.month}월` : null}
+          monthLabel={monthLabel}
         />
         <div className="lg:col-span-2">
           <CarbonReductionEquivalenceCard carbonReductionKg={carbonReductionKg} />

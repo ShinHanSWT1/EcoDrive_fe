@@ -5,6 +5,19 @@ interface CarbonReductionEquivalenceCardProps {
   carbonReductionKg: number | null;
 }
 
+type EquivalenceItem = {
+  title: string;
+  value: string;
+  label: string;
+  icon: typeof Leaf;
+  color: string;
+  bg: string;
+};
+
+function formatCarbonSaved(carbonReductionKg: number) {
+  return `${carbonReductionKg.toFixed(2)}kg CO₂`;
+}
+
 export function CarbonReductionEquivalenceCard({
   carbonReductionKg,
 }: CarbonReductionEquivalenceCardProps) {
@@ -14,7 +27,7 @@ export function CarbonReductionEquivalenceCard({
   const gasolineLiters = Math.max(normalizedCarbonReductionKg / 2.31, 0);
   const electricityKwh = Math.max(normalizedCarbonReductionKg / 0.424, 0);
 
-  const items = [
+  const items: EquivalenceItem[] = [
     {
       title: "나무 흡수량 기준",
       value: `${treeMonths.toFixed(1)}개월`,
@@ -53,7 +66,7 @@ export function CarbonReductionEquivalenceCard({
     <div className="bg-emerald-50 p-6 rounded-[32px] border border-emerald-100 sm:p-8">
       <div className="mb-8">
         <h3 className="text-xl font-black text-emerald-900">
-          이번 활동으로 줄인 <span className="text-3xl">{normalizedCarbonReductionKg.toFixed(2)}kg CO₂</span>는
+          이번 활동으로 줄인 <span className="text-3xl">{formatCarbonSaved(normalizedCarbonReductionKg)}</span>는
         </h3>
         <p className="text-sm text-emerald-600/70 font-medium">
           일상 속에서 다음과 같은 가치와 비슷합니다.
