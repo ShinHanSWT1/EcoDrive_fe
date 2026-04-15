@@ -25,21 +25,21 @@ export function MonthlyDrivingCard({
           <div className="text-2xl font-black text-slate-900 mb-1">
             {monthlySummaryData
               ? `${monthlySummaryData.label} 누적 ${monthlySummaryData.totalDistance} 달렸어요`
-              : "이번 달 누적 -- 달렸어요"}
+              : "선택한 월 누적 -- 달렸어요"}
           </div>
           <div className="flex items-center gap-3 text-sm font-bold">
             {monthlyHistory.length > 1 ? (
               <>
                 <span className="text-blue-600 flex items-center gap-1">
-                  최근 반영 월과 비교 가능 <TrendingDown size={14} />
+                  최근 6개월 흐름 비교 가능 <TrendingDown size={14} />
                 </span>
                 <span className="text-slate-300">|</span>
-                <span className="text-slate-400">현재 반영 데이터 기준 집계</span>
+                <span className="text-slate-400">선택한 월 기준 최근 6개월 집계</span>
               </>
             ) : (
               <span className="text-slate-400">
                 {monthlySummaryData
-                  ? `이번 달 ${monthlySummaryData.dayCount ?? "--"}일 / ${monthlySummaryData.sessionCount ?? "--"}세션 기준 집계`
+                  ? `${monthlySummaryData.label} ${monthlySummaryData.dayCount ?? "--"}일 / ${monthlySummaryData.sessionCount ?? "--"}세션 기준 집계`
                   : "월별 데이터가 반영되면 자동으로 집계됩니다."}
               </span>
             )}
@@ -73,15 +73,11 @@ export function MonthlyDrivingCard({
                   fontSize: "12px",
                 }}
               />
-              <Bar dataKey="distance" radius={[6, 6, 0, 0]} barSize={32}>
-                {monthlyHistory.map((entry, index) => (
+              <Bar dataKey="distance" radius={[6, 6, 0, 0]} barSize={24}>
+                {monthlyHistory.map((entry) => (
                   <Cell
-                    key={`cell-${index}`}
-                    fill={
-                      index === monthlyHistory.length - 1
-                        ? "#3b82f6"
-                        : "#e2e8f0"
-                    }
+                    key={entry.yearMonthKey}
+                    fill={entry.isSelected ? "#3b82f6" : "#e2e8f0"}
                   />
                 ))}
               </Bar>

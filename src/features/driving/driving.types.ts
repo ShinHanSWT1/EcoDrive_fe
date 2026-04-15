@@ -15,8 +15,10 @@ export interface DailyDrivingData {
 }
 
 export interface MonthlyHistoryItem {
+  yearMonthKey: string;
   month: string;
   distance: number;
+  isSelected: boolean;
 }
 
 export interface MonthlySummaryData {
@@ -35,9 +37,25 @@ export interface WeeklySummaryItem {
   maxSpeed: string;
 }
 
+export interface MonthOption {
+  key: string;
+  label: string;
+}
+
 export interface ScoreTrendItem {
+  fullDate: string;
   date: string;
   score: number;
+  deltaFromPrevious: number | null;
+}
+
+export interface ScoreChangeListItem {
+  fullDate: string;
+  dateLabel: string;
+  score: number;
+  deltaFromPrevious: number | null;
+  summary: string;
+  isToday: boolean;
 }
 
 export interface ScoreHistoryItem {

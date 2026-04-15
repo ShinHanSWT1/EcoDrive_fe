@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
-import { getPaymentData, chargeBalance } from "./payment.api";
+﻿import { useEffect, useState } from "react";
+import { chargeBalance, createMyWallet, getPaymentData } from "./payment.api";
 import type { PaymentData } from "./payment.types";
 
 export function usePayment() {
   const [data, setData] = useState<PaymentData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [isCreatingWallet, setIsCreatingWallet] = useState(false);
 
-  // 초기 데이터 로드 (계좌 잔액, 미션 등)
   useEffect(() => {
     let mounted = true;
 
@@ -17,7 +17,6 @@ export function usePayment() {
         setIsError(false);
 
         const result = await getPaymentData();
-
         if (mounted) {
           setData(result);
         }
@@ -40,41 +39,75 @@ export function usePayment() {
     };
   }, []);
 
-  // 금액 충전 로직 추가
   const handleCharge = async (amount: number) => {
     try {
-      // 실제 환경에서는 세션/전역 상태에서 로그인한 유저 ID를 가져와야 합니다.
-      // (현재는 임시로 1번 유저 사용)
-      const payUserId = 1;
+      if (data?.walletMissing) {
+        alert("계좌를 먼저 생성해 주세요.");
+        return false;
+      }
 
-      // DB에 실제 충전 요청
-      const updatedAccount = await chargeBalance(payUserId, amount);
+      const updatedWallet = await chargeBalance(amount);
 
-      // 충전 성공 시, BE에서 반환받은 최신 잔액으로 즉시 화면 상태 덮어쓰기
       setData((prev) => {
         if (!prev) return prev;
         return {
           ...prev,
           user: {
             ...prev.user,
-            balance: updatedAccount.balance,
-          }
+            balance: updatedWallet.balance,
+          },
         };
       });
 
-      return true; // 성공 여부 반환 (모달을 닫기 위해)
+      return true;
     } catch (error) {
       console.error("충전 요청 중 오류 발생:", error);
       alert("충전에 실패했습니다. 다시 시도해 주세요.");
-      return false; // 실패 반환
+      return false;
     }
   };
 
-  // 3. 컴포넌트에서 사용할 수 있도록 반환값에 handleCharge 추가
+  const handleCreateWallet = async () => {
+    try {
+      setIsCreatingWallet(true);
+      const wallet = await createMyWallet();
+
+      setData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          walletMissing: false,
+          wallet: {
+            payUserId: wallet.payUserId,
+            payAccountId: wallet.payAccountId,
+            accountNumber: wallet.accountNumber,
+            bankCode: wallet.bankCode,
+            ownerName: wallet.ownerName,
+            status: wallet.status,
+          },
+          user: {
+            ...prev.user,
+            balance: wallet.balance,
+          },
+        };
+      });
+
+      return true;
+    } catch (error) {
+      console.error("계좌 생성 요청 중 오류 발생:", error);
+      alert("계좌 생성에 실패했습니다. 다시 시도해 주세요.");
+      return false;
+    } finally {
+      setIsCreatingWallet(false);
+    }
+  };
+
   return {
     data,
     isLoading,
     isError,
+    isCreatingWallet,
     handleCharge,
+    handleCreateWallet,
   };
 }

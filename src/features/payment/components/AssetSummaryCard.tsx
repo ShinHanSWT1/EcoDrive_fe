@@ -1,10 +1,11 @@
-import { Coins, CreditCard, Plus, Ticket, TrendingUp, Wallet } from "lucide-react";
+﻿import { Coins, CreditCard, Plus, Ticket, TrendingUp, Wallet } from "lucide-react";
 import { motion } from "motion/react";
 
 interface AssetSummaryCardProps {
   balance: number;
   points: number;
   monthlyUsage: number;
+  chargeDisabled?: boolean;
   onOpenCoupons: () => void;
   onChargeClick: () => void;
 }
@@ -13,6 +14,7 @@ export default function AssetSummaryCard({
   balance,
   points,
   monthlyUsage,
+  chargeDisabled = false,
   onOpenCoupons,
   onChargeClick,
 }: AssetSummaryCardProps) {
@@ -64,8 +66,10 @@ export default function AssetSummaryCard({
 
       <div className="relative z-10 grid grid-cols-2 gap-3">
         <button
-            onClick={onChargeClick}
-            className="bg-white text-slate-900 rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] transition-transform">
+          onClick={onChargeClick}
+          disabled={chargeDisabled}
+          className="bg-white text-slate-900 rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] transition-transform disabled:opacity-60 disabled:hover:scale-100"
+        >
           <Plus size={16} />
           충전하기
         </button>

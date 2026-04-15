@@ -15,7 +15,7 @@ export function CarbonReductionCard({
     <div className="bg-emerald-500 p-6 rounded-[32px] text-white shadow-lg shadow-emerald-100 relative overflow-hidden h-full">
       <div className="relative z-10">
         <div className="flex justify-between items-start mb-5">
-          <div>
+          <div className="space-y-3">
             <div className="text-emerald-100 text-xs font-bold uppercase tracking-widest mb-2">Carbon Reduction Achievement</div>
             <div className="flex items-baseline gap-2">
               <span className="text-6xl font-black drop-shadow-sm">

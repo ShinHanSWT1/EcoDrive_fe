@@ -1,5 +1,11 @@
 import { motion } from "motion/react";
-import type { DailyDrivingData, MonthlyHistoryItem, MonthlySummaryData, WeeklySummaryItem } from "../driving.types";
+import type {
+  DailyDrivingData,
+  MonthOption,
+  MonthlyHistoryItem,
+  MonthlySummaryData,
+  WeeklySummaryItem,
+} from "../driving.types";
 import { MonthlyDrivingCard } from "./MonthlyDrivingCard";
 import { RecentDrivingRecordSection } from "./RecentDrivingRecordSection";
 import { WeeklyDrivingSummarySection } from "./WeeklyDrivingSummarySection";
@@ -9,6 +15,8 @@ interface DrivingHistorySectionProps {
   selectedDailyData: DailyDrivingData;
   minDate?: string;
   maxDate: string;
+  availableMonthOptions: MonthOption[];
+  selectedMonthKey: string;
   selectedWeekKey: string;
   weeklySummaries: WeeklySummaryItem[];
   selectedWeeklySummary: WeeklySummaryItem | null;
@@ -16,6 +24,7 @@ interface DrivingHistorySectionProps {
   monthlySummaryData: MonthlySummaryData | null;
   onDateChange: (date: string) => void;
   onGoToToday: () => void;
+  onMonthChange: (monthKey: string) => void;
   onWeekChange: (weekKey: string) => void;
   isTodaySelected: boolean;
 }
@@ -25,6 +34,8 @@ export function DrivingHistorySection({
   selectedDailyData,
   minDate,
   maxDate,
+  availableMonthOptions,
+  selectedMonthKey,
   selectedWeekKey,
   weeklySummaries,
   selectedWeeklySummary,
@@ -32,6 +43,7 @@ export function DrivingHistorySection({
   monthlySummaryData,
   onDateChange,
   onGoToToday,
+  onMonthChange,
   onWeekChange,
   isTodaySelected,
 }: DrivingHistorySectionProps) {
@@ -52,9 +64,12 @@ export function DrivingHistorySection({
         isTodaySelected={isTodaySelected}
       />
       <WeeklyDrivingSummarySection
+        availableMonthOptions={availableMonthOptions}
+        selectedMonthKey={selectedMonthKey}
         weeklySummaries={weeklySummaries}
         selectedWeekKey={selectedWeekKey}
         selectedWeeklySummary={selectedWeeklySummary}
+        onMonthChange={onMonthChange}
         onWeekChange={onWeekChange}
       />
       <MonthlyDrivingCard
