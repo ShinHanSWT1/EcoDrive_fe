@@ -12,6 +12,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { cn } from "../../shared/lib/utils";
+import { getDefaultAvatarDataUrl } from "../../shared/lib/avatar";
 import { fetchMe } from "../../shared/api/auth";
 import {
   getMyVehicles,
@@ -141,6 +142,32 @@ function buildActiveInsuranceByVehicleId(insurances: InsuranceResponse[]) {
   );
 }
 
+function buildProfileSummary({
+  paymentData,
+  performanceSummary,
+}: {
+  paymentData: Awaited<ReturnType<typeof getPaymentData>> | null;
+  performanceSummary: Awaited<ReturnType<typeof loadVehiclePerformanceSummary>>;
+}): ProfileSummary {
+  return {
+    pointBalance: paymentData?.user.points ?? 0,
+    couponCount:
+      paymentData?.coupons.filter((coupon) => !coupon.used).length ?? 0,
+    safetyScore: performanceSummary.safetyScore,
+    carbonReductionKg: performanceSummary.carbonReductionKg,
+  };
+}
+
+function updateRepresentativeVehicles(
+  vehicles: MyVehicleResponse[],
+  representativeVehicleId: number,
+) {
+  return vehicles.map((vehicle) => ({
+    ...vehicle,
+    isRepresentative: vehicle.userVehicleId === representativeVehicleId,
+  }));
+}
+
 export default function Profile({
   onLogout,
 }: {
@@ -177,13 +204,7 @@ export default function Profile({
 
         setData({
           me,
-          summary: {
-            pointBalance: paymentData?.user.points ?? 0,
-            couponCount:
-              paymentData?.coupons.filter((coupon) => !coupon.used).length ?? 0,
-            safetyScore: performanceSummary.safetyScore,
-            carbonReductionKg: performanceSummary.carbonReductionKg,
-          },
+          summary: buildProfileSummary({ paymentData, performanceSummary }),
           vehicles,
           insurances,
         });
@@ -226,6 +247,8 @@ export default function Profile({
   const { me, summary, vehicles, insurances } = data;
   const representativeVehicleId = resolveRepresentativeVehicleId(vehicles);
   const activeInsuranceByVehicleId = buildActiveInsuranceByVehicleId(insurances);
+  const profileImageSrc =
+    me.profileImageUrl ?? getDefaultAvatarDataUrl(me.nickname ?? me.email ?? "U");
 
   async function handleRepresentativeVehicleChange(nextVehicleId: number) {
     try {
@@ -236,10 +259,10 @@ export default function Profile({
 
       setData((current) => current ? {
         ...current,
-        vehicles: current.vehicles.map((vehicle) => ({
-          ...vehicle,
-          isRepresentative: vehicle.userVehicleId === nextVehicleId,
-        })),
+        vehicles: updateRepresentativeVehicles(
+          current.vehicles,
+          nextVehicleId,
+        ),
         summary: {
           ...current.summary,
           safetyScore: performanceSummary.safetyScore,
@@ -259,7 +282,7 @@ export default function Profile({
         <div className="mb-4">
           <div className="h-24 w-24 overflow-hidden rounded-[32px] border-4 border-white shadow-xl">
             <img
-              src={me.profileImageUrl ?? "https://picsum.photos/seed/user/200/200"}
+              src={profileImageSrc}
               alt="Profile"
               className="h-full w-full object-cover"
             />
@@ -332,19 +355,19 @@ export default function Profile({
           </div>
         </div>
 
-        {vehicles.length > 0 && (
-          <div className="space-y-2">
-            <h3 className="ml-4 text-xs font-bold uppercase tracking-widest text-slate-400">
-              내 차량 · 보험 연결
-            </h3>
-            <div className="flex justify-end">
-              <Link
-                to="/vehicles/new"
-                className="inline-flex items-center rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700 transition hover:bg-blue-100"
-              >
-                차량 추가
-              </Link>
-            </div>
+        <div className="space-y-2">
+          <h3 className="ml-4 text-xs font-bold uppercase tracking-widest text-slate-400">
+            내 차량 · 보험 연결
+          </h3>
+          <div className="flex justify-end">
+            <Link
+              to="/vehicles/new"
+              className="inline-flex items-center rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700 transition hover:bg-blue-100"
+            >
+              차량 추가
+            </Link>
+          </div>
+          {vehicles.length > 0 ? (
             <div className="space-y-3">
               {vehicles.map((vehicle) => {
                 const linkedInsurance =
@@ -359,8 +382,12 @@ export default function Profile({
                 );
               })}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="rounded-[32px] border border-dashed border-slate-200 bg-white p-6 text-sm font-medium text-slate-500 shadow-sm">
+              등록된 차량이 없습니다. 차량을 추가하고 보험까지 연결해 주세요.
+            </div>
+          )}
+        </div>
 
         <div className="space-y-2">
           <h3 className="ml-4 text-xs font-bold uppercase tracking-widest text-slate-400">

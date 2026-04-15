@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   ChevronLeft
 } from 'lucide-react';
+import { getDefaultAvatarDataUrl } from '../../shared/lib/avatar';
 import { cn } from '../../shared/lib/utils';
 
 interface AdminLayoutProps {
@@ -86,10 +87,14 @@ export default function AdminLayout({ children, onLogout }: AdminLayoutProps) {
           <div className="flex items-center gap-4">
             <div className="text-right">
               <div className="text-xs font-bold text-slate-900">관리자 홍길동</div>
-              <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">System Admin</div>
+            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">System Admin</div>
             </div>
             <div className="w-10 h-10 bg-slate-200 rounded-xl overflow-hidden border border-slate-300">
-              <img src="https://picsum.photos/seed/admin/100/100" alt="Admin Profile" />
+              <img
+                src={getDefaultAvatarDataUrl('A')}
+                alt="Admin Profile"
+                className="h-full w-full object-cover"
+              />
             </div>
           </div>
         </header>

@@ -184,11 +184,16 @@ export async function getInsurancePageData(
     myInsurances = [];
   }
 
-  // 현재 보험 요약
-  const activeContract = myContracts.find((c) => c.status === "ACTIVE");
   const activeInsurance = myInsurances.find(
     (insurance) => insurance.status === "ACTIVE" && insurance.userVehicleId === userVehicleId,
   ) ?? null;
+  const activeContract = activeInsurance
+    ? myContracts.find(
+        (contract) =>
+          contract.status === "ACTIVE"
+          && contract.id === activeInsurance.insuranceContractsId,
+      ) ?? null
+    : null;
 
   // 보험사별 예상 보험료 계산 (비교 섹션은 무조건 BASIC 플랜 기준 + 100점 만점 기준)
   const BASIC_MULTIPLIER = 0.8;
