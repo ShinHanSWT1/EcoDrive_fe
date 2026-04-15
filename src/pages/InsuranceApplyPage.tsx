@@ -62,9 +62,11 @@ export default function InsuranceApplyPage() {
     fetchUserInfo();
   }, []);
 
+  const isPhoneValid = /^010-\d{4}-\d{4}$/.test(phoneNumber);
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isAllAgreed =
     agreements.actualOwner && agreements.beneficiary && agreements.termination;
-  const isFormValid = phoneNumber && address && email && isAllAgreed;
+  const isFormValid = isPhoneValid && isEmailValid && address && isAllAgreed;
 
   const handleNext = () => {
     if (!isFormValid) return;
@@ -81,6 +83,24 @@ export default function InsuranceApplyPage() {
 
   const toggleAgreement = (key: keyof typeof agreements) => {
     setAgreements((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 숫자만 추출
+    const digits = e.target.value.replace(/\D/g, "");
+
+    // 3자리 이상 입력됐을 때 010으로 시작하지 않으면 무시
+    if (digits.length >= 3 && !digits.startsWith("010")) return;
+
+    // 자동 하이픈 포맷: 010-XXXX-XXXX
+    let formatted = digits;
+    if (digits.length > 3 && digits.length <= 7) {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    } else if (digits.length > 7) {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+    }
+
+    setPhoneNumber(formatted);
   };
 
   const handleAddressSearch = async () => {
@@ -139,23 +159,41 @@ export default function InsuranceApplyPage() {
                 <input
                   type="text"
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onChange={handlePhoneNumberChange}
                   placeholder="010-0000-0000"
-                  className="w-full px-6 py-5 rounded-[20px] border border-slate-200 bg-[#F2F4F6] focus:outline-none focus:ring-2 focus:ring-[#FF5C35]/20 focus:border-[#FF5C35] transition-all text-slate-700 font-medium text-lg"
+                  maxLength={13}
+                  className={`w-full px-6 py-5 rounded-[20px] border bg-[#F2F4F6] focus:outline-none focus:ring-2 transition-all text-slate-700 font-medium text-lg ${
+                    phoneNumber && !isPhoneValid
+                      ? "border-red-400 focus:ring-red-200 focus:border-red-400"
+                      : "border-slate-200 focus:ring-[#FF5C35]/20 focus:border-[#FF5C35]"
+                  }`}
                 />
+                {phoneNumber && !isPhoneValid && (
+                  <p className="text-red-400 text-sm ml-1 mt-1">010-0000-0000 형식으로 입력해주세요.</p>
+                )}
               </div>
 
               <div className="space-y-3 text-left">
                 <label className="text-sm font-bold text-slate-400 ml-1">
-                  이메일
+                  이메일 <span className="text-[#FF5C35]">*</span>
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="example@gmail.com"
-                  className="w-full px-6 py-5 rounded-[20px] border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5C35]/20 focus:border-[#FF5C35] transition-all text-slate-700 font-medium text-lg"
+                  className={`w-full px-6 py-5 rounded-[20px] border bg-white focus:outline-none focus:ring-2 transition-all text-slate-700 font-medium text-lg ${
+                    email && !isEmailValid
+                      ? "border-red-400 focus:ring-red-200 focus:border-red-400"
+                      : "border-slate-200 focus:ring-[#FF5C35]/20 focus:border-[#FF5C35]"
+                  }`}
                 />
+                {email && !isEmailValid && (
+                  <p className="text-red-400 text-sm ml-1 mt-1">올바른 이메일 형식을 입력해주세요.</p>
+                )}
+                {!email && (
+                  <p className="text-slate-400 text-sm ml-1 mt-1">이메일이 없습니다. 직접 입력해주세요.</p>
+                )}
               </div>
 
               <div className="md:col-span-2 space-y-4 text-left">

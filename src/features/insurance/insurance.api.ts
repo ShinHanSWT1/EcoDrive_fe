@@ -118,6 +118,8 @@ export interface CreateContractRequest {
   contractPeriod: number;
   planType: string;
   selectedCoverageIds: number[];
+  signatureImage: string;
+  email: string;
 }
 
 export async function createInsuranceContract(

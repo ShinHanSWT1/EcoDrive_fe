@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, ChevronUp, ChevronDown, RotateCcw, ShieldCheck, Check } from "lucide-react";
+import SignatureCanvas from "react-signature-canvas";
 import { formatCurrency } from "../shared/lib/format";
 import { api } from "../shared/api/client";
 import { getInsuranceFactors, getProductCoverages, createInsuranceContract } from "../features/insurance/insurance.api";
@@ -26,15 +27,20 @@ export default function InsuranceConfirmPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+  const [isSigned, setIsSigned] = useState(false);
+  const [nickname, setNickname] = useState("");
+  const signatureRef = useRef<SignatureCanvas>(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
         setIsError(false);
-        const [productRes, factorData, coverageList] = await Promise.all([
+        const [productRes, factorData, coverageList, userRes] = await Promise.all([
           api.get(`/insurance/products/${productId}`),
           getInsuranceFactors(),
-          getProductCoverages(productId)
+          getProductCoverages(productId),
+          api.get("/users/me")
         ]);
 
         if (!coverageList || coverageList.length === 0) {
@@ -44,6 +50,7 @@ export default function InsuranceConfirmPage() {
         setProductInfo(productRes.data.data);
         setFactors(factorData);
         setCoverages(coverageList);
+        setNickname(userRes.data.data.nickname || "");
 
         const categories = Array.from(new Set(coverageList.map(c => c.category)));
         setExpandedCategories(categories);
@@ -120,13 +127,51 @@ export default function InsuranceConfirmPage() {
     return { basePremium, finalPremium, discountAmount };
   };
 
+  const drawWatermark = () => {
+    const canvas = signatureRef.current?.getCanvas();
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(-Math.PI / 6);
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(180, 180, 180, 0.25)";
+
+    ctx.font = "bold 28px Arial";
+    ctx.fillText("EcoDrive 전자계약", 0, -30);
+
+    ctx.font = "bold 20px Arial";
+    ctx.fillText(nickname || "계약자", 0, 5);
+
+    ctx.font = "16px Arial";
+    ctx.fillText(new Date().toLocaleDateString("ko-KR"), 0, 30);
+    ctx.restore();
+  };
+
+  const handleOpenSignature = () => {
+    setIsSignatureModalOpen(true);
+    setIsSigned(false);
+    // 모달 렌더링 후 워터마크 그리기
+    setTimeout(() => drawWatermark(), 100);
+  };
+
+  const handleClearSignature = () => {
+    signatureRef.current?.clear();
+    setIsSigned(false);
+    // 서명 초기화 후 워터마크 다시 그리기
+    setTimeout(() => drawWatermark(), 50);
+  };
+
   const handleFinalApply = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
     try {
-      // 실제 가입 신청을 처리하려면 아래 API 호출을 활성화하세요.
-      // 현재는 테스트를 위해 DB 저장을 건너뛰고 성공 메시지만 표시합니다.
-      /*
+      // 서명 이미지 Base64 추출
+      const signatureImage = signatureRef.current
+        ?.toDataURL("image/png");
+
       await createInsuranceContract({
         insuranceProductId: productId,
         phoneNumber: applicationData.phoneNumber || "010-0000-0000",
@@ -134,15 +179,15 @@ export default function InsuranceConfirmPage() {
         contractPeriod: 12,
         planType: selectedPlan,
         selectedCoverageIds,
+        signatureImage: signatureImage || "",
+        email: applicationData.email || "",
       });
-      */
-      
-      // 시뮬레이션을 위한 지연 시간
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      alert("보험 가입 신청이 완료되었습니다! (테스트 모드: 실제 DB에는 저장되지 않았습니다.)");
+
+      setIsSignatureModalOpen(false);
+      alert("보험 가입 신청이 완료되었습니다!\n계약서가 이메일로 발송됩니다.");
       navigate("/insurance");
     } catch (error) {
+      console.error("가입 처리 오류:", error);
       alert("가입 처리 중 오류가 발생했습니다.");
     } finally {
       setIsSubmitting(false);
@@ -271,16 +316,66 @@ export default function InsuranceConfirmPage() {
                 <div className="text-lg font-bold text-blue-600">-{formatCurrency(currentPrices.discountAmount)}</div>
               </div>
             </div>
-            <button 
-              onClick={handleFinalApply}
+            <button
+              onClick={handleOpenSignature}
               disabled={isSubmitting}
               className="bg-blue-600 text-white px-12 py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-200 hover:bg-blue-700 active:scale-[0.98] transition-all"
             >
-              {isSubmitting ? "처리 중..." : "최종 가입 완료하기"}
+              최종 가입 완료하기
             </button>
           </div>
         </div>
       </div>
+
+      {/* 서명 모달 */}
+      {isSignatureModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6">
+          <div className="bg-white rounded-[32px] w-full max-w-lg shadow-2xl p-8 space-y-6">
+
+            <div className="text-left space-y-1">
+              <h2 className="text-2xl font-black text-slate-900">서명해주세요</h2>
+              <p className="text-sm text-slate-400">아래 칸에 서명 후 가입을 확정해주세요.</p>
+            </div>
+
+            {/* 서명 캔버스 */}
+            <div className="border-2 border-slate-200 rounded-[20px] overflow-hidden bg-slate-50">
+              <SignatureCanvas
+                ref={signatureRef}
+                penColor="#1e293b"
+                canvasProps={{ width: 460, height: 200, className: "w-full" }}
+                onEnd={() => setIsSigned(true)}
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleClearSignature}
+                className="flex items-center gap-2 px-6 py-4 rounded-[16px] border border-slate-200 text-slate-500 font-bold hover:bg-slate-50 transition-all"
+              >
+                <RotateCcw size={18} /> 다시 서명
+              </button>
+              <button
+                onClick={handleFinalApply}
+                disabled={!isSigned || isSubmitting}
+                className={`flex-1 py-4 rounded-[16px] font-black text-lg transition-all ${
+                  isSigned && !isSubmitting
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-200 hover:bg-blue-700"
+                    : "bg-slate-100 text-slate-300 cursor-not-allowed"
+                }`}
+              >
+                {isSubmitting ? "처리 중..." : "가입 확정"}
+              </button>
+            </div>
+
+            <button
+              onClick={() => setIsSignatureModalOpen(false)}
+              className="w-full text-center text-sm text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
