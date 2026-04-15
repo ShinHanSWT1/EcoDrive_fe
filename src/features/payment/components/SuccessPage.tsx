@@ -1,26 +1,16 @@
-// src/features/payment/components/SuccessPage.tsx
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { api } from '../payment.api';
-import { useAuth } from '../../auth/hooks/useAuth';
+import { api } from '../../../shared/api/client';
 
 export function SuccessPage() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-
-    const { user } = useAuth();
 
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
     const [errorMessage, setErrorMessage] = useState('');
     const isProcessed = useRef(false);
 
     useEffect(() => {
-        // 유저 정보가 로드될 때까지 기다리거나, 없으면 에러 처리
-        if (!user) {
-            // 만약 로그인이 필수인 페이지라면 여기서 로그인 페이지로 보낼 수도 있습니다.
-            return;
-        }
-
         const paymentKey = searchParams.get('paymentKey');
         const orderId = searchParams.get('orderId');
         const amount = searchParams.get('amount');
@@ -36,15 +26,12 @@ export function SuccessPage() {
 
         const confirmCharge = async () => {
             try {
-                await api.post('/pay/charge/confirm', {
-                    payUserId: user.id,
-                    paymentKey,
-                    orderId,
+                await api.post('/pay/charge', {
                     amount: Number(amount),
                 });
 
                 setStatus('success');
-                setTimeout(() => navigate('/dashboard'), 3000);
+                setTimeout(() => navigate('/payment'), 3000);
             } catch (error: any) {
                 console.error('충전 승인 실패:', error);
                 setStatus('error');
@@ -53,19 +40,50 @@ export function SuccessPage() {
         };
 
         confirmCharge();
-    }, [searchParams, navigate, user]);
+    }, [searchParams, navigate]);
 
     return (
-        <div style={{ padding: '50px', textAlign: 'center' }}>
-            {/* ... 기존 UI 로직 동일 ... */}
-            {!user && <h2>유저 정보를 확인 중입니다...</h2>}
-            {user && status === 'loading' && (
-                <div>
-                    <h2>🦌 결제 승인 중...</h2>
-                    <p>잠시만 기다려주세요.</p>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
+            {status === 'loading' && (
+                <div className="text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
+                    <h2 className="text-2xl font-bold text-slate-800">결제 승인 중...</h2>
+                    <p className="mt-2 text-slate-500">안전하게 지갑으로 금액을 옮기고 있습니다.</p>
                 </div>
             )}
-            {/* success, error 조건부 렌더링 동일 */}
+
+            {status === 'success' && (
+                <div className="text-center animate-in fade-in zoom-in duration-300">
+                    <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-green-100 rounded-full">
+                        <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h2 className="mb-2 text-3xl font-bold text-slate-800">충전 완료!</h2>
+                    <p className="mb-8 text-lg text-slate-600">
+                        지갑에 <span className="font-bold text-blue-600">{Number(searchParams.get('amount')).toLocaleString()}원</span>이 충전되었습니다.
+                    </p>
+                    <p className="text-sm text-slate-400">잠시 후 Pay 화면으로 이동합니다...</p>
+                </div>
+            )}
+
+            {status === 'error' && (
+                <div className="text-center">
+                    <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full">
+                        <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </div>
+                    <h2 className="mb-2 text-2xl font-bold text-slate-800">충전 실패</h2>
+                    <p className="mb-6 text-slate-600">{errorMessage}</p>
+                    <button
+                        onClick={() => navigate('/payment')}
+                        className="px-6 py-3 font-semibold text-white transition-colors bg-slate-800 rounded-xl hover:bg-slate-700"
+                    >
+                        돌아가기
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
