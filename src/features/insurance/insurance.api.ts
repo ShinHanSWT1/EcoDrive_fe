@@ -1,6 +1,8 @@
 import { api } from "../../shared/api/client";
-import { getRecentDrivingSessions } from "../driving/driving.api";
-import { insuranceGuide } from "./insurance.mock";
+import {
+  getRecentDrivingSessions,
+  type DrivingRecentSession,
+} from "../driving/driving.api";
 import type {
   InsurancePageData,
   InsuranceCompany,
@@ -157,7 +159,7 @@ export async function getInsurancePageData(): Promise<InsurancePageData> {
   // 2. 공통 데이터 조회 및 최근 주행 기록 합산
   const [factors, recentSessions] = await Promise.all([
     getInsuranceFactors(experienceYears),
-    getRecentDrivingSessions(20).catch(() => []),
+    getRecentDrivingSessions(20).catch((): DrivingRecentSession[] => []),
   ]);
   const { companies, products, safetyScore, calc, maxCalc } = factors;
 
@@ -313,6 +315,5 @@ export async function getInsurancePageData(): Promise<InsurancePageData> {
     currentSummary,
     companies: companyList,
     bill,
-    guide: insuranceGuide,
   };
 }

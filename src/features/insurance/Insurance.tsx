@@ -3,7 +3,6 @@ import PageHeader from "../../shared/ui/PageSectionHeader";
 import { useInsurance } from "./useInsurance";
 import InsuranceSummaryCard from "./components/InsuranceSummaryCard";
 import InsuranceCompanyList from "./components/InsuranceCompanyList";
-import InsuranceGuideCard from "./components/InsuranceGuideCard";
 
 export default function Insurance() {
   const [showBill, setShowBill] = useState(false);
@@ -43,8 +42,6 @@ export default function Insurance() {
         companies={data.companies}
         safetyScore={data.currentSummary.safetyScore}
       />
-
-      <InsuranceGuideCard guide={data.guide} />
     </div>
   );
 }

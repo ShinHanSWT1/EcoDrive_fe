@@ -45,14 +45,8 @@ export interface InsuranceBill {
   productNameLabel?: string;
 }
 
-export interface InsuranceGuide {
-  title: string;
-  description: string;
-}
-
 export interface InsurancePageData {
   currentSummary: CurrentInsuranceSummary;
   companies: InsuranceCompany[];
   bill: InsuranceBill;
-  guide: InsuranceGuide;
 }

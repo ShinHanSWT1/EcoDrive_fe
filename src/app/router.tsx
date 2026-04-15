@@ -242,7 +242,7 @@ export default function AppRouter({
               isAuthenticated={isAuthenticated}
               isOnboardingCompleted={isOnboardingCompleted}
             >
-                <ProfilePage />
+                <ProfilePage onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />
