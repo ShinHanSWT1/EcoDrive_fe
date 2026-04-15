@@ -3,10 +3,20 @@ import PageHeader from "../../shared/ui/PageSectionHeader";
 import { useInsurance } from "./useInsurance";
 import InsuranceSummaryCard from "./components/InsuranceSummaryCard";
 import InsuranceCompanyList from "./components/InsuranceCompanyList";
+import VehicleSelector from "../../shared/ui/VehicleSelector";
+import type { MyVehicleResponse } from "../../shared/api/onboarding";
 
-export default function Insurance() {
+export default function Insurance({
+  vehicles,
+  selectedUserVehicleId,
+  onVehicleChange,
+}: {
+  vehicles: MyVehicleResponse[];
+  selectedUserVehicleId: number | null;
+  onVehicleChange: (userVehicleId: number) => void;
+}) {
   const [showBill, setShowBill] = useState(false);
-  const { data, isLoading, isError } = useInsurance();
+  const { data, isLoading, isError } = useInsurance(selectedUserVehicleId);
 
   if (isLoading) {
     return (
@@ -29,6 +39,14 @@ export default function Insurance() {
       <PageHeader
         title="보험 할인 혜택"
         description="내 주행 데이터로 받을 수 있는 최대 혜택을 확인하세요."
+      />
+
+      <VehicleSelector
+        vehicles={vehicles}
+        selectedUserVehicleId={selectedUserVehicleId}
+        onChange={onVehicleChange}
+        label="보험 조회 차량"
+        disabled={isLoading}
       />
 
       <InsuranceSummaryCard

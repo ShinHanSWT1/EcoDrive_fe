@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getInsurancePageData } from "./insurance.api";
 import type { InsurancePageData } from "./insurance.types";
 
-export function useInsurance() {
+export function useInsurance(userVehicleId: number | null) {
   const [data, setData] = useState<InsurancePageData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -15,7 +15,7 @@ export function useInsurance() {
         setIsLoading(true);
         setIsError(false);
 
-        const result = await getInsurancePageData();
+        const result = await getInsurancePageData(userVehicleId);
 
         if (mounted) {
           setData(result);
@@ -38,7 +38,7 @@ export function useInsurance() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [userVehicleId]);
 
   return {
     data,

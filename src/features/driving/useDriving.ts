@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { DrivingTab } from "./driving.types";
 import {
-  generateAndRefreshDummyDrivingData,
+  generateAndRefreshDummyDrivingDataForVehicle,
   getDrivingBehaviorSummary,
   getDrivingDailySummary,
   getDrivingMonthlySummary,
+  getDrivingOverviewByVehicle,
   getDrivingScoreTrend,
   getDrivingWeeklySummaries,
-  getLatestDrivingCarbon,
-  getLatestDrivingScore,
   getRecentDrivingSessions,
   type DrivingBehaviorSummary,
   type DrivingDailySummary,
@@ -41,7 +40,7 @@ const HISTORY_MONTH_SPAN = 6;
 const SCORE_SECTION_MONTH_SPAN = 6;
 const RECENT_SESSION_LIMIT = 180;
 
-export function useDriving() {
+export function useDriving(userVehicleId: number | null) {
   const todayKey = formatDateKey(new Date());
   const todayYearMonth = getSelectedYearMonth(todayKey);
   const todayMonthKey = formatYearMonthKey(
@@ -90,16 +89,15 @@ export function useDriving() {
   const [isError, setIsError] = useState(false);
 
   async function loadBaseDrivingData() {
-    const [latestScoreResponse, latestCarbonResponse, recentSessionResponses] =
+    const [{ score, carbon }, recentSessionResponses] =
       await Promise.all([
-      getLatestDrivingScore(),
-      getLatestDrivingCarbon(),
-      getRecentDrivingSessions(RECENT_SESSION_LIMIT),
-    ]);
+        getDrivingOverviewByVehicle(userVehicleId),
+        getRecentDrivingSessions(RECENT_SESSION_LIMIT, userVehicleId),
+      ]);
 
     return {
-      latestScore: latestScoreResponse,
-      latestCarbon: latestCarbonResponse,
+      latestScore: score,
+      latestCarbon: carbon,
       recentSessions: recentSessionResponses,
     };
   }
@@ -121,11 +119,11 @@ export function useDriving() {
 
     const [weeklySummaryResponses, monthlySummaryResponse, monthlyHistoryResponses] =
       await Promise.all([
-      getDrivingWeeklySummaries(year, month),
-      getDrivingMonthlySummary(year, month),
+      getDrivingWeeklySummaries(year, month, userVehicleId),
+      getDrivingMonthlySummary(year, month, userVehicleId),
       Promise.all(
         historyTargets.map((target) =>
-          getDrivingMonthlySummary(target.year, target.month),
+          getDrivingMonthlySummary(target.year, target.month, userVehicleId),
         ),
       ),
     ]);
@@ -149,8 +147,8 @@ export function useDriving() {
 
   async function loadHistorySelection(date: string) {
     const [dailySummary, behaviorSummary] = await Promise.all([
-      getDrivingDailySummary(date),
-      getDrivingBehaviorSummary(date),
+      getDrivingDailySummary(date, userVehicleId),
+      getDrivingBehaviorSummary(date, userVehicleId),
     ]);
 
     return { dailySummary, behaviorSummary };
@@ -166,10 +164,10 @@ export function useDriving() {
 
   async function loadScoreSectionData(monthKey: string) {
     const { year, month } = parseYearMonthKey(monthKey);
-    const scoreTrend = await getDrivingScoreTrend(year, month);
+    const scoreTrend = await getDrivingScoreTrend(year, month, userVehicleId);
     const behaviorEntries = await Promise.all(
       scoreTrend.map(async (item) => {
-        const behavior = await getDrivingBehaviorSummary(item.snapshotDate);
+        const behavior = await getDrivingBehaviorSummary(item.snapshotDate, userVehicleId);
         return [item.snapshotDate, behavior] as const;
       }),
     );
@@ -234,7 +232,7 @@ export function useDriving() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [userVehicleId]);
 
   useEffect(() => {
     if (!hasInitializedRef.current) {
@@ -373,7 +371,7 @@ export function useDriving() {
     try {
       setIsGeneratingDummyData(true);
       setIsError(false);
-      await generateAndRefreshDummyDrivingData();
+      await generateAndRefreshDummyDrivingDataForVehicle(userVehicleId);
       await fetchDrivingData(selectedDate, selectedMonthKey, scoreSectionMonthKey);
     } catch (error) {
       console.error("더미 주행 데이터 생성 실패:", error);

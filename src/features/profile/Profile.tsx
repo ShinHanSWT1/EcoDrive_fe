@@ -14,11 +14,17 @@ import {
 import { cn } from "../../shared/lib/utils";
 import { fetchMe } from "../../shared/api/auth";
 import {
-  getLatestDrivingCarbon,
-  getLatestDrivingScore,
+  getMyVehicles,
+  updateRepresentativeVehicle,
+  type MyVehicleResponse,
+} from "../../shared/api/onboarding";
+import {
+  getDrivingOverviewByVehicle,
 } from "../driving/driving.api";
 import { getMyInsurances, type InsuranceResponse } from "../insurance/insurance.api";
 import { getPaymentData } from "../payment/payment.api";
+import VehicleSelector from "../../shared/ui/VehicleSelector";
+import { resolveRepresentativeVehicleId } from "../../shared/lib/vehicle";
 
 type ProfileSummary = {
   pointBalance: number;
@@ -30,6 +36,7 @@ type ProfileSummary = {
 type ProfileData = {
   me: Awaited<ReturnType<typeof fetchMe>>;
   summary: ProfileSummary;
+  vehicles: MyVehicleResponse[];
   insurances: InsuranceResponse[];
 };
 
@@ -100,16 +107,38 @@ function formatDate(dateText: string | null | undefined) {
 }
 
 function getInsuranceSummaryText(insurances: InsuranceResponse[]) {
-  if (insurances.length === 0) {
+  const activeInsurances = insurances.filter((insurance) => insurance.status === "ACTIVE");
+
+  if (activeInsurances.length === 0) {
     return "등록된 보험 정보가 없습니다";
   }
 
-  if (insurances.length === 1) {
-    const insurance = insurances[0];
+  if (activeInsurances.length === 1) {
+    const insurance = activeInsurances[0];
     return `${insurance.companyName} ${insurance.productName}`;
   }
 
-  return `${insurances.length}건의 보험 계약이 연결되어 있습니다`;
+  return `${activeInsurances.length}건의 보험 계약이 연결되어 있습니다`;
+}
+
+async function loadVehiclePerformanceSummary(userVehicleId: number | null) {
+  const { score, carbon } = await getDrivingOverviewByVehicle(userVehicleId).catch(() => ({
+    score: { snapshotDate: null, score: null },
+    carbon: { snapshotDate: null, carbonReductionKg: null, rewardPoint: null },
+  }));
+
+  return {
+    safetyScore: score.score ?? null,
+    carbonReductionKg: carbon.carbonReductionKg ?? null,
+  };
+}
+
+function buildActiveInsuranceByVehicleId(insurances: InsuranceResponse[]) {
+  return new Map(
+    insurances
+      .filter((insurance) => insurance.status === "ACTIVE")
+      .map((insurance) => [insurance.userVehicleId, insurance]),
+  );
 }
 
 export default function Profile({
@@ -120,6 +149,7 @@ export default function Profile({
   const [data, setData] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [isUpdatingRepresentative, setIsUpdatingRepresentative] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -129,18 +159,17 @@ export default function Profile({
         setIsLoading(true);
         setIsError(false);
 
-        const [me, latestScore, latestCarbon, insurances, paymentData] =
+        const [me, vehicles, insurances, paymentData] =
           await Promise.all([
             fetchMe(),
-            getLatestDrivingScore().catch(() => ({ snapshotDate: null, score: null })),
-            getLatestDrivingCarbon().catch(() => ({
-              snapshotDate: null,
-              carbonReductionKg: null,
-              rewardPoint: null,
-            })),
+            getMyVehicles().catch(() => []),
             getMyInsurances().catch(() => []),
             getPaymentData().catch(() => null),
           ]);
+
+        const representativeVehicleId = resolveRepresentativeVehicleId(vehicles);
+        const performanceSummary =
+          await loadVehiclePerformanceSummary(representativeVehicleId);
 
         if (!active) {
           return;
@@ -152,9 +181,10 @@ export default function Profile({
             pointBalance: paymentData?.user.points ?? 0,
             couponCount:
               paymentData?.coupons.filter((coupon) => !coupon.used).length ?? 0,
-            safetyScore: latestScore.score ?? null,
-            carbonReductionKg: latestCarbon.carbonReductionKg ?? null,
+            safetyScore: performanceSummary.safetyScore,
+            carbonReductionKg: performanceSummary.carbonReductionKg,
           },
+          vehicles,
           insurances,
         });
       } catch (error) {
@@ -193,8 +223,35 @@ export default function Profile({
     );
   }
 
-  const { me, summary, insurances } = data;
-  const primaryInsurance = insurances[0] ?? null;
+  const { me, summary, vehicles, insurances } = data;
+  const representativeVehicleId = resolveRepresentativeVehicleId(vehicles);
+  const activeInsuranceByVehicleId = buildActiveInsuranceByVehicleId(insurances);
+
+  async function handleRepresentativeVehicleChange(nextVehicleId: number) {
+    try {
+      setIsUpdatingRepresentative(true);
+      await updateRepresentativeVehicle(nextVehicleId);
+      const performanceSummary =
+        await loadVehiclePerformanceSummary(nextVehicleId);
+
+      setData((current) => current ? {
+        ...current,
+        vehicles: current.vehicles.map((vehicle) => ({
+          ...vehicle,
+          isRepresentative: vehicle.userVehicleId === nextVehicleId,
+        })),
+        summary: {
+          ...current.summary,
+          safetyScore: performanceSummary.safetyScore,
+          carbonReductionKg: performanceSummary.carbonReductionKg,
+        },
+      } : current);
+    } catch (error) {
+      console.error("대표 차량 변경 실패:", error);
+    } finally {
+      setIsUpdatingRepresentative(false);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
@@ -212,6 +269,17 @@ export default function Profile({
         <p className="text-sm text-slate-500">
           {me.email ?? "이메일 정보 없음"}
         </p>
+        <div className="mt-5 w-full max-w-sm">
+          <VehicleSelector
+            vehicles={vehicles}
+            selectedUserVehicleId={representativeVehicleId}
+            onChange={(nextVehicleId) => {
+              void handleRepresentativeVehicleChange(nextVehicleId);
+            }}
+            label="대표 차량"
+            disabled={isUpdatingRepresentative}
+          />
+        </div>
       </section>
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -264,47 +332,32 @@ export default function Profile({
           </div>
         </div>
 
-        {primaryInsurance && (
+        {vehicles.length > 0 && (
           <div className="space-y-2">
             <h3 className="ml-4 text-xs font-bold uppercase tracking-widest text-slate-400">
-              현재 연결된 보험
+              내 차량 · 보험 연결
             </h3>
-            <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400">
-                    Insurance
-                  </div>
-                  <h4 className="mt-2 text-xl font-black text-slate-900">
-                    {primaryInsurance.companyName}
-                  </h4>
-                  <p className="mt-1 text-sm font-medium text-slate-500">
-                    {primaryInsurance.productName}
-                  </p>
-                </div>
-                <Link
-                  to="/insurance"
-                  className="inline-flex items-center gap-1 text-sm font-bold text-blue-600 hover:underline"
-                >
-                  자세히 보기
-                  <ChevronRight size={16} />
-                </Link>
-              </div>
+            <div className="flex justify-end">
+              <Link
+                to="/vehicles/new"
+                className="inline-flex items-center rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700 transition hover:bg-blue-100"
+              >
+                차량 추가
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {vehicles.map((vehicle) => {
+                const linkedInsurance =
+                  activeInsuranceByVehicleId.get(vehicle.userVehicleId) ?? null;
 
-              <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <InfoTile
-                  label="플랜"
-                  value={formatPlanType(primaryInsurance.planType)}
-                />
-                <InfoTile
-                  label="보험료"
-                  value={formatCurrency(primaryInsurance.finalAmount)}
-                />
-                <InfoTile
-                  label="등록일"
-                  value={formatDate(primaryInsurance.createdAt)}
-                />
-              </div>
+                return (
+                  <VehicleInsuranceCard
+                    key={vehicle.userVehicleId}
+                    vehicle={vehicle}
+                    linkedInsurance={linkedInsurance}
+                  />
+                );
+              })}
             </div>
           </div>
         )}
@@ -352,6 +405,73 @@ export default function Profile({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function VehicleInsuranceCard({
+  vehicle,
+  linkedInsurance,
+}: {
+  vehicle: MyVehicleResponse;
+  linkedInsurance: InsuranceResponse | null;
+}) {
+  return (
+    <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="text-xs font-bold uppercase tracking-widest text-slate-400">
+            Vehicle
+          </div>
+          <h4 className="mt-2 text-xl font-black text-slate-900">
+            {vehicle.manufacturer} {vehicle.modelName}
+          </h4>
+          <p className="mt-1 text-sm font-medium text-slate-500">
+            {vehicle.modelYear}년식 · {vehicle.vehicleNumber}
+          </p>
+          {vehicle.isRepresentative ? (
+            <span className="mt-3 inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+              대표 차량
+            </span>
+          ) : null}
+        </div>
+        <Link
+          to="/insurance"
+          className="inline-flex items-center gap-1 text-sm font-bold text-blue-600 hover:underline"
+        >
+          자세히 보기
+          <ChevronRight size={16} />
+        </Link>
+      </div>
+
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <InfoTile label="연결 보험" value={linkedInsurance ? linkedInsurance.companyName : "미연결"} />
+        <InfoTile
+          label="상품"
+          value={linkedInsurance ? linkedInsurance.productName : "등록 필요"}
+        />
+        <InfoTile
+          label="상태"
+          value={
+            linkedInsurance
+              ? `${formatPlanType(linkedInsurance.planType)} / 활성`
+              : "보험 미등록"
+          }
+        />
+      </div>
+
+      {linkedInsurance && (
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <InfoTile
+            label="보험료"
+            value={formatCurrency(linkedInsurance.finalAmount)}
+          />
+          <InfoTile
+            label="연결일"
+            value={formatDate(linkedInsurance.createdAt)}
+          />
+        </div>
+      )}
     </div>
   );
 }

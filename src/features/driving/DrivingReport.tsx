@@ -4,8 +4,18 @@ import { DrivingReportTabs } from "./components/DrivingReportTabs";
 import { DrivingHistorySection } from "./components/DrivingHistorySection";
 import { ScoreCarbonSection } from "./components/ScoreCarbonSection";
 import PageHeader from "../../shared/ui/PageSectionHeader";
+import VehicleSelector from "../../shared/ui/VehicleSelector";
+import type { MyVehicleResponse } from "../../shared/api/onboarding";
 
-export default function DrivingReport() {
+export default function DrivingReport({
+  vehicles,
+  selectedUserVehicleId,
+  onVehicleChange,
+}: {
+  vehicles: MyVehicleResponse[];
+  selectedUserVehicleId: number | null;
+  onVehicleChange: (userVehicleId: number) => void;
+}) {
   const showDevDummyButton =
     import.meta.env.DEV || import.meta.env.VITE_SHOW_DUMMY_BUTTON === "true";
   const {
@@ -41,7 +51,7 @@ export default function DrivingReport() {
     isError,
     refresh,
     addDummyDrivingData,
-  } = useDriving();
+  } = useDriving(selectedUserVehicleId);
 
   return (
     <div className="space-y-6 pb-12">
@@ -51,7 +61,16 @@ export default function DrivingReport() {
           description="데이터로 분석한 나의 운전 습관과 환경 기여도입니다."
         />
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <DrivingReportTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          <div className="flex flex-col gap-3">
+            <DrivingReportTabs activeTab={activeTab} onTabChange={setActiveTab} />
+            <VehicleSelector
+              vehicles={vehicles}
+              selectedUserVehicleId={selectedUserVehicleId}
+              onChange={onVehicleChange}
+              label="리포트 기준 차량"
+              disabled={isLoading || isRefreshing || isGeneratingDummyData}
+            />
+          </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             {showDevDummyButton ? (
               <button

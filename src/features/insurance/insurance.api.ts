@@ -1,6 +1,7 @@
 import { api } from "../../shared/api/client";
 import {
   getRecentDrivingSessions,
+  getLatestDrivingScoreByVehicle,
   type DrivingRecentSession,
 } from "../driving/driving.api";
 import type {
@@ -46,6 +47,7 @@ interface ContractResponse {
 
 export interface InsuranceResponse {
   id: number;
+  userVehicleId: number;
   insuranceCompanyId: number;
   companyName: string;
   insuranceProductId: number;
@@ -54,6 +56,7 @@ export interface InsuranceResponse {
   planType: string;
   baseAmount: number;
   finalAmount: number;
+  status: string;
   createdAt: string;
 }
 
@@ -66,7 +69,10 @@ export async function getProductCoverages(
 }
 
 // 보험 할인 계산에 필요한 공통 데이터를 조회
-export async function getInsuranceFactors(experienceYears: number = 0) {
+export async function getInsuranceFactors(
+  experienceYears: number = 0,
+  userVehicleId?: number | null,
+) {
   const [companiesRes, productsRes] = await Promise.all([
     api.get("/insurance/companies"),
     api.get("/insurance/products"),
@@ -78,8 +84,8 @@ export async function getInsuranceFactors(experienceYears: number = 0) {
   // 주행 기록 없으면 null
   let safetyScore: number | null = null;
   try {
-    const scoreRes = await api.get("/driving/scores/latest");
-    safetyScore = scoreRes.data.data.score ?? null;
+    const score = await getLatestDrivingScoreByVehicle(userVehicleId);
+    safetyScore = score.score ?? null;
   } catch {
     safetyScore = null;
   }
@@ -129,7 +135,9 @@ export async function createInsuranceContract(
   return response.data.data;
 }
 
-export async function getInsurancePageData(): Promise<InsurancePageData> {
+export async function getInsurancePageData(
+  userVehicleId?: number | null,
+): Promise<InsurancePageData> {
   // 1. 계약 목록 먼저 조회 (experienceYears 계산용)
   let myContracts: ContractResponse[] = [];
   try {
@@ -158,8 +166,8 @@ export async function getInsurancePageData(): Promise<InsurancePageData> {
 
   // 2. 공통 데이터 조회 및 최근 주행 기록 합산
   const [factors, recentSessions] = await Promise.all([
-    getInsuranceFactors(experienceYears),
-    getRecentDrivingSessions(20).catch((): DrivingRecentSession[] => []),
+    getInsuranceFactors(experienceYears, userVehicleId),
+    getRecentDrivingSessions(20, userVehicleId).catch((): DrivingRecentSession[] => []),
   ]);
   const { companies, products, safetyScore, calc, maxCalc } = factors;
 
@@ -178,7 +186,9 @@ export async function getInsurancePageData(): Promise<InsurancePageData> {
 
   // 현재 보험 요약
   const activeContract = myContracts.find((c) => c.status === "ACTIVE");
-  const activeInsurance = myInsurances.length > 0 ? myInsurances[0] : null;
+  const activeInsurance = myInsurances.find(
+    (insurance) => insurance.status === "ACTIVE" && insurance.userVehicleId === userVehicleId,
+  ) ?? null;
 
   // 보험사별 예상 보험료 계산 (비교 섹션은 무조건 BASIC 플랜 기준 + 100점 만점 기준)
   const BASIC_MULTIPLIER = 0.8;
