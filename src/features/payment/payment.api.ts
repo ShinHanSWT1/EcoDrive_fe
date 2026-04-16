@@ -24,6 +24,12 @@ interface PayTransactionResponse {
   category: string;
 }
 
+interface PayChargePrepareResponse {
+  orderId: string;
+  amount: number;
+  expiresAt: string;
+}
+
 function isWalletNotFoundError(error: unknown): boolean {
   if (!axios.isAxiosError(error)) {
     return false;
@@ -113,5 +119,19 @@ export async function getPaymentData(): Promise<PaymentData> {
 
 export async function chargeBalance(amount: number): Promise<PayWalletResponse> {
   const response = await api.post<ApiResponse<PayWalletResponse>>("/pay/charge", { amount });
+  return response.data.data;
+}
+
+export async function prepareCharge(amount: number): Promise<PayChargePrepareResponse> {
+  const response = await api.post<ApiResponse<PayChargePrepareResponse>>("/pay/charge/prepare", { amount });
+  return response.data.data;
+}
+
+export async function confirmCharge(paymentKey: string, orderId: string, amount: number) {
+  const response = await api.post<ApiResponse<PayWalletResponse>>("/pay/charge/confirm", {
+    paymentKey,
+    orderId,
+    amount,
+  });
   return response.data.data;
 }

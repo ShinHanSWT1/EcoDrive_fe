@@ -2,7 +2,7 @@
 import AssetSummaryCard from "./AssetSummaryCard";
 import { RecentHistorySection } from "./RecentHistorySection";
 import BenefitProductSection from "./BenefitProductSection";
-import ChargeModal from "./ChargeModal";
+import { ChargeModal } from "./ChargeModal";
 import type {
   PaymentCategory,
   PaymentHistoryItem,

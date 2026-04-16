@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowDownLeft, ArrowUpRight, Filter, History, Search, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { cn } from "../../../shared/lib/utils";
@@ -16,10 +16,99 @@ export default function HistoryModal({
   history,
 }: HistoryModalProps) {
   const [filterType, setFilterType] = useState<"all" | "earn" | "pay">("all");
-  const filteredHistory = history.filter((item) => {
-    if (filterType === "all") return true;
-    return item.type === filterType; // "earn" 또는 "pay"만 통과
-  });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [periodType, setPeriodType] = useState<"all" | "7d" | "30d" | "custom">("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [minAmount, setMinAmount] = useState("");
+  const [maxAmount, setMaxAmount] = useState("");
+
+  const parseHistoryDate = (dateText: string): Date | null => {
+    const normalized = dateText.replace(/\./g, "-");
+    const date = new Date(normalized);
+    return Number.isNaN(date.getTime()) ? null : date;
+  };
+
+  const normalizedKeyword = searchQuery.trim().toLowerCase();
+  const normalizedMinAmount = minAmount.trim() === "" ? null : Number(minAmount);
+  const normalizedMaxAmount = maxAmount.trim() === "" ? null : Number(maxAmount);
+
+  const filteredHistory = useMemo(() => {
+    const now = new Date();
+    const base = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const sevenDaysAgo = new Date(base);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    const thirtyDaysAgo = new Date(base);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+
+    const customStart = startDate ? new Date(startDate) : null;
+    const customEnd = endDate ? new Date(endDate) : null;
+    if (customEnd) {
+      customEnd.setHours(23, 59, 59, 999);
+    }
+
+    return history.filter((item) => {
+      if (filterType !== "all" && item.type !== filterType) {
+        return false;
+      }
+
+      if (normalizedKeyword) {
+        const target = `${item.title} ${item.category}`.toLowerCase();
+        if (!target.includes(normalizedKeyword)) {
+          return false;
+        }
+      }
+
+      const itemDate = parseHistoryDate(item.date);
+      if (periodType !== "all") {
+        if (!itemDate) {
+          return false;
+        }
+        if (periodType === "7d" && itemDate < sevenDaysAgo) {
+          return false;
+        }
+        if (periodType === "30d" && itemDate < thirtyDaysAgo) {
+          return false;
+        }
+        if (periodType === "custom") {
+          if (customStart && itemDate < customStart) {
+            return false;
+          }
+          if (customEnd && itemDate > customEnd) {
+            return false;
+          }
+        }
+      }
+
+      if (normalizedMinAmount !== null && !Number.isNaN(normalizedMinAmount) && item.amount < normalizedMinAmount) {
+        return false;
+      }
+      if (normalizedMaxAmount !== null && !Number.isNaN(normalizedMaxAmount) && item.amount > normalizedMaxAmount) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [
+    history,
+    filterType,
+    normalizedKeyword,
+    periodType,
+    startDate,
+    endDate,
+    normalizedMinAmount,
+    normalizedMaxAmount,
+  ]);
+
+  const resetFilters = () => {
+    setFilterType("all");
+    setSearchQuery("");
+    setPeriodType("all");
+    setStartDate("");
+    setEndDate("");
+    setMinAmount("");
+    setMaxAmount("");
+  };
 
   return (
     <AnimatePresence>
@@ -55,11 +144,16 @@ export default function HistoryModal({
             </div>
 
             <div className="p-4 border-b border-slate-100 flex flex-col gap-3">
-              <button className="w-full h-11 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center gap-2 text-sm font-bold">
-                <Search size={16} /> 검색
-              </button>
+              <label className="w-full h-11 rounded-xl bg-slate-100 text-slate-500 flex items-center gap-2 text-sm font-bold px-3">
+                <Search size={16} />
+                <input
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="내역명/카테고리 검색"
+                  className="w-full bg-transparent outline-none text-slate-700 placeholder:text-slate-400 font-medium"
+                />
+              </label>
 
-              {/* 새롭게 추가된 필터 탭 버튼들 */}
               <div className="flex gap-2">
                 <button
                     onClick={() => setFilterType("all")}
@@ -87,6 +181,91 @@ export default function HistoryModal({
                     )}
                 >
                   결제
+                </button>
+              </div>
+
+              <div className="grid grid-cols-4 gap-2">
+                <button
+                  onClick={() => setPeriodType("all")}
+                  className={cn(
+                    "py-2 rounded-xl text-xs font-bold transition-all",
+                    periodType === "all" ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-500",
+                  )}
+                >
+                  전체기간
+                </button>
+                <button
+                  onClick={() => setPeriodType("7d")}
+                  className={cn(
+                    "py-2 rounded-xl text-xs font-bold transition-all",
+                    periodType === "7d" ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-500",
+                  )}
+                >
+                  최근 7일
+                </button>
+                <button
+                  onClick={() => setPeriodType("30d")}
+                  className={cn(
+                    "py-2 rounded-xl text-xs font-bold transition-all",
+                    periodType === "30d" ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-500",
+                  )}
+                >
+                  최근 30일
+                </button>
+                <button
+                  onClick={() => setPeriodType("custom")}
+                  className={cn(
+                    "py-2 rounded-xl text-xs font-bold transition-all",
+                    periodType === "custom" ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-500",
+                  )}
+                >
+                  직접선택
+                </button>
+              </div>
+
+              {periodType === "custom" ? (
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(event) => setStartDate(event.target.value)}
+                    className="h-10 px-3 rounded-xl border border-slate-200 text-sm text-slate-700 outline-none"
+                  />
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(event) => setEndDate(event.target.value)}
+                    className="h-10 px-3 rounded-xl border border-slate-200 text-sm text-slate-700 outline-none"
+                  />
+                </div>
+              ) : null}
+
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  value={minAmount}
+                  onChange={(event) => setMinAmount(event.target.value)}
+                  placeholder="최소 금액"
+                  className="h-10 px-3 rounded-xl border border-slate-200 text-sm text-slate-700 outline-none placeholder:text-slate-400"
+                />
+                <input
+                  type="number"
+                  min={0}
+                  value={maxAmount}
+                  onChange={(event) => setMaxAmount(event.target.value)}
+                  placeholder="최대 금액"
+                  className="h-10 px-3 rounded-xl border border-slate-200 text-sm text-slate-700 outline-none placeholder:text-slate-400"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-slate-500">검색 결과 {filteredHistory.length}건</p>
+                <button
+                  onClick={resetFilters}
+                  className="text-xs font-bold text-slate-500 hover:text-slate-700"
+                >
+                  필터 초기화
                 </button>
               </div>
             </div>
