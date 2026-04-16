@@ -13,7 +13,7 @@ export default function Insurance({
 }: {
   vehicles: MyVehicleResponse[];
   selectedUserVehicleId: number | null;
-  onVehicleChange: (userVehicleId: number) => void;
+  onVehicleChange: (userVehicleId: number | null) => void;
 }) {
   const [showBill, setShowBill] = useState(false);
   const { data, isLoading, isError } = useInsurance(selectedUserVehicleId);

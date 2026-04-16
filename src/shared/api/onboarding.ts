@@ -89,6 +89,13 @@ export async function updateRepresentativeVehicle(userVehicleId: number) {
   return response.data.data;
 }
 
+export async function deleteMyVehicle(userVehicleId: number) {
+  const response = await api.delete<ApiResponse<null>>(
+    `/users/me/vehicles/${userVehicleId}`,
+  );
+  return response.data;
+}
+
 export async function registerMyInsurance(request: RegisterInsuranceRequest) {
   const response = await api.post<ApiResponse<RegisterInsuranceResponse>>(
     "/users/me/onboarding/insurances",

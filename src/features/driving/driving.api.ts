@@ -40,6 +40,21 @@ export interface DrivingDailySummary {
   lastEndedAt: string | null;
 }
 
+interface DrivingDailySummaryRaw {
+  date: string;
+  sessionCount: number;
+  totalDistanceKm: number | null;
+  totalDrivingTimeMinutes: number | null;
+  totalIdlingTimeMinutes: number | null;
+  averageSpeed: number | null;
+  maxSpeed: number | null;
+  rapidAccelCount: number | null;
+  hardBrakeCount: number | null;
+  overspeedCount: number | null;
+  firstStartedAt: string | null;
+  lastEndedAt: string | null;
+}
+
 export interface DrivingBehaviorSummary {
   sessionDate: string;
   rapidAccelCount: number;
@@ -58,6 +73,7 @@ export interface DrivingWeeklySummary {
   endDate: string | null;
   dayCount: number;
   sessionCount: number;
+  totalDistanceKm: number | null;
   averageDistanceKm: number | null;
   averageIdlingTimeMinutes: number | null;
   averageSpeed: number | null;
@@ -120,6 +136,23 @@ function withOptionalVehicleParams(
   return userVehicleId ? { ...baseParams, userVehicleId } : baseParams;
 }
 
+function mapDrivingDailySummary(raw: DrivingDailySummaryRaw): DrivingDailySummary {
+  return {
+    sessionDate: raw.date,
+    sessionCount: raw.sessionCount,
+    totalDistanceKm: raw.totalDistanceKm,
+    totalDrivingTimeMinutes: raw.totalDrivingTimeMinutes,
+    totalIdlingTimeMinutes: raw.totalIdlingTimeMinutes,
+    averageSpeed: raw.averageSpeed,
+    maxSpeed: raw.maxSpeed,
+    rapidAccelCount: raw.rapidAccelCount,
+    hardBrakeCount: raw.hardBrakeCount,
+    overspeedCount: raw.overspeedCount,
+    firstStartedAt: raw.firstStartedAt,
+    lastEndedAt: raw.lastEndedAt,
+  };
+}
+
 export async function getLatestDrivingScore(): Promise<DrivingLatestScore> {
   return getLatestDrivingScoreByVehicle();
 }
@@ -174,11 +207,23 @@ export async function getDrivingDailySummary(
   date: string,
   userVehicleId?: number | null,
 ): Promise<DrivingDailySummary> {
-  const response = await api.get<ApiResponse<DrivingDailySummary>>(
+  const response = await api.get<ApiResponse<DrivingDailySummaryRaw>>(
     "/driving/daily-summary",
     { params: withOptionalVehicleParams({ date }, userVehicleId) },
   );
-  return response.data.data;
+  return mapDrivingDailySummary(response.data.data);
+}
+
+export async function getDrivingDailySummaries(
+  year: number,
+  month: number,
+  userVehicleId?: number | null,
+): Promise<DrivingDailySummary[]> {
+  const response = await api.get<ApiResponse<DrivingDailySummaryRaw[]>>(
+    "/driving/daily-summaries",
+    { params: withOptionalVehicleParams({ year, month }, userVehicleId) },
+  );
+  return response.data.data.map(mapDrivingDailySummary);
 }
 
 export async function getDrivingWeeklySummaries(

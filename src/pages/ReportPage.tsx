@@ -18,6 +18,7 @@ export default function ReportPage() {
       selectedUserVehicleId={selectedUserVehicleId}
       loadingMessage="차량 정보를 불러오는 중입니다."
       errorMessage="차량 정보를 불러오지 못했습니다."
+      allowEmptySelection
     >
       <DrivingReport
         vehicles={vehicles}

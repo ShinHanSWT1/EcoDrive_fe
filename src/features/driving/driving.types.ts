@@ -31,6 +31,9 @@ export interface MonthlySummaryData {
 export interface WeeklySummaryItem {
   weekKey: string;
   label: string;
+  startDate: string | null;
+  endDate: string | null;
+  totalDistance: string;
   averageDistance: string;
   averageIdling: string;
   averageSpeed: string;

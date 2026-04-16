@@ -6,6 +6,7 @@ export default function VehicleSelectionGuard({
   selectedUserVehicleId,
   loadingMessage,
   errorMessage,
+  allowEmptySelection = false,
   children,
 }: {
   isLoading: boolean;
@@ -13,6 +14,7 @@ export default function VehicleSelectionGuard({
   selectedUserVehicleId: number | null;
   loadingMessage: string;
   errorMessage: string;
+  allowEmptySelection?: boolean;
   children: ReactNode;
 }) {
   if (isLoading) {
@@ -23,7 +25,7 @@ export default function VehicleSelectionGuard({
     );
   }
 
-  if (isError || selectedUserVehicleId == null) {
+  if (isError || (!allowEmptySelection && selectedUserVehicleId == null)) {
     return (
       <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-red-600">
         {errorMessage}

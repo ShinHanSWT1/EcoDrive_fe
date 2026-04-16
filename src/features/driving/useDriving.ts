@@ -29,7 +29,6 @@ import {
   formatDateKey,
   formatScoreTrendItems,
   formatYearMonthKey,
-  getMonthWeekKey,
   getSelectedYearMonth,
   mergeBehaviorData,
   parseYearMonthKey,
@@ -47,13 +46,12 @@ export function useDriving(userVehicleId: number | null) {
     todayYearMonth.year,
     todayYearMonth.month,
   );
-  const currentWeekKey = getMonthWeekKey(todayKey);
   const hasInitializedRef = useRef(false);
 
   const [activeTab, setActiveTab] = useState<DrivingTab>("history");
   const [selectedDate, setSelectedDate] = useState(todayKey);
   const [selectedMonthKey, setSelectedMonthKey] = useState(todayMonthKey);
-  const [selectedWeekKey, setSelectedWeekKey] = useState(currentWeekKey);
+  const [selectedWeekKey, setSelectedWeekKey] = useState("");
 
   const [scoreSectionMonthKey, setScoreSectionMonthKey] =
     useState(todayMonthKey);
@@ -87,6 +85,24 @@ export function useDriving(userVehicleId: number | null) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isGeneratingDummyData, setIsGeneratingDummyData] = useState(false);
   const [isError, setIsError] = useState(false);
+
+  function resolveWeekKeyByDate(
+    date: string,
+    summaries: DrivingWeeklySummary[],
+  ): string | null {
+    const matched = summaries.find((summary) => {
+      if (!summary.startDate || !summary.endDate) {
+        return false;
+      }
+      return summary.startDate <= date && date <= summary.endDate;
+    });
+
+    if (!matched) {
+      return null;
+    }
+
+    return `${matched.year}-${String(matched.month).padStart(2, "0")}-${matched.weekOfMonth}`;
+  }
 
   async function loadBaseDrivingData() {
     const [{ score, carbon }, recentSessionResponses] =
@@ -345,6 +361,14 @@ export function useDriving(userVehicleId: number | null) {
   }, [scoreSectionMonthKey]);
 
   useEffect(() => {
+    const weekKeyFromDate = resolveWeekKeyByDate(selectedDate, weeklySummaryResponses);
+    if (weekKeyFromDate) {
+      if (weekKeyFromDate !== selectedWeekKey) {
+        setSelectedWeekKey(weekKeyFromDate);
+      }
+      return;
+    }
+
     const weeklyItems = buildWeeklySummaries(weeklySummaryResponses);
     if (weeklyItems.length === 0) {
       return;
@@ -356,7 +380,7 @@ export function useDriving(userVehicleId: number | null) {
     if (!hasSelectedWeek) {
       setSelectedWeekKey(weeklyItems[weeklyItems.length - 1].weekKey);
     }
-  }, [weeklySummaryResponses, selectedWeekKey]);
+  }, [selectedDate, weeklySummaryResponses, selectedWeekKey]);
 
   async function refresh() {
     try {

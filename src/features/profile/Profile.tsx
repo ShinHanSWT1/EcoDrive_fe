@@ -15,6 +15,7 @@ import { cn } from "../../shared/lib/utils";
 import { getDefaultAvatarDataUrl } from "../../shared/lib/avatar";
 import { fetchMe } from "../../shared/api/auth";
 import {
+  deleteMyVehicle,
   getMyVehicles,
   updateRepresentativeVehicle,
   type MyVehicleResponse,
@@ -177,6 +178,7 @@ export default function Profile({
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isUpdatingRepresentative, setIsUpdatingRepresentative] = useState(false);
+  const [deletingVehicleId, setDeletingVehicleId] = useState<number | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -276,6 +278,46 @@ export default function Profile({
     }
   }
 
+  async function handleDeleteVehicle(userVehicleId: number) {
+    if (!window.confirm("선택한 차량을 삭제하시겠습니까?")) {
+      return;
+    }
+
+    try {
+      setDeletingVehicleId(userVehicleId);
+      await deleteMyVehicle(userVehicleId);
+
+      const [vehiclesAfterDelete, insurancesAfterDelete] = await Promise.all([
+        getMyVehicles().catch(() => []),
+        getMyInsurances().catch(() => []),
+      ]);
+      const nextRepresentativeVehicleId =
+        resolveRepresentativeVehicleId(vehiclesAfterDelete);
+      const performanceSummary =
+        await loadVehiclePerformanceSummary(nextRepresentativeVehicleId);
+
+      setData((current) =>
+        current
+          ? {
+              ...current,
+              vehicles: vehiclesAfterDelete,
+              insurances: insurancesAfterDelete,
+              summary: {
+                ...current.summary,
+                safetyScore: performanceSummary.safetyScore,
+                carbonReductionKg: performanceSummary.carbonReductionKg,
+              },
+            }
+          : current,
+      );
+    } catch (error) {
+      console.error("차량 삭제 실패:", error);
+      alert("차량 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setDeletingVehicleId(null);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <section className="flex flex-col items-center text-center">
@@ -297,6 +339,9 @@ export default function Profile({
             vehicles={vehicles}
             selectedUserVehicleId={representativeVehicleId}
             onChange={(nextVehicleId) => {
+              if (nextVehicleId == null) {
+                return;
+              }
               void handleRepresentativeVehicleChange(nextVehicleId);
             }}
             label="대표 차량"
@@ -378,6 +423,8 @@ export default function Profile({
                     key={vehicle.userVehicleId}
                     vehicle={vehicle}
                     linkedInsurance={linkedInsurance}
+                    onDelete={handleDeleteVehicle}
+                    isDeleting={deletingVehicleId === vehicle.userVehicleId}
                   />
                 );
               })}
@@ -439,9 +486,13 @@ export default function Profile({
 function VehicleInsuranceCard({
   vehicle,
   linkedInsurance,
+  onDelete,
+  isDeleting,
 }: {
   vehicle: MyVehicleResponse;
   linkedInsurance: InsuranceResponse | null;
+  onDelete: (userVehicleId: number) => void;
+  isDeleting: boolean;
 }) {
   return (
     <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
@@ -499,6 +550,17 @@ function VehicleInsuranceCard({
           />
         </div>
       )}
+
+      <div className="mt-4 flex justify-end">
+        <button
+          type="button"
+          onClick={() => onDelete(vehicle.userVehicleId)}
+          disabled={isDeleting}
+          className="inline-flex items-center rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400"
+        >
+          {isDeleting ? "삭제 중..." : "차량 삭제"}
+        </button>
+      </div>
     </div>
   );
 }

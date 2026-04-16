@@ -56,6 +56,14 @@ function MissionGroupSection({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {items.map((mission) => (
+          (() => {
+            const isCompleted = mission.status === "completed";
+            const isSafeScoreSettlementPending =
+              mission.targetType === "SAFE_SCORE_GTE" &&
+              mission.type !== "daily" &&
+              !isCompleted;
+
+            return (
           <div
             key={mission.id}
             className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm flex flex-col gap-6 hover:shadow-md transition-all"
@@ -90,17 +98,17 @@ function MissionGroupSection({
                 </span>
                 <span
                   className={
-                    mission.progress >= 100 ? "text-emerald-600" : "text-blue-600"
+                    isCompleted ? "text-emerald-600" : "text-blue-600"
                   }
                 >
-                  {mission.progress >= 100 ? "달성!" : `${mission.progress}%`}
+                  {isCompleted ? "달성!" : `${mission.progress}%`}
                 </span>
               </div>
               <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                 <div
                   className={cn(
                     "h-full rounded-full",
-                    mission.progress >= 100 ? "bg-emerald-500" : progressClass,
+                    isCompleted ? "bg-emerald-500" : progressClass,
                   )}
                   style={{ width: `${Math.min(mission.progress, 100)}%` }}
                 />
@@ -108,10 +116,12 @@ function MissionGroupSection({
             </div>
 
             <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-              {mission.progress >= 100 ? (
+              {isCompleted ? (
                 <span className="text-emerald-600 flex items-center gap-1">
                   <ShieldCheck size={14} /> 보상 지급 예정
                 </span>
+              ) : isSafeScoreSettlementPending ? (
+                <span className="text-amber-600">평가 대기 (기간 종료 후 확정)</span>
               ) : (
                 <>
                   <div className={cn("w-2 h-2 rounded-full animate-pulse", pulseClass)} />
@@ -120,6 +130,8 @@ function MissionGroupSection({
               )}
             </div>
           </div>
+            );
+          })()
         ))}
       </div>
     </div>
@@ -132,6 +144,7 @@ export default function PaymentMissionTab({
 }: PaymentMissionTabProps) {
   const dailyMissions = missions.filter((mission) => mission.type === "daily");
   const weeklyMissions = missions.filter((mission) => mission.type === "weekly");
+  const monthlyMissions = missions.filter((mission) => mission.type === "monthly");
 
   return (
     <div className="space-y-8">
@@ -204,6 +217,16 @@ export default function PaymentMissionTab({
         progressClass="bg-indigo-500"
         pulseClass="bg-indigo-400"
         items={weeklyMissions}
+      />
+
+      <MissionGroupSection
+        title="월간 미션"
+        subtitle="Monthly Goals"
+        icon={<Calendar size={22} className="text-emerald-600" />}
+        badgeClass="text-emerald-600 bg-emerald-50"
+        progressClass="bg-emerald-500"
+        pulseClass="bg-emerald-400"
+        items={monthlyMissions}
       />
     </div>
   );

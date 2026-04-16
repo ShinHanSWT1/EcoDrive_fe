@@ -20,6 +20,16 @@ export function WeeklyDrivingSummarySection({
   onMonthChange,
   onWeekChange,
 }: WeeklyDrivingSummarySectionProps) {
+  function formatWeekRange(startDate: string | null, endDate: string | null) {
+    if (!startDate || !endDate) {
+      return "기간 정보 없음";
+    }
+
+    const start = startDate.slice(5).replace("-", ".");
+    const end = endDate.slice(5).replace("-", ".");
+    return `${start} ~ ${end}`;
+  }
+
   return (
     <div className="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm">
       <div className="flex flex-col gap-4 mb-8 lg:flex-row lg:items-end lg:justify-between">
@@ -54,14 +64,26 @@ export function WeeklyDrivingSummarySection({
           >
             {weeklySummaries.map((item) => (
               <option key={item.weekKey} value={item.weekKey}>
-                {item.label}
+                {item.label} ({formatWeekRange(item.startDate, item.endDate)})
               </option>
             ))}
           </select>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="mb-4 text-xs font-semibold text-slate-500">
+        선택 주차 기간: {formatWeekRange(selectedWeeklySummary?.startDate ?? null, selectedWeeklySummary?.endDate ?? null)}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+          <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">
+            총 주행거리
+          </div>
+          <div className="text-lg font-black text-slate-900">
+            {selectedWeeklySummary?.totalDistance ?? "0.00km"}
+          </div>
+        </div>
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
           <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">
             평균 주행거리

@@ -1,7 +1,7 @@
 import {api} from "../../shared/api/client";
 import type {ApiResponse} from "../../shared/types/api";
 import {missionGuide, monthlyRewards,} from "./mission.mock";
-import {getLatestDrivingCarbon, getLatestDrivingScore,} from "../driving/driving.api";
+import {getDrivingMonthlySummary, getLatestDrivingScore,} from "../driving/driving.api";
 import type {
     MissionCategory,
     MissionItem,
@@ -20,6 +20,12 @@ async function getDailyMissions(): Promise<MissionViewDto[]> {
 // 백엔드 weekly 미션 조회 호출
 async function getWeeklyMissions(): Promise<MissionViewDto[]> {
     const response = await api.get<ApiResponse<MissionViewDto[]>>("/missions/weekly");
+    return response.data.data;
+}
+
+// 백엔드 monthly 미션 조회 호출
+async function getMonthlyMissions(): Promise<MissionViewDto[]> {
+    const response = await api.get<ApiResponse<MissionViewDto[]>>("/missions/monthly");
     return response.data.data;
 }
 
@@ -109,6 +115,9 @@ function toMissionItem(mission: MissionViewDto): MissionItem {
         id: mission.userMissionId,
         type: mapMissionType(mission.missionType),
         status: mapMissionStatus(mission.status),
+        targetType: mission.targetType,
+        periodStartDate: mission.periodStartDate,
+        periodEndDate: mission.periodEndDate,
         title: mission.title,
         period: formatPeriod(mission),
         progress: Math.max(0, Math.min(100, Number(mission.progressRate))),
@@ -142,25 +151,43 @@ function buildSummary(missions: MissionItem[], safetyScore: number, carbonReduct
 
 // 미션 페이지 표시 데이터 조합
 export async function getMissionPageData(): Promise<MissionPageData> {
-  const [dailyMissions, weeklyMissions] = await Promise.all([
+  const [dailyMissions, weeklyMissions, monthlyMissions] = await Promise.all([
     getDailyMissions(),
     getWeeklyMissions(),
+    getMonthlyMissions(),
   ]);
 
-  const [latestScore, latestCarbon] = await Promise.all([
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+
+  // 미션 탭 지표는 현재 월 기준 요약과 맞추어 정합성을 유지함
+  const [latestScore, monthlyDrivingSummary] = await Promise.all([
     getLatestDrivingScore().catch(() => ({ snapshotDate: null, score: 0 })),
-    getLatestDrivingCarbon().catch(() => ({
-      snapshotDate: null,
+    getDrivingMonthlySummary(currentYear, currentMonth, null).catch(() => ({
+      year: currentYear,
+      month: currentMonth,
+      sessionCount: 0,
+      dayCount: 0,
+      totalDistanceKm: 0,
+      totalDrivingTimeMinutes: 0,
+      totalIdlingTimeMinutes: 0,
+      averageSpeed: null,
+      maxSpeed: null,
+      rapidAccelCount: 0,
+      hardBrakeCount: 0,
+      overspeedCount: 0,
+      steadyDrivingRatio: 0,
       carbonReductionKg: 0,
       rewardPoint: 0,
     })),
   ]);
 
-    const missions = [...dailyMissions, ...weeklyMissions].map(toMissionItem);
+    const missions = [...dailyMissions, ...weeklyMissions, ...monthlyMissions].map(toMissionItem);
   const summary = buildSummary(
     missions,
     latestScore.score ?? 0,
-    latestCarbon.carbonReductionKg ?? 0,
+    monthlyDrivingSummary.carbonReductionKg ?? 0,
   );
 
     return {

@@ -3,9 +3,10 @@ import type { MyVehicleResponse } from "../api/onboarding";
 interface VehicleSelectorProps {
   vehicles: MyVehicleResponse[];
   selectedUserVehicleId: number | null;
-  onChange: (userVehicleId: number) => void;
+  onChange: (userVehicleId: number | null) => void;
   label?: string;
   disabled?: boolean;
+  includeIntegratedOption?: boolean;
 }
 
 const EMPTY_SELECTION_VALUE = "";
@@ -16,6 +17,7 @@ export default function VehicleSelector({
   onChange,
   label = "차량 선택",
   disabled = false,
+  includeIntegratedOption = false,
 }: VehicleSelectorProps) {
   if (vehicles.length === 0) {
     return null;
@@ -24,6 +26,11 @@ export default function VehicleSelector({
   const selectedValue = selectedUserVehicleId?.toString() ?? EMPTY_SELECTION_VALUE;
 
   function handleChange(value: string) {
+    if (includeIntegratedOption && value === EMPTY_SELECTION_VALUE) {
+      onChange(null);
+      return;
+    }
+
     if (!value) {
       return;
     }
@@ -47,7 +54,10 @@ export default function VehicleSelector({
         disabled={disabled}
         className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm outline-none transition focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
       >
-        {selectedUserVehicleId == null ? (
+        {includeIntegratedOption ? (
+          <option value={EMPTY_SELECTION_VALUE}>전체 차량 (통합)</option>
+        ) : null}
+        {selectedUserVehicleId == null && !includeIntegratedOption ? (
           <option value={EMPTY_SELECTION_VALUE} disabled>
             차량을 선택해 주세요
           </option>

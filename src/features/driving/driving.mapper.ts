@@ -194,6 +194,12 @@ export function buildWeeklySummaries(
 ): WeeklySummaryItem[] {
   return summaries
     .map((summary) => ({
+      startDate: summary.startDate,
+      endDate: summary.endDate,
+      totalDistance:
+        summary.totalDistanceKm != null
+          ? `${summary.totalDistanceKm.toFixed(2)}km`
+          : "0.00km",
       weekKey: `${summary.year}-${String(summary.month).padStart(2, "0")}-${summary.weekOfMonth}`,
       label: summary.label,
       averageDistance:

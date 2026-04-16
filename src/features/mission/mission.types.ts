@@ -43,6 +43,9 @@ export interface MissionItem {
   id: number;
   type: MissionType;
   status: MissionStatus;
+  targetType: MissionTargetType;
+  periodStartDate: string;
+  periodEndDate: string;
   title: string;
   period: string;
   progress: number;

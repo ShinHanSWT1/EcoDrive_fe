@@ -26,6 +26,11 @@ function getMissionIcon(iconType: MissionItem["iconType"]) {
 
 export default function MissionCard({ mission }: MissionCardProps) {
   const Icon = getMissionIcon(mission.iconType);
+  const isCompleted = mission.status === "completed";
+  const isSafeScoreSettlementPending =
+    mission.targetType === "SAFE_SCORE_GTE" &&
+    mission.type !== "daily" &&
+    !isCompleted;
 
   return (
     <div className="bg-white p-6 rounded-[32px] border border-slate-200 shadow-sm flex flex-col gap-4 group hover:border-blue-200 transition-all">
@@ -65,10 +70,10 @@ export default function MissionCard({ mission }: MissionCardProps) {
             </span>
             <span
               className={
-                mission.progress >= 100 ? "text-emerald-600" : "text-blue-600"
+                isCompleted ? "text-emerald-600" : "text-blue-600"
               }
             >
-              {mission.progress >= 100 ? "달성!" : `${mission.progress}%`}
+              {isCompleted ? "달성!" : `${mission.progress}%`}
             </span>
           </div>
 
@@ -76,7 +81,7 @@ export default function MissionCard({ mission }: MissionCardProps) {
             <div
               className={cn(
                 "absolute top-0 left-0 h-full transition-all duration-1000 rounded-full",
-                mission.progress >= 100
+                isCompleted
                   ? "bg-emerald-500"
                   : mission.colorClass.replace("text", "bg"),
               )}
@@ -87,8 +92,10 @@ export default function MissionCard({ mission }: MissionCardProps) {
       </div>
 
       <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 mt-auto">
-        {mission.progress >= 100 ? (
+        {isCompleted ? (
           <span className="text-emerald-600">보상 지급 예정</span>
+        ) : isSafeScoreSettlementPending ? (
+          <span className="text-amber-600">평가 대기 (기간 종료 후 확정)</span>
         ) : (
           <>
             <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
