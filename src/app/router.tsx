@@ -238,7 +238,7 @@ export default function AppRouter({
           }
         />
         <Route
-          path="/pay/success"
+          path="/payment/success"
           element={
               <ProtectedRoute
                   isAuthenticated={isAuthenticated}

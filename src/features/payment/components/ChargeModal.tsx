@@ -37,8 +37,8 @@ export const ChargeModal = ({ isOpen, onClose }: ChargeModalProps) => {
         orderId: prepared.orderId,
         orderName: "Gorani Pay 잔액 충전",
         customerName: "EcoDrive 사용자",
-        successUrl: `${origin}/pay/success`,
-        failUrl: `${origin}/pay/fail`,
+        successUrl: `${origin}/payment/success`,
+        failUrl: `${origin}/payment/fail`,
       });
 
       onClose();
