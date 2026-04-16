@@ -115,3 +115,13 @@ export async function chargeBalance(amount: number): Promise<PayWalletResponse> 
   const response = await api.post<ApiResponse<PayWalletResponse>>("/pay/charge", { amount });
   return response.data.data;
 }
+
+export async function confirmCharge(paymentKey: string, orderId: string, amount: number) {
+  // 백엔드의 실제 결제 승인 API 엔드포인트에 맞춰 호출합니다.
+  const response = await api.post("/pay/charge/confirm", {
+    paymentKey,
+    orderId,
+    amount,
+  });
+  return response.data;
+}

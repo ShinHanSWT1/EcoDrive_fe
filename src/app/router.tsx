@@ -22,6 +22,7 @@ import LandingPage from "../pages/LandingPage";
 import OAuthCallbackPage from "../pages/OAuthCallbackPage";
 import DashboardPreviewPage from "../pages/DashboardPreviewPage";
 import type { UserMe } from "../shared/types/api";
+import { SuccessPage } from "../features/payment/components/SuccessPage";
 
 interface RouterProps {
   currentUser: UserMe | null;
@@ -234,6 +235,17 @@ export default function AppRouter({
             >
                 <PaymentPage />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pay/success"
+          element={
+              <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  isOnboardingCompleted={isOnboardingCompleted}
+              >
+                  <SuccessPage />
+              </ProtectedRoute>
           }
         />
         <Route
