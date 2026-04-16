@@ -8,6 +8,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { getDefaultAvatarDataUrl } from '../lib/avatar';
 import type { UserMe } from '../types/api';
 
 interface MoreMenuProps {
@@ -35,7 +36,7 @@ export default function MoreMenu({ currentUser, onLogout }: MoreMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const nickname = currentUser?.nickname ?? '사용자';
   const profileImageUrl =
-    currentUser?.profileImageUrl ?? 'https://picsum.photos/seed/user/100/100';
+    currentUser?.profileImageUrl ?? getDefaultAvatarDataUrl(nickname);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

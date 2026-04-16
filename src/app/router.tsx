@@ -13,6 +13,7 @@ import InsuranceApplyPage from "../pages/InsuranceApplyPage";
 import InsuranceConfirmPage from "../pages/InsuranceConfirmPage";
 import PaymentPage from "../pages/PaymentPage";
 import ProfilePage from "../pages/ProfilePage";
+import VehicleAddPage from "../pages/VehicleAddPage";
 import LoginPage from "../pages/LoginPage";
 import OnboardingPage from "../pages/OnboardingPage";
 import AdminPage from "../pages/AdminPage";
@@ -242,7 +243,18 @@ export default function AppRouter({
               isAuthenticated={isAuthenticated}
               isOnboardingCompleted={isOnboardingCompleted}
             >
-                <ProfilePage />
+                <ProfilePage onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vehicles/new"
+          element={
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+              <VehicleAddPage onUserUpdate={onUserUpdate} />
             </ProtectedRoute>
           }
         />

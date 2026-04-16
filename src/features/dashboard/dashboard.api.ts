@@ -1,16 +1,19 @@
 import {
-  getLatestDrivingCarbon,
-  getLatestDrivingScore,
+  getDrivingOverviewByVehicle,
   getRecentDrivingSessions,
 } from "../driving/driving.api";
 import { getInsuranceFactors, getMyInsurances } from "../insurance/insurance.api";
 import type { DashboardData, InsurancePreviewItem } from "./dashboard.types";
+import { getMyVehicles } from "../../shared/api/onboarding";
+import { resolveRepresentativeVehicleId } from "../../shared/lib/vehicle";
 
 export async function getDashboardData(): Promise<DashboardData> {
-  const [score, carbon, recentSessions, myInsurances] = await Promise.all([
-    getLatestDrivingScore(),
-    getLatestDrivingCarbon(),
-    getRecentDrivingSessions(5),
+  const vehicles = await getMyVehicles().catch(() => []);
+  const representativeVehicleId = resolveRepresentativeVehicleId(vehicles);
+
+  const [{ score, carbon }, recentSessions, myInsurances] = await Promise.all([
+    getDrivingOverviewByVehicle(representativeVehicleId),
+    getRecentDrivingSessions(5, representativeVehicleId),
     getMyInsurances().catch(() => []),
   ]);
 
@@ -33,10 +36,14 @@ export async function getDashboardData(): Promise<DashboardData> {
   let totalSavings: number | null = null;
 
   try {
-    const { companies, products, calc } = await getInsuranceFactors();
+    const { companies, products, calc } = await getInsuranceFactors(0, representativeVehicleId);
     const activeCompanies = companies.filter((c) => c.status === "ACTIVE");
 
-    const activeInsurance = myInsurances.length > 0 ? myInsurances[0] : null;
+    const activeInsurance = myInsurances.find(
+      (insurance) =>
+        insurance.status === "ACTIVE"
+        && insurance.userVehicleId === representativeVehicleId,
+    ) ?? null;
 
     insurancePreviews = activeCompanies.slice(0, 3).map((c) => {
       const companyProducts = products.filter(

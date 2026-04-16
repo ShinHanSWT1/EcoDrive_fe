@@ -13,6 +13,19 @@ export interface RegisterVehicleResponse {
   isOnboardingCompleted: boolean;
 }
 
+export interface MyVehicleResponse {
+  userVehicleId: number;
+  vehicleNumber: string;
+  vehicleModelId: number;
+  manufacturer: string;
+  modelName: string;
+  modelYear: number;
+  fuelType: string;
+  status: string;
+  registeredAt: string;
+  isRepresentative: boolean;
+}
+
 export interface RegisterInsuranceRequest {
   userVehicleId: number;
   insuranceCompanyName: string;
@@ -57,6 +70,21 @@ export async function registerMyVehicle(request: RegisterVehicleRequest) {
   const response = await api.post<ApiResponse<RegisterVehicleResponse>>(
     "/users/me/vehicles",
     request,
+  );
+  return response.data.data;
+}
+
+export async function getMyVehicles() {
+  const response = await api.get<ApiResponse<{ vehicles: MyVehicleResponse[] }>>(
+    "/users/me/vehicles",
+  );
+  return response.data.data.vehicles;
+}
+
+export async function updateRepresentativeVehicle(userVehicleId: number) {
+  const response = await api.patch<ApiResponse<{ userVehicleId: number }>>(
+    "/users/me/representative-vehicle",
+    { userVehicleId },
   );
   return response.data.data;
 }

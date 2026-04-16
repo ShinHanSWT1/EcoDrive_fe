@@ -111,34 +111,72 @@ export interface DummyDrivingAutomationResult {
   };
 }
 
+type DrivingQueryParams = Record<string, number | string>;
+
+function withOptionalVehicleParams(
+  baseParams: DrivingQueryParams,
+  userVehicleId?: number | null,
+) {
+  return userVehicleId ? { ...baseParams, userVehicleId } : baseParams;
+}
+
 export async function getLatestDrivingScore(): Promise<DrivingLatestScore> {
+  return getLatestDrivingScoreByVehicle();
+}
+
+export async function getLatestDrivingScoreByVehicle(
+  userVehicleId?: number | null,
+): Promise<DrivingLatestScore> {
   const response = await api.get<ApiResponse<DrivingLatestScore>>(
     "/driving/scores/latest",
+    { params: withOptionalVehicleParams({}, userVehicleId) },
   );
   return response.data.data;
 }
 
 export async function getRecentDrivingSessions(
   limit = 5,
+  userVehicleId?: number | null,
 ): Promise<DrivingRecentSession[]> {
   const response = await api.get<ApiResponse<DrivingRecentSession[]>>(
-    `/driving/sessions/recent?limit=${limit}`,
+    "/driving/sessions/recent",
+    { params: withOptionalVehicleParams({ limit }, userVehicleId) },
   );
   return response.data.data;
 }
 
 export async function getLatestDrivingCarbon(): Promise<DrivingLatestCarbon> {
+  return getLatestDrivingCarbonByVehicle();
+}
+
+export async function getLatestDrivingCarbonByVehicle(
+  userVehicleId?: number | null,
+): Promise<DrivingLatestCarbon> {
   const response = await api.get<ApiResponse<DrivingLatestCarbon>>(
     "/driving/carbon/latest",
+    { params: withOptionalVehicleParams({}, userVehicleId) },
   );
   return response.data.data;
 }
 
+export async function getDrivingOverviewByVehicle(
+  userVehicleId?: number | null,
+) {
+  const [score, carbon] = await Promise.all([
+    getLatestDrivingScoreByVehicle(userVehicleId),
+    getLatestDrivingCarbonByVehicle(userVehicleId),
+  ]);
+
+  return { score, carbon };
+}
+
 export async function getDrivingDailySummary(
   date: string,
+  userVehicleId?: number | null,
 ): Promise<DrivingDailySummary> {
   const response = await api.get<ApiResponse<DrivingDailySummary>>(
-    `/driving/daily-summary?date=${date}`,
+    "/driving/daily-summary",
+    { params: withOptionalVehicleParams({ date }, userVehicleId) },
   );
   return response.data.data;
 }
@@ -146,18 +184,22 @@ export async function getDrivingDailySummary(
 export async function getDrivingWeeklySummaries(
   year: number,
   month: number,
+  userVehicleId?: number | null,
 ): Promise<DrivingWeeklySummary[]> {
   const response = await api.get<ApiResponse<DrivingWeeklySummary[]>>(
-    `/driving/weekly-summaries?year=${year}&month=${month}`,
+    "/driving/weekly-summaries",
+    { params: withOptionalVehicleParams({ year, month }, userVehicleId) },
   );
   return response.data.data;
 }
 
 export async function getDrivingBehaviorSummary(
   date: string,
+  userVehicleId?: number | null,
 ): Promise<DrivingBehaviorSummary> {
   const response = await api.get<ApiResponse<DrivingBehaviorSummary>>(
-    `/driving/behavior-summary?date=${date}`,
+    "/driving/behavior-summary",
+    { params: withOptionalVehicleParams({ date }, userVehicleId) },
   );
   return response.data.data;
 }
@@ -165,9 +207,11 @@ export async function getDrivingBehaviorSummary(
 export async function getDrivingMonthlySummary(
   year: number,
   month: number,
+  userVehicleId?: number | null,
 ): Promise<DrivingMonthlySummary> {
   const response = await api.get<ApiResponse<DrivingMonthlySummary>>(
-    `/driving/monthly-summary?year=${year}&month=${month}`,
+    "/driving/monthly-summary",
+    { params: withOptionalVehicleParams({ year, month }, userVehicleId) },
   );
   return response.data.data;
 }
@@ -175,25 +219,36 @@ export async function getDrivingMonthlySummary(
 export async function getDrivingScoreTrend(
   year: number,
   month: number,
+  userVehicleId?: number | null,
 ): Promise<DrivingScoreTrendResponse[]> {
   const response = await api.get<ApiResponse<DrivingScoreTrendResponse[]>>(
-    `/driving/scores/trend?year=${year}&month=${month}`,
+    "/driving/scores/trend",
+    { params: withOptionalVehicleParams({ year, month }, userVehicleId) },
   );
   return response.data.data;
 }
 
 export async function getDrivingScoreHistory(
   limit = 10,
+  userVehicleId?: number | null,
 ): Promise<DrivingScoreHistoryResponse[]> {
   const response = await api.get<ApiResponse<DrivingScoreHistoryResponse[]>>(
-    `/driving/scores/history?limit=${limit}`,
+    "/driving/scores/history",
+    { params: withOptionalVehicleParams({ limit }, userVehicleId) },
   );
   return response.data.data;
 }
 
 export async function generateAndRefreshDummyDrivingData(): Promise<DummyDrivingAutomationResult> {
+  return generateAndRefreshDummyDrivingDataForVehicle();
+}
+
+export async function generateAndRefreshDummyDrivingDataForVehicle(
+  userVehicleId?: number | null,
+): Promise<DummyDrivingAutomationResult> {
   const response = await api.post<ApiResponse<DummyDrivingAutomationResult>>(
     "/driving/admin/generate-and-refresh-dummy-data",
+    userVehicleId ? { userVehicleId } : undefined,
   );
   return response.data.data;
 }
