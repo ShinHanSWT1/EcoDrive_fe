@@ -24,6 +24,12 @@ interface PayTransactionResponse {
   category: string;
 }
 
+interface PayChargePrepareResponse {
+  orderId: string;
+  amount: number;
+  expiresAt: string;
+}
+
 function isWalletNotFoundError(error: unknown): boolean {
   if (!axios.isAxiosError(error)) {
     return false;
@@ -116,12 +122,16 @@ export async function chargeBalance(amount: number): Promise<PayWalletResponse> 
   return response.data.data;
 }
 
+export async function prepareCharge(amount: number): Promise<PayChargePrepareResponse> {
+  const response = await api.post<ApiResponse<PayChargePrepareResponse>>("/pay/charge/prepare", { amount });
+  return response.data.data;
+}
+
 export async function confirmCharge(paymentKey: string, orderId: string, amount: number) {
-  // 백엔드의 실제 결제 승인 API 엔드포인트에 맞춰 호출합니다.
-  const response = await api.post("/pay/charge/confirm", {
+  const response = await api.post<ApiResponse<PayWalletResponse>>("/pay/charge/confirm", {
     paymentKey,
     orderId,
     amount,
   });
-  return response.data;
+  return response.data.data;
 }

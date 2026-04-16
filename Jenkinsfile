@@ -51,13 +51,16 @@ pipeline {
 
         stage('2. Build Image') {
             steps {
-                sh """
-                    podman build \
-                      --build-arg VITE_API_BASE_URL=${VITE_API_BASE_URL} \
-                      --build-arg VITE_PAY_BASE_URL=${VITE_PAY_BASE_URL} \
-                      --build-arg VITE_SHOW_DUMMY_BUTTON=${VITE_SHOW_DUMMY_BUTTON} \
-                      -t ${FULL_IMAGE_TAG} .
-                """
+                withCredentials([string(credentialsId: 'toss-client-key', variable: 'TOSS_CLIENT_KEY')]) {
+                    sh """
+                        podman build \
+                          --build-arg VITE_API_BASE_URL=${VITE_API_BASE_URL} \
+                          --build-arg VITE_PAY_BASE_URL=${VITE_PAY_BASE_URL} \
+                          --build-arg VITE_SHOW_DUMMY_BUTTON=${VITE_SHOW_DUMMY_BUTTON} \
+                          --build-arg VITE_TOSS_CLIENT_KEY=${TOSS_CLIENT_KEY} \
+                          -t ${FULL_IMAGE_TAG} .
+                    """
+                }
                 sh "podman tag ${FULL_IMAGE_TAG} ${LATEST_IMAGE_TAG}"
             }
         }
