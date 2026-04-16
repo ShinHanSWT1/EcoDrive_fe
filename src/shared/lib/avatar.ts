@@ -1,3 +1,5 @@
+import type { SyntheticEvent } from "react";
+
 function encodeSvg(svg: string) {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
@@ -15,4 +17,22 @@ export function getDefaultAvatarDataUrl(label = "U") {
       </text>
     </svg>
   `);
+}
+
+export function getAvatarImageSrc(imageUrl: string | null | undefined, label = "U") {
+  return imageUrl ?? getDefaultAvatarDataUrl(label);
+}
+
+export function createAvatarFallbackHandler(label = "U") {
+  const fallbackSrc = getDefaultAvatarDataUrl(label);
+
+  return (event: SyntheticEvent<HTMLImageElement>) => {
+    const target = event.currentTarget;
+
+    if (target.src === fallbackSrc) {
+      return;
+    }
+
+    target.src = fallbackSrc;
+  };
 }
