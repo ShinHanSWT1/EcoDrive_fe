@@ -103,15 +103,19 @@ export async function getPaymentData(): Promise<PaymentData> {
   }
 
   return {
-    ...paymentMockData,
+    ...paymentMockData, // 카테고리, 상품, 쿠폰 등 기존 목데이터 유지
     walletMissing: wallet == null,
-    wallet: wallet ? toWalletInfo(wallet) : null,
+    wallet: wallet ? toWalletInfo(wallet) : null, // 실제 지갑 정보 반영
     user: {
-      ...paymentMockData.user,
+      name: wallet?.ownerName ?? "-",
       balance: wallet?.balance ?? 0,
+      score: 0,
+      carbonReduction: 0,
+      points: 0,
+      monthlyUsage: 0,
     },
     recentHistory: history.slice(0, 4),
-    allHistory: history,
+    allHistory: history,               // 실제 전체 거래 내역
     missionSummary: missionPageData.summary,
     missions: missionPageData.missions,
   };

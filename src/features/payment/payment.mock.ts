@@ -4,19 +4,19 @@ import type { PaymentData } from "./payment.types";
 export const paymentMockData: PaymentData = {
   user: {
     name: "김철수",
-    score: 88,
-    carbonReduction: 12.4,
-    points: 6300,
-    balance: 128450,
-    monthlyUsage: 41200,
+    score: '-',
+    carbonReduction: '-',
+    points: '-',
+    balance: '-',
+    monthlyUsage: '-',
   },
   walletMissing: false,
   wallet: {
     payUserId: 1,
     payAccountId: 1,
-    accountNumber: "110-1234-5678",
-    bankCode: "004",
-    ownerName: "김철수",
+    accountNumber: "-",
+    bankCode: "-",
+    ownerName: "-",
     status: "ACTIVE",
   },
 
