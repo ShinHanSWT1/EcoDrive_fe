@@ -64,7 +64,7 @@ export async function getProductCoverages(
 }
 
 // 보험 할인 계산에 필요한 공통 데이터를 조회
-export async function getInsuranceFactors(experienceYears: number = 0) {
+export async function getInsuranceFactors(experienceYears: number = 0, annualMileageKm: number = 0) {
   const [companiesRes, productsRes] = await Promise.all([
     api.get("/insurance/companies"),
     api.get("/insurance/products"),
@@ -90,15 +90,15 @@ export async function getInsuranceFactors(experienceYears: number = 0) {
     userAge = 30;
   }
 
-  // 1. 현재 점수 기준 할인율 계산
+  // 1. 현재 점수 + 주행거리 기준 할인율 계산
   const calcRes = await api.get("/insurance/discount-policies/calculate", {
-    params: { age: userAge, score: safetyScore ?? 100, experienceYears },
+    params: { age: userAge, score: safetyScore ?? 0, experienceYears, annualMileageKm },
   });
   const calc: CalculateResponse = calcRes.data.data;
 
-  // 2. 최대 점수(100점) 기준 할인율 계산 (비교 섹션용)
+  // 2. 최대 점수(100점) + 기준 주행거리(10000km) 기준 할인율 계산 (비교 섹션용)
   const maxCalcRes = await api.get("/insurance/discount-policies/calculate", {
-    params: { age: userAge, score: 100, experienceYears },
+    params: { age: userAge, score: 100, experienceYears, annualMileageKm: 10000 },
   });
   const maxCalc: CalculateResponse = maxCalcRes.data.data;
 
@@ -157,16 +157,13 @@ export async function getInsurancePageData(): Promise<InsurancePageData> {
     : 0;
 
   // 2. 공통 데이터 조회 및 최근 주행 기록 합산
-  const [factors, recentSessions] = await Promise.all([
-    getInsuranceFactors(experienceYears),
-    getRecentDrivingSessions(20).catch(() => []),
+  const recentSessions = await getRecentDrivingSessions(20).catch(() => []);
+  const totalDistance = recentSessions.reduce((sum, s) => sum + s.distanceKm, 0);
+
+  const [factors] = await Promise.all([
+    getInsuranceFactors(experienceYears, Math.round(totalDistance)),
   ]);
   const { companies, products, safetyScore, calc, maxCalc } = factors;
-
-  const totalDistance = recentSessions.reduce(
-    (sum, s) => sum + s.distanceKm,
-    0,
-  );
 
   // 8. 내 보험 목록
   let myInsurances: InsuranceResponse[] = [];
@@ -247,8 +244,7 @@ export async function getInsurancePageData(): Promise<InsurancePageData> {
     representativeAdjusted * (1 - currentDiscountRate),
   );
 
-  const representativeDiscount =
-    totalDistance > 15000 ? 0 : representativeAdjusted - representativeFinal;
+  const representativeDiscount = representativeAdjusted - representativeFinal;
 
   const planLabels: Record<string, string> = {
     BASIC: "기본형",
@@ -282,8 +278,8 @@ export async function getInsurancePageData(): Promise<InsurancePageData> {
       : 0,
     safetyScore,
     annualMileageKm: totalDistance,
-    expectedPremium: totalDistance > 15000 ? representativeAdjusted : representativeFinal,
-    expectedDiscountRate: totalDistance > 15000 ? 0 : Math.round(currentDiscountRate * 1000) / 10,
+    expectedPremium: representativeFinal,
+    expectedDiscountRate: Math.round(currentDiscountRate * 1000) / 10,
     totalExpectedSavings: representativeDiscount,
   };
 
@@ -305,9 +301,8 @@ export async function getInsurancePageData(): Promise<InsurancePageData> {
         tone: "blue" as const,
       },
     ],
-    totalDiscountRate:
-      totalDistance > 15000 ? 0 : Math.round(currentDiscountRate * 1000) / 10,
-    finalPremium: totalDistance > 15000 ? representativeAdjusted : representativeFinal,
+    totalDiscountRate: Math.round(currentDiscountRate * 1000) / 10,
+    finalPremium: representativeFinal,
     productNameLabel: `${currentProductLabel} ${currentPlanLabel}`.trim(),
   };
 
