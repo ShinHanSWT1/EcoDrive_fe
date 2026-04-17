@@ -1,4 +1,4 @@
-﻿import { Coins, CreditCard, Plus, Ticket, TrendingUp, Wallet } from "lucide-react";
+﻿import { Coins, CreditCard, Plus, ShoppingBag, Ticket, TrendingUp, Wallet } from "lucide-react";
 import { motion } from "motion/react";
 
 interface AssetSummaryCardProps {
@@ -8,6 +8,7 @@ interface AssetSummaryCardProps {
   chargeDisabled?: boolean;
   onOpenCoupons: () => void;
   onChargeClick: () => void;
+  onCheckoutClick: () => void;
 }
 
 export default function AssetSummaryCard({
@@ -17,6 +18,7 @@ export default function AssetSummaryCard({
   chargeDisabled = false,
   onOpenCoupons,
   onChargeClick,
+  onCheckoutClick,
 }: AssetSummaryCardProps) {
   const totalBalance = balance + points;
 
@@ -64,7 +66,7 @@ export default function AssetSummaryCard({
         </div>
       </div>
 
-      <div className="relative z-10 grid grid-cols-2 gap-3">
+      <div className="relative z-10 grid grid-cols-3 gap-3">
         <button
           onClick={onChargeClick}
           disabled={chargeDisabled}
@@ -72,6 +74,14 @@ export default function AssetSummaryCard({
         >
           <Plus size={16} />
           충전하기
+        </button>
+        <button
+          onClick={onCheckoutClick}
+          disabled={chargeDisabled}
+          className="bg-white text-slate-900 rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] transition-transform disabled:opacity-60 disabled:hover:scale-100"
+        >
+          <ShoppingBag size={16} />
+          결제하기
         </button>
         <button
           onClick={onOpenCoupons}

@@ -1,4 +1,4 @@
-﻿import { missionPageData } from "../mission/mission.mock";
+import { missionPageData } from "../mission/mission.mock";
 import type { PaymentData } from "./payment.types";
 
 export const paymentMockData: PaymentData = {
@@ -6,7 +6,7 @@ export const paymentMockData: PaymentData = {
     name: "김철수",
     score: 88,
     carbonReduction: 12.4,
-    points: 6300,
+    points: 0,
     balance: 128450,
     monthlyUsage: 41200,
   },
@@ -150,18 +150,24 @@ export const paymentMockData: PaymentData = {
   coupons: [
     {
       id: 1,
+      templateId: 1,
       name: "스타벅스 10% 할인",
       expiry: "2026.04.30",
       discount: "10%",
       category: "카페",
+      description: "제휴 카페 결제 시 즉시 할인 적용됩니다.",
+      image: "https://picsum.photos/seed/mock-coupon-1/400/300",
       used: false,
     },
     {
       id: 2,
+      templateId: 2,
       name: "GS25 1,000원 금액권",
       expiry: "2026.04.25",
       discount: "1,000원",
       category: "편의점",
+      description: "편의점 제휴 매장에서 사용할 수 있습니다.",
+      image: "https://picsum.photos/seed/mock-coupon-2/400/300",
       used: false,
     },
   ],

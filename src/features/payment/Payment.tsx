@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { usePayment } from "./usePayment";
 import type { PaymentTab } from "./payment.types";
@@ -15,7 +15,14 @@ export default function Payment() {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [selectedCouponCategory, setSelectedCouponCategory] = useState<string | null>(null);
 
-  const { data, isLoading, isError, handleCharge, handleCreateWallet, isCreatingWallet } = usePayment();
+  const {
+    data,
+    isLoading,
+    isError,
+    handleCharge,
+    handleCreateWallet,
+    isCreatingWallet,
+  } = usePayment();
 
   const handleOpenCoupons = (category: string | null = null) => {
     setSelectedCouponCategory(category);

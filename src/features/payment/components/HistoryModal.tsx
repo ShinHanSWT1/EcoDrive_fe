@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, Filter, History, Search, X } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, History, Search, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { cn } from "../../../shared/lib/utils";
 import type { PaymentHistoryItem } from "../payment.types";
@@ -53,7 +53,7 @@ export default function HistoryModal({
       }
 
       if (normalizedKeyword) {
-        const target = `${item.title} ${item.category}`.toLowerCase();
+        const target = `${item.title} ${item.category} ${item.description ?? ""}`.toLowerCase();
         if (!target.includes(normalizedKeyword)) {
           return false;
         }
@@ -132,7 +132,7 @@ export default function HistoryModal({
               <div>
                 <h3 className="text-xl font-black text-slate-900">전체 이용내역</h3>
                 <p className="text-sm text-slate-400 mt-0.5">
-                  최근 결제와 적립 내역을 확인하세요.
+                  결제/충전 내역을 검색하고 확인하세요.
                 </p>
               </div>
               <button
@@ -149,78 +149,59 @@ export default function HistoryModal({
                 <input
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="내역명/카테고리 검색"
+                  placeholder="제목/카테고리/설명 검색"
                   className="w-full bg-transparent outline-none text-slate-700 placeholder:text-slate-400 font-medium"
                 />
               </label>
 
               <div className="flex gap-2">
                 <button
-                    onClick={() => setFilterType("all")}
-                    className={cn(
-                        "flex-1 py-2.5 rounded-xl text-sm font-bold transition-all",
-                        filterType === "all" ? "bg-slate-800 text-white shadow-md" : "bg-slate-100 text-slate-500"
-                    )}
+                  onClick={() => setFilterType("all")}
+                  className={cn(
+                    "flex-1 py-2.5 rounded-xl text-sm font-bold transition-all",
+                    filterType === "all" ? "bg-slate-800 text-white shadow-md" : "bg-slate-100 text-slate-500"
+                  )}
                 >
                   전체
                 </button>
                 <button
-                    onClick={() => setFilterType("earn")}
-                    className={cn(
-                        "flex-1 py-2.5 rounded-xl text-sm font-bold transition-all",
-                        filterType === "earn" ? "bg-emerald-500 text-white shadow-md" : "bg-slate-100 text-slate-500"
-                    )}
+                  onClick={() => setFilterType("earn")}
+                  className={cn(
+                    "flex-1 py-2.5 rounded-xl text-sm font-bold transition-all",
+                    filterType === "earn" ? "bg-emerald-500 text-white shadow-md" : "bg-slate-100 text-slate-500"
+                  )}
                 >
-                  충전
+                  충전/적립
                 </button>
                 <button
-                    onClick={() => setFilterType("pay")}
-                    className={cn(
-                        "flex-1 py-2.5 rounded-xl text-sm font-bold transition-all",
-                        filterType === "pay" ? "bg-slate-800 text-white shadow-md" : "bg-slate-100 text-slate-500"
-                    )}
+                  onClick={() => setFilterType("pay")}
+                  className={cn(
+                    "flex-1 py-2.5 rounded-xl text-sm font-bold transition-all",
+                    filterType === "pay" ? "bg-slate-800 text-white shadow-md" : "bg-slate-100 text-slate-500"
+                  )}
                 >
                   결제
                 </button>
               </div>
 
               <div className="grid grid-cols-4 gap-2">
-                <button
-                  onClick={() => setPeriodType("all")}
-                  className={cn(
-                    "py-2 rounded-xl text-xs font-bold transition-all",
-                    periodType === "all" ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-500",
-                  )}
-                >
-                  전체기간
-                </button>
-                <button
-                  onClick={() => setPeriodType("7d")}
-                  className={cn(
-                    "py-2 rounded-xl text-xs font-bold transition-all",
-                    periodType === "7d" ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-500",
-                  )}
-                >
-                  최근 7일
-                </button>
-                <button
-                  onClick={() => setPeriodType("30d")}
-                  className={cn(
-                    "py-2 rounded-xl text-xs font-bold transition-all",
-                    periodType === "30d" ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-500",
-                  )}
-                >
-                  최근 30일
-                </button>
-                <button
-                  onClick={() => setPeriodType("custom")}
-                  className={cn(
-                    "py-2 rounded-xl text-xs font-bold transition-all",
-                    periodType === "custom" ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-500",
-                  )}
-                >
-                  직접선택
-                </button>
+                {[
+                  { key: "all", label: "전체기간" },
+                  { key: "7d", label: "최근 7일" },
+                  { key: "30d", label: "최근 30일" },
+                  { key: "custom", label: "직접선택" },
+                ].map((option) => (
+                  <button
+                    key={option.key}
+                    onClick={() => setPeriodType(option.key as "all" | "7d" | "30d" | "custom")}
+                    className={cn(
+                      "py-2 rounded-xl text-xs font-bold transition-all",
+                      periodType === option.key ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-500",
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
               </div>
 
               {periodType === "custom" ? (
@@ -272,55 +253,58 @@ export default function HistoryModal({
 
             <div className="overflow-y-auto">
               {filteredHistory.length > 0 ? (
-                  filteredHistory.map((item) => (
+                filteredHistory.map((item) => (
+                  <div
+                    key={item.id}
+                    className="px-6 py-4 border-b border-slate-50 flex items-center justify-between gap-3"
+                  >
+                    <div className="flex items-center gap-3">
                       <div
-                          key={item.id}
-                          className="px-6 py-4 border-b border-slate-50 flex items-center justify-between gap-3"
+                        className={cn(
+                          "w-11 h-11 rounded-2xl flex items-center justify-center",
+                          item.type === "earn"
+                            ? "bg-emerald-50 text-emerald-600"
+                            : "bg-slate-100 text-slate-600",
+                        )}
                       >
-                        <div className="flex items-center gap-3">
-                          <div
-                              className={cn(
-                                  "w-11 h-11 rounded-2xl flex items-center justify-center",
-                                  item.type === "earn"
-                                      ? "bg-emerald-50 text-emerald-600"
-                                      : "bg-slate-100 text-slate-600",
-                              )}
-                          >
-                            {item.type === "earn" ? (
-                                <ArrowDownLeft size={18} />
-                            ) : (
-                                <ArrowUpRight size={18} />
-                            )}
-                          </div>
-                          <div>
-                            <div className="font-bold text-slate-900">{item.title}</div>
-                            <div className="text-xs text-slate-400 mt-1">
-                              {item.date} · {item.category}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <div
-                              className={cn(
-                                  "font-black",
-                                  item.type === "earn" ? "text-emerald-600" : "text-slate-900",
-                              )}
-                          >
-                            {item.type === "earn" ? "+" : "-"}
-                            {item.amount.toLocaleString("ko-KR")}원
-                          </div>
-                          <div className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mt-1 flex items-center gap-1 justify-end">
-                            <History size={10} />
-                            {item.type === "earn" ? "Earn" : "Pay"}
-                          </div>
-                        </div>
+                        {item.type === "earn" ? (
+                          <ArrowDownLeft size={18} />
+                        ) : (
+                          <ArrowUpRight size={18} />
+                        )}
                       </div>
-                  ))
-              ) : (
-                  <div className="py-12 text-center text-slate-400 text-sm font-medium">
-                    해당하는 내역이 없습니다.
+                      <div>
+                        <div className="font-bold text-slate-900">{item.title}</div>
+                        <div className="text-xs text-slate-400 mt-1">
+                          {item.date} · {item.category}
+                        </div>
+                        {item.description ? (
+                          <div className="text-xs text-slate-500 mt-1">{item.description}</div>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <div
+                        className={cn(
+                          "font-black",
+                          item.type === "earn" ? "text-emerald-600" : "text-slate-900",
+                        )}
+                      >
+                        {item.type === "earn" ? "+" : "-"}
+                        {item.amount.toLocaleString("ko-KR")}원
+                      </div>
+                      <div className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mt-1 flex items-center gap-1 justify-end">
+                        <History size={10} />
+                        {item.type === "earn" ? "Earn" : "Pay"}
+                      </div>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="py-12 text-center text-slate-400 text-sm font-medium">
+                  해당하는 내역이 없습니다.
+                </div>
               )}
             </div>
           </motion.div>

@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { chargeBalance, createMyWallet, getPaymentData } from "./payment.api";
 import type { PaymentData } from "./payment.types";
 
@@ -8,10 +8,25 @@ export function usePayment() {
   const [isError, setIsError] = useState(false);
   const [isCreatingWallet, setIsCreatingWallet] = useState(false);
 
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      setIsError(false);
+
+      const result = await getPaymentData();
+      setData(result);
+    } catch (error) {
+      console.error("payment 데이터 조회 실패:", error);
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
 
-    async function fetchData() {
+    async function fetchDataWithMountGuard() {
       try {
         setIsLoading(true);
         setIsError(false);
@@ -32,7 +47,7 @@ export function usePayment() {
       }
     }
 
-    fetchData();
+    fetchDataWithMountGuard();
 
     return () => {
       mounted = false;
@@ -88,6 +103,7 @@ export function usePayment() {
           user: {
             ...prev.user,
             balance: wallet.balance,
+            points: wallet.points,
           },
         };
       });
@@ -109,5 +125,6 @@ export function usePayment() {
     isCreatingWallet,
     handleCharge,
     handleCreateWallet,
+    refreshPaymentData: fetchData,
   };
 }

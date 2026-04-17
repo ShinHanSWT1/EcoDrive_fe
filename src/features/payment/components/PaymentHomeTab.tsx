@@ -1,8 +1,9 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import AssetSummaryCard from "./AssetSummaryCard";
 import { RecentHistorySection } from "./RecentHistorySection";
 import BenefitProductSection from "./BenefitProductSection";
 import { ChargeModal } from "./ChargeModal";
+import { CheckoutModal } from "./CheckoutModal";
 import type {
   PaymentCategory,
   PaymentHistoryItem,
@@ -40,6 +41,7 @@ export default function PaymentHomeTab({
 }: PaymentHomeTabProps) {
   const [activeCategoryId, setActiveCategoryId] = useState("all");
   const [isChargeModalOpen, setIsChargeModalOpen] = useState(false);
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
   return (
     <div className="space-y-12">
@@ -85,6 +87,7 @@ export default function PaymentHomeTab({
           chargeDisabled={walletMissing}
           onOpenCoupons={onOpenCoupons}
           onChargeClick={() => setIsChargeModalOpen(true)}
+          onCheckoutClick={() => setIsCheckoutModalOpen(true)}
         />
         <RecentHistorySection
           history={recentHistory.slice(0, 4)}
@@ -103,6 +106,10 @@ export default function PaymentHomeTab({
         isOpen={isChargeModalOpen}
         onClose={() => setIsChargeModalOpen(false)}
         onCharge={onCharge}
+      />
+      <CheckoutModal
+        isOpen={isCheckoutModalOpen}
+        onClose={() => setIsCheckoutModalOpen(false)}
       />
     </div>
   );

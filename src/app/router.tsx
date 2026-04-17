@@ -12,6 +12,9 @@ import InsurancePage from "../pages/InsurancePage";
 import InsuranceApplyPage from "../pages/InsuranceApplyPage";
 import InsuranceConfirmPage from "../pages/InsuranceConfirmPage";
 import PaymentPage from "../pages/PaymentPage";
+import CouponCheckoutPage from "../pages/CouponCheckoutPage";
+import CouponCheckoutSuccessPage from "../pages/CouponCheckoutSuccessPage";
+import CouponCheckoutFailPage from "../pages/CouponCheckoutFailPage";
 import ProfilePage from "../pages/ProfilePage";
 import VehicleAddPage from "../pages/VehicleAddPage";
 import LoginPage from "../pages/LoginPage";
@@ -234,6 +237,39 @@ export default function AppRouter({
               isOnboardingCompleted={isOnboardingCompleted}
             >
                 <PaymentPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payment/checkout"
+          element={
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+              <CouponCheckoutPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payment/coupon/success"
+          element={
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+              <CouponCheckoutSuccessPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payment/coupon/fail"
+          element={
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+              <CouponCheckoutFailPage />
             </ProtectedRoute>
           }
         />

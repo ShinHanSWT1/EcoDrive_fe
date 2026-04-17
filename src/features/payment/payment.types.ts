@@ -1,4 +1,4 @@
-﻿import type { MissionItem, MissionSummary } from "../mission/mission.types";
+import type { MissionItem, MissionSummary } from "../mission/mission.types";
 
 export type PaymentTab = "home" | "history" | "mission";
 
@@ -28,11 +28,13 @@ export interface PaymentCategory {
 export interface PaymentProduct {
   id: number;
   name: string;
+  description?: string;
   price: number;
   originalPrice: number;
   category: string;
   image: string;
   discountLabel: string;
+  validDays?: number;
 }
 
 export interface PaymentHistoryItem {
@@ -42,6 +44,7 @@ export interface PaymentHistoryItem {
   amount: number;
   type: "pay" | "earn";
   category: string;
+  description?: string;
 }
 
 export interface PaymentPointHistoryItem {
@@ -54,10 +57,13 @@ export interface PaymentPointHistoryItem {
 
 export interface PaymentCouponItem {
   id: number;
+  templateId: number;
   name: string;
   expiry: string;
   discount?: string;
   category?: string;
+  description?: string;
+  image?: string;
   used: boolean;
 }
 

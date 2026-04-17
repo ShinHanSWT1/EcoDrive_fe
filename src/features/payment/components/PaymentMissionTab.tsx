@@ -24,7 +24,7 @@ function MissionGroupSection({
   pulseClass: string;
   items: MissionItem[];
 }) {
-  // 미션 미노출 상태 가시성 확보함
+  // 미션이 없는 경우 비어있는 상태를 안내한다.
   if (items.length === 0) {
     return (
       <div className="space-y-6">
@@ -37,7 +37,7 @@ function MissionGroupSection({
           </span>
         </div>
         <div className="rounded-3xl border border-slate-200 bg-white p-8 text-sm font-semibold text-slate-500">
-          표시할 미션 데이터 없음
+          표시할 미션 데이터가 없습니다.
         </div>
       </div>
     );
@@ -55,84 +55,78 @@ function MissionGroupSection({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {items.map((mission) => (
-          (() => {
-            const isCompleted = mission.status === "completed";
-            const isSafeScoreSettlementPending =
-              mission.targetType === "SAFE_SCORE_GTE" &&
-              mission.type !== "daily" &&
-              !isCompleted;
+        {items.map((mission) => {
+          const isCompleted = mission.status === "completed";
+          const isSafeScoreSettlementPending =
+            mission.targetType === "SAFE_SCORE_GTE" &&
+            mission.type !== "daily" &&
+            !isCompleted;
 
-            return (
-          <div
-            key={mission.id}
-            className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm flex flex-col gap-6 hover:shadow-md transition-all"
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <div
-                  className={cn(
-                    "text-[10px] font-black px-3 py-1 rounded-xl w-fit mb-3 tracking-widest uppercase",
-                    badgeClass,
-                  )}
-                >
-                  {title}
+          return (
+            <div
+              key={mission.id}
+              className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm flex flex-col gap-6 hover:shadow-md transition-all"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <div
+                    className={cn(
+                      "text-[10px] font-black px-3 py-1 rounded-xl w-fit mb-3 tracking-widest uppercase",
+                      badgeClass,
+                    )}
+                  >
+                    {title}
+                  </div>
+                  <h5 className="text-lg font-black text-slate-900">{mission.title}</h5>
                 </div>
-                <h5 className="text-lg font-black text-slate-900">{mission.title}</h5>
+
+                <div className="text-right">
+                  <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">
+                    보상
+                  </div>
+                  <div className="text-lg font-black text-blue-600">
+                    {mission.rewardPoint.toLocaleString("ko-KR")}P
+                  </div>
+                </div>
               </div>
 
-              <div className="text-right">
-                <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">
-                  보상
+              <div className="space-y-3">
+                <div className="flex justify-between text-xs font-black">
+                  <span className="text-slate-500">
+                    현재 {mission.current} / 목표 {mission.target}
+                  </span>
+                  <span className={isCompleted ? "text-emerald-600" : "text-blue-600"}>
+                    {isCompleted ? "달성" : `${mission.progress}%`}
+                  </span>
                 </div>
-                <div className="text-lg font-black text-blue-600">
-                  {mission.rewardPoint.toLocaleString("ko-KR")} P
+                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className={cn(
+                      "h-full rounded-full",
+                      isCompleted ? "bg-emerald-500" : progressClass,
+                    )}
+                    style={{ width: `${Math.min(mission.progress, 100)}%` }}
+                  />
                 </div>
+              </div>
+
+              <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                {isCompleted ? (
+                  <span className="text-emerald-600 flex items-center gap-1">
+                    <ShieldCheck size={14} /> 보상 지급 예정
+                  </span>
+                ) : isSafeScoreSettlementPending ? (
+                  <span className="text-amber-600">평가 대기(기간 종료 후 확정)</span>
+                ) : (
+                  <>
+                    <div className={cn("w-2 h-2 rounded-full animate-pulse", pulseClass)} />
+                    자동 반영 중
+                  </>
+                )}
               </div>
             </div>
-
-            <div className="space-y-3">
-              <div className="flex justify-between text-xs font-black">
-                <span className="text-slate-500">
-                  현재 {mission.current} / 목표 {mission.target}
-                </span>
-                <span
-                  className={
-                    isCompleted ? "text-emerald-600" : "text-blue-600"
-                  }
-                >
-                  {isCompleted ? "달성!" : `${mission.progress}%`}
-                </span>
-              </div>
-              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div
-                  className={cn(
-                    "h-full rounded-full",
-                    isCompleted ? "bg-emerald-500" : progressClass,
-                  )}
-                  style={{ width: `${Math.min(mission.progress, 100)}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-              {isCompleted ? (
-                <span className="text-emerald-600 flex items-center gap-1">
-                  <ShieldCheck size={14} /> 보상 지급 예정
-                </span>
-              ) : isSafeScoreSettlementPending ? (
-                <span className="text-amber-600">평가 대기 (기간 종료 후 확정)</span>
-              ) : (
-                <>
-                  <div className={cn("w-2 h-2 rounded-full animate-pulse", pulseClass)} />
-                  자동 반영 중
-                </>
-              )}
-            </div>
-          </div>
-            );
-          })()
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -152,10 +146,10 @@ export default function PaymentMissionTab({
         <div className="relative z-10 flex flex-col md:flex-row justify-between gap-10">
           <div className="space-y-2">
             <h3 className="text-3xl font-black text-slate-900 tracking-tight">
-              Pay 포인트 적립 미션
+              Pay 미션 리워드
             </h3>
             <p className="text-base text-slate-500 font-medium">
-              다양한 활동을 통해 포인트를 적립하고 결제 시 사용하세요.
+              다양한 운전 습관 데이터를 기반으로 포인트를 적립하고 결제에 사용하세요.
             </p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 flex-1 max-w-2xl">
@@ -172,7 +166,7 @@ export default function PaymentMissionTab({
                 이번 주 보상
               </div>
               <div className="text-2xl font-black text-blue-600">
-                {summary.weeklyRewardPoint.toLocaleString("ko-KR")} P
+                {summary.weeklyRewardPoint.toLocaleString("ko-KR")}P
               </div>
             </div>
             <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
@@ -200,7 +194,7 @@ export default function PaymentMissionTab({
       </div>
 
       <MissionGroupSection
-        title="오늘의 미션"
+        title="일일 미션"
         subtitle="Daily Missions"
         icon={<Clock size={22} className="text-blue-600" />}
         badgeClass="text-blue-600 bg-blue-50"

@@ -1,4 +1,4 @@
-﻿import { ArrowDownLeft, ArrowUpRight, ChevronRight, History } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, ChevronRight, History } from "lucide-react";
 import { cn } from "../../../shared/lib/utils";
 import type { PaymentHistoryItem } from "../payment.types";
 
@@ -58,6 +58,9 @@ export function RecentHistorySection({
                   <div className="text-[11px] text-slate-400 font-medium mt-0.5">
                     {item.date} · {item.category}
                   </div>
+                  {item.description ? (
+                    <div className="text-[11px] text-slate-500 mt-1">{item.description}</div>
+                  ) : null}
                 </div>
               </div>
               <div
