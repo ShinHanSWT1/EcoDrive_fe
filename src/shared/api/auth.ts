@@ -13,11 +13,6 @@ export async function uploadMyProfileImage(file: File): Promise<string> {
   const response = await api.post<ApiResponse<{ profileImageUrl: string }>>(
     "/users/me/profile-image",
     formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    },
   );
 
   return response.data.data.profileImageUrl;

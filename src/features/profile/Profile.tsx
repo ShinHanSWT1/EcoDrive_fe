@@ -43,6 +43,12 @@ type ProfileData = {
   insurances: InsuranceResponse[];
 };
 
+type ProfileImageUploadState = {
+  isModalOpen: boolean;
+  isUploading: boolean;
+  errorMessage: string | null;
+};
+
 function formatNumber(value: number | null | undefined) {
   return (value ?? 0).toLocaleString("ko-KR");
 }
@@ -133,6 +139,46 @@ function updateProfileData(
   };
 }
 
+function updateRepresentativeProfileData(
+  current: ProfileData | null,
+  representativeVehicleId: number,
+  performanceSummary: Awaited<ReturnType<typeof loadVehiclePerformanceSummary>>,
+) {
+  if (!current) {
+    return current;
+  }
+
+  return {
+    ...current,
+    vehicles: updateRepresentativeVehicles(current.vehicles, representativeVehicleId),
+    summary: {
+      ...current.summary,
+      safetyScore: performanceSummary.safetyScore,
+      carbonReductionKg: performanceSummary.carbonReductionKg,
+    },
+  };
+}
+
+async function loadProfileData() {
+  const [me, vehicles, insurances, paymentData] = await Promise.all([
+    fetchMe(),
+    getMyVehicles().catch(() => []),
+    getMyInsurances().catch(() => []),
+    getPaymentData().catch(() => null),
+  ]);
+
+  const representativeVehicleId = resolveRepresentativeVehicleId(vehicles);
+  const performanceSummary =
+    await loadVehiclePerformanceSummary(representativeVehicleId);
+
+  return {
+    me,
+    summary: buildProfileSummary({ paymentData, performanceSummary }),
+    vehicles,
+    insurances,
+  };
+}
+
 export default function Profile({
   onLogout,
   onUserUpdate,
@@ -144,41 +190,27 @@ export default function Profile({
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isUpdatingRepresentative, setIsUpdatingRepresentative] = useState(false);
-  const [isProfileImageModalOpen, setIsProfileImageModalOpen] = useState(false);
-  const [isUploadingProfileImage, setIsUploadingProfileImage] = useState(false);
-  const [profileImageUploadError, setProfileImageUploadError] = useState<string | null>(null);
+  const [profileImageUploadState, setProfileImageUploadState] = useState<ProfileImageUploadState>({
+    isModalOpen: false,
+    isUploading: false,
+    errorMessage: null,
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let active = true;
 
-    async function loadProfileData() {
+    async function loadInitialProfileData() {
       try {
         setIsLoading(true);
         setIsError(false);
-
-        const [me, vehicles, insurances, paymentData] =
-          await Promise.all([
-            fetchMe(),
-            getMyVehicles().catch(() => []),
-            getMyInsurances().catch(() => []),
-            getPaymentData().catch(() => null),
-          ]);
-
-        const representativeVehicleId = resolveRepresentativeVehicleId(vehicles);
-        const performanceSummary =
-          await loadVehiclePerformanceSummary(representativeVehicleId);
+        const nextData = await loadProfileData();
 
         if (!active) {
           return;
         }
 
-        setData({
-          me,
-          summary: buildProfileSummary({ paymentData, performanceSummary }),
-          vehicles,
-          insurances,
-        });
+        setData(nextData);
       } catch (error) {
         console.error("프로필 데이터 조회 실패:", error);
 
@@ -192,7 +224,7 @@ export default function Profile({
       }
     }
 
-    void loadProfileData();
+    void loadInitialProfileData();
 
     return () => {
       active = false;
@@ -221,6 +253,30 @@ export default function Profile({
   const avatarLabel = me.nickname ?? me.email ?? "U";
   const profileImageSrc = getAvatarImageSrc(me.profileImageUrl, avatarLabel);
   const handleProfileImageError = createAvatarFallbackHandler(avatarLabel);
+  const {
+    isModalOpen: isProfileImageModalOpen,
+    isUploading: isUploadingProfileImage,
+    errorMessage: profileImageUploadError,
+  } = profileImageUploadState;
+
+  function openProfileImageModal() {
+    setProfileImageUploadState((current) => ({
+      ...current,
+      isModalOpen: true,
+      errorMessage: null,
+    }));
+  }
+
+  function closeProfileImageModal() {
+    if (isUploadingProfileImage) {
+      return;
+    }
+
+    setProfileImageUploadState((current) => ({
+      ...current,
+      isModalOpen: false,
+    }));
+  }
 
   async function handleRepresentativeVehicleChange(nextVehicleId: number) {
     try {
@@ -229,18 +285,11 @@ export default function Profile({
       const performanceSummary =
         await loadVehiclePerformanceSummary(nextVehicleId);
 
-      setData((current) => current ? {
-        ...current,
-        vehicles: updateRepresentativeVehicles(
-          current.vehicles,
-          nextVehicleId,
-        ),
-        summary: {
-          ...current.summary,
-          safetyScore: performanceSummary.safetyScore,
-          carbonReductionKg: performanceSummary.carbonReductionKg,
-        },
-      } : current);
+      setData((current) => updateRepresentativeProfileData(
+        current,
+        nextVehicleId,
+        performanceSummary,
+      ));
     } catch (error) {
       console.error("대표 차량 변경 실패:", error);
     } finally {
@@ -258,19 +307,29 @@ export default function Profile({
     }
 
     try {
-      setIsUploadingProfileImage(true);
-      setProfileImageUploadError(null);
+      setProfileImageUploadState((current) => ({
+        ...current,
+        isUploading: true,
+        errorMessage: null,
+      }));
       await uploadMyProfileImage(file);
       const updatedMe = await fetchMe();
 
       onUserUpdate(updatedMe);
       setData((current) => updateProfileData(current, updatedMe));
-      setIsProfileImageModalOpen(false);
+      setProfileImageUploadState((current) => ({
+        ...current,
+        isUploading: false,
+        isModalOpen: false,
+      }));
     } catch (error) {
       console.error("프로필 이미지 업로드 실패:", error);
-      setProfileImageUploadError("프로필 이미지를 변경하지 못했습니다. 다시 시도해 주세요.");
+      setProfileImageUploadState((current) => ({
+        ...current,
+        isUploading: false,
+        errorMessage: "프로필 이미지를 변경하지 못했습니다. 다시 시도해 주세요.",
+      }));
     } finally {
-      setIsUploadingProfileImage(false);
       event.target.value = "";
     }
   }
@@ -281,10 +340,7 @@ export default function Profile({
         <div className="mb-4">
           <button
             type="button"
-            onClick={() => {
-              setProfileImageUploadError(null);
-              setIsProfileImageModalOpen(true);
-            }}
+            onClick={openProfileImageModal}
             className="group relative overflow-hidden rounded-[32px] border-4 border-white shadow-xl"
             aria-label="프로필 이미지 크게 보기 및 변경"
           >
@@ -411,11 +467,7 @@ export default function Profile({
           <button
             type="button"
             className="absolute inset-0 bg-slate-900/60"
-            onClick={() => {
-              if (!isUploadingProfileImage) {
-                setIsProfileImageModalOpen(false);
-              }
-            }}
+            onClick={closeProfileImageModal}
             aria-label="프로필 이미지 modal 닫기"
           />
           <div className="relative z-10 w-full max-w-md rounded-[32px] bg-white p-6 shadow-2xl">
@@ -428,11 +480,7 @@ export default function Profile({
               </div>
               <button
                 type="button"
-                onClick={() => {
-                  if (!isUploadingProfileImage) {
-                    setIsProfileImageModalOpen(false);
-                  }
-                }}
+                onClick={closeProfileImageModal}
                 className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
                 aria-label="닫기"
               >
