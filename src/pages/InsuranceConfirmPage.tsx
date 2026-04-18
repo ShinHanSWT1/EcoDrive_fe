@@ -487,7 +487,7 @@ export default function InsuranceConfirmPage() {
 
       {isSignatureModalOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6">
-          <div className="bg-white rounded-[32px] w-full max-w-lg shadow-2xl p-8 space-y-6">
+          <div className="bg-white rounded-4xl w-full max-w-lg shadow-2xl p-8 space-y-6">
             <div className="text-left space-y-1">
               <h2 className="text-2xl font-black text-slate-900">서명해주세요</h2>
               <p className="text-sm text-slate-400">아래 칸에 서명 후 가입을 확정해주세요.</p>
@@ -570,7 +570,7 @@ export default function InsuranceConfirmPage() {
       )}
 
       {isCheckoutPopupOpen && (
-        <div className="fixed top-6 right-6 z-[70] max-w-sm bg-blue-600 text-white rounded-2xl shadow-2xl px-5 py-4">
+        <div className="fixed top-6 right-6 z-70 max-w-sm bg-blue-600 text-white rounded-2xl shadow-2xl px-5 py-4">
           <div className="text-sm font-bold mb-1">결제창이 새 창에서 열렸습니다</div>
           <p className="text-xs leading-relaxed text-blue-100">
             새 창에서 결제를 완료한 뒤 현재 화면으로 돌아와 주세요.
