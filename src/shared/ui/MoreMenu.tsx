@@ -8,7 +8,10 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { getDefaultAvatarDataUrl } from '../lib/avatar';
+import {
+  createAvatarFallbackHandler,
+  getAvatarImageSrc,
+} from '../lib/avatar';
 import type { UserMe } from '../types/api';
 
 interface MoreMenuProps {
@@ -35,8 +38,8 @@ export default function MoreMenu({ currentUser, onLogout }: MoreMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const nickname = currentUser?.nickname ?? '사용자';
-  const profileImageUrl =
-    currentUser?.profileImageUrl ?? getDefaultAvatarDataUrl(nickname);
+  const profileImageUrl = getAvatarImageSrc(currentUser?.profileImageUrl, nickname);
+  const handleProfileImageError = createAvatarFallbackHandler(nickname);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -58,25 +61,38 @@ export default function MoreMenu({ currentUser, onLogout }: MoreMenuProps) {
 
   return (
     <div className="relative" ref={menuRef}>
-      <button
-        onClick={toggleMenu}
-        className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-1 pr-3 text-slate-700 transition-all hover:border-blue-200 hover:bg-white"
+      <div
+        className="flex items-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 transition-all hover:border-blue-200 hover:bg-white"
       >
-        <div className="h-8 w-8 overflow-hidden rounded-xl bg-slate-200">
-          <img
-            src={profileImageUrl}
-            alt="Profile"
-            className="h-full w-full object-cover"
+        <Link
+          to="/profile"
+          className="flex items-center gap-2 p-1 pl-1 pr-2"
+          onClick={closeMenu}
+        >
+          <div className="h-8 w-8 overflow-hidden rounded-xl bg-slate-200">
+            <img
+              src={profileImageUrl}
+              alt="Profile"
+              onError={handleProfileImageError}
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <span className="hidden text-xs font-bold md:block">
+            {nickname}님
+          </span>
+        </Link>
+        <button
+          type="button"
+          onClick={toggleMenu}
+          aria-label="마이페이지 메뉴 열기"
+          className="flex h-full items-center rounded-r-2xl px-3 py-3 text-slate-500 transition-all hover:bg-white hover:text-slate-700"
+        >
+          <ChevronDown
+            size={14}
+            className={cn("transition-transform", isOpen && "rotate-180")}
           />
-        </div>
-        <span className="hidden text-xs font-bold md:block">
-          {nickname}님
-        </span>
-        <ChevronDown
-          size={14}
-          className={cn("transition-transform", isOpen && "rotate-180")}
-        />
-      </button>
+        </button>
+      </div>
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in duration-200">

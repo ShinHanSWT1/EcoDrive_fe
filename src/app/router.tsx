@@ -340,7 +340,7 @@ export default function AppRouter({
               isAuthenticated={isAuthenticated}
               isOnboardingCompleted={isOnboardingCompleted}
             >
-                <ProfilePage onLogout={handleLogout} />
+                <ProfilePage onLogout={handleLogout} onUserUpdate={onUserUpdate} />
             </ProtectedRoute>
           }
         />
