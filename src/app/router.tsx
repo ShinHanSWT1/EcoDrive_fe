@@ -11,6 +11,9 @@ import ReportPage from "../pages/ReportPage";
 import InsurancePage from "../pages/InsurancePage";
 import InsuranceApplyPage from "../pages/InsuranceApplyPage";
 import InsuranceConfirmPage from "../pages/InsuranceConfirmPage";
+import InsuranceCheckoutSuccessPage from "../pages/InsuranceCheckoutSuccessPage";
+import InsuranceCheckoutFailPage from "../pages/InsuranceCheckoutFailPage";
+import AddressSearchPopupPage from "../pages/AddressSearchPopupPage";
 import PaymentPage from "../pages/PaymentPage";
 import CouponCheckoutPage from "../pages/CouponCheckoutPage";
 import CouponCheckoutSuccessPage from "../pages/CouponCheckoutSuccessPage";
@@ -134,6 +137,19 @@ function LayoutWrapper({
 }) {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
+  const isPopupOnlyPage =
+    location.pathname === "/address/search-popup" ||
+    location.pathname === "/insurance/checkout/success" ||
+    location.pathname === "/insurance/checkout/fail" ||
+    location.pathname === "/payment/coupon/success" ||
+    location.pathname === "/payment/coupon/fail" ||
+    location.pathname === "/payment/success" ||
+    location.pathname === "/payment/fail";
+
+  // 팝업 전용 페이지는 AppLayout/Header/Nav를 렌더링하지 않는다.
+  if (isPopupOnlyPage) {
+    return <>{children}</>;
+  }
 
   if (isAdmin) {
     return <AdminLayout onLogout={onLogout}>{children}</AdminLayout>;
@@ -226,6 +242,39 @@ export default function AppRouter({
               isOnboardingCompleted={isOnboardingCompleted}
             >
                 <InsuranceConfirmPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/insurance/checkout/success"
+          element={
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+                <InsuranceCheckoutSuccessPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/insurance/checkout/fail"
+          element={
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+                <InsuranceCheckoutFailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/address/search-popup"
+          element={
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+              <AddressSearchPopupPage />
             </ProtectedRoute>
           }
         />

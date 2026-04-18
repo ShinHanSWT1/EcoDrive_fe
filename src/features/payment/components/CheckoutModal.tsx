@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { createMyPaymentCodeSession } from "../payment.api";
 
 type CheckoutModalProps = {
@@ -8,6 +8,7 @@ type CheckoutModalProps = {
 
 export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckoutPopupOpen, setIsCheckoutPopupOpen] = useState(false);
 
   if (!isOpen) return null;
 
@@ -16,14 +17,27 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
       setIsSubmitting(true);
       console.info("[PAY] 결제코드 세션 생성 요청");
 
-      // FE -> BE -> PAY 결제코드 세션 발급 후 Pay 결제 페이지로 이동한다.
+      // FE -> BE -> PAY 결제코드 세션 발급 후 Pay 결제 페이지를 새 창으로 연다.
       const session = await createMyPaymentCodeSession();
       console.info("[PAY] checkout session 생성 완료", {
         sessionToken: session.sessionToken,
         checkoutUrl: session.checkoutUrl,
       });
 
-      window.location.href = session.checkoutUrl;
+      const checkoutPopup = window.open(
+        session.checkoutUrl,
+        "EcodrivePayCheckout",
+        "width=500,height=820,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes,resizable=yes",
+      );
+
+      if (!checkoutPopup) {
+        alert("팝업이 차단되어 현재 창에서 결제를 진행합니다.");
+        window.location.href = session.checkoutUrl;
+        return;
+      }
+
+      checkoutPopup.focus();
+      setIsCheckoutPopupOpen(true);
     } catch (error) {
       console.error("[PAY] checkout session 생성 실패", error);
       alert("결제창 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.");
@@ -59,6 +73,14 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
             ? "결제코드 페이지 여는 중..."
             : "결제코드 페이지 열기"}
         </button>
+
+        {isCheckoutPopupOpen && (
+          <div className="mt-4 rounded-xl bg-blue-50 border border-blue-100 px-4 py-3">
+            <p className="text-xs font-semibold text-blue-700">
+              결제창이 새 창에서 열렸습니다. 결제 완료 후 현재 화면으로 돌아와 주세요.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

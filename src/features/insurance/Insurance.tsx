@@ -59,6 +59,7 @@ export default function Insurance({
       <InsuranceCompanyList
         companies={data.companies}
         safetyScore={data.currentSummary.safetyScore}
+        selectedUserVehicleId={selectedUserVehicleId}
       />
     </div>
   );

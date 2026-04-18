@@ -1,13 +1,13 @@
 ﻿import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { confirmCouponCheckout } from "../features/payment/payment.api";
+import { confirmInsuranceCheckout } from "../features/insurance/insurance.api";
 
 type PaymentDoneMessage = {
   type: "ECODRIVE_PAYMENT_DONE";
-  flow: "coupon";
+  flow: "insurance";
 };
 
-export default function CouponCheckoutSuccessPage() {
+export default function InsuranceCheckoutSuccessPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
@@ -34,21 +34,19 @@ export default function CouponCheckoutSuccessPage() {
 
     const confirm = async () => {
       try {
-        console.info("[PAY][COUPON] 결제 성공 콜백 수신", { orderId, paymentId, amount, paymentStatus });
-        await confirmCouponCheckout(orderId, paymentId, amount, paymentStatus);
+        await confirmInsuranceCheckout(orderId, paymentId, amount, paymentStatus);
         setStatus("success");
-        setMessage("쿠폰 발급이 완료되었습니다.");
+        setMessage("보험 가입이 완료되었습니다.");
 
         const openedByPopup = Boolean(window.opener && !window.opener.closed);
         setIsPopupFlow(openedByPopup);
 
         if (!openedByPopup) {
-          setTimeout(() => navigate("/payment", { replace: true }), 2500);
+          setTimeout(() => navigate("/insurance", { replace: true }), 2500);
         }
       } catch (error: any) {
-        console.error("[PAY][COUPON] 결제 확정 실패", error);
         setStatus("error");
-        setMessage(error?.response?.data?.message ?? "쿠폰 발급 확정에 실패했습니다.");
+        setMessage(error?.response?.data?.message ?? "보험 결제 확정에 실패했습니다.");
       }
     };
 
@@ -59,7 +57,7 @@ export default function CouponCheckoutSuccessPage() {
     if (window.opener && !window.opener.closed) {
       const doneMessage: PaymentDoneMessage = {
         type: "ECODRIVE_PAYMENT_DONE",
-        flow: "coupon",
+        flow: "insurance",
       };
       window.opener.postMessage(doneMessage, window.location.origin);
     }
@@ -72,7 +70,7 @@ export default function CouponCheckoutSuccessPage() {
         {status === "loading" ? (
           <>
             <h2 className="text-2xl font-black text-slate-900">결제 확인 중...</h2>
-            <p className="text-slate-500">결제 완료 후 쿠폰 발급을 확정하고 있습니다.</p>
+            <p className="text-slate-500">결제 완료 후 보험 가입을 확정하고 있습니다.</p>
           </>
         ) : null}
 
@@ -92,7 +90,7 @@ export default function CouponCheckoutSuccessPage() {
                 </button>
               </>
             ) : (
-              <p className="text-xs text-slate-400">잠시 후 PAY 화면으로 이동합니다.</p>
+              <p className="text-xs text-slate-400">잠시 후 보험 화면으로 이동합니다.</p>
             )}
           </>
         ) : null}
@@ -103,10 +101,10 @@ export default function CouponCheckoutSuccessPage() {
             <p className="text-slate-600">{message}</p>
             <button
               type="button"
-              onClick={() => navigate("/payment", { replace: true })}
+              onClick={() => navigate("/insurance", { replace: true })}
               className="mt-3 rounded-xl bg-slate-900 px-4 py-2 text-white font-semibold"
             >
-              PAY로 돌아가기
+              보험 화면으로 돌아가기
             </button>
           </>
         ) : null}

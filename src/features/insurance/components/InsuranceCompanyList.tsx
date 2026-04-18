@@ -10,11 +10,13 @@ import { PLAN_RANK } from "../insurance.constants";
 type InsuranceCompanyListProps = {
   companies: InsuranceCompany[];
   safetyScore: number | null;
+  selectedUserVehicleId: number | null;
 };
 
 export default function InsuranceCompanyList({
   companies,
   safetyScore,
+  selectedUserVehicleId,
 }: InsuranceCompanyListProps) {
   const navigate = useNavigate();
   const [selectedCompany, setSelectedCompany] = useState<InsuranceCompany | null>(null);
@@ -43,7 +45,14 @@ export default function InsuranceCompanyList({
 
   const handleApplyNavigation = () => {
     if (!selectedCompany) return;
-    navigate(`/insurance/apply?productId=${selectedCompany.id}&plan=${activeModalPlan}`);
+    const query = new URLSearchParams({
+      productId: String(selectedCompany.id),
+      plan: activeModalPlan,
+    });
+    if (selectedUserVehicleId != null) {
+      query.set("userVehicleId", String(selectedUserVehicleId));
+    }
+    navigate(`/insurance/apply?${query.toString()}`);
   };
 
   return (

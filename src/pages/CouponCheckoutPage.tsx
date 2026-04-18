@@ -1,7 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getCouponTemplateById, getPaymentData, prepareCouponCheckout } from "../features/payment/payment.api";
 import type { CouponTemplateResponse } from "../features/payment/payment.api";
+
+type PaymentDoneMessage = {
+  type: "ECODRIVE_PAYMENT_DONE";
+  flow: "insurance" | "coupon";
+};
 
 export default function CouponCheckoutPage() {
   const [searchParams] = useSearchParams();
@@ -12,6 +17,7 @@ export default function CouponCheckoutPage() {
   const [pointToUse, setPointToUse] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckoutPopupOpen, setIsCheckoutPopupOpen] = useState(false);
 
   const templateId = Number(searchParams.get("templateId"));
 
@@ -45,6 +51,26 @@ export default function CouponCheckoutPage() {
     load();
   }, [navigate, templateId]);
 
+  useEffect(() => {
+    const handlePaymentDone = (event: MessageEvent<PaymentDoneMessage>) => {
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+      if (!event.data || event.data.type !== "ECODRIVE_PAYMENT_DONE") {
+        return;
+      }
+      if (event.data.flow !== "coupon") {
+        return;
+      }
+
+      console.info("[PAY][COUPON] 팝업 결제 완료 이벤트 수신, PAY 화면으로 이동합니다.");
+      navigate("/payment", { replace: true });
+    };
+
+    window.addEventListener("message", handlePaymentDone);
+    return () => window.removeEventListener("message", handlePaymentDone);
+  }, [navigate]);
+
   const amount = useMemo(() => {
     if (!template) {
       return 0;
@@ -76,11 +102,25 @@ export default function CouponCheckoutPage() {
         checkoutUrl: prepared.checkoutUrl,
       });
 
-      // FE -> BE(준비) -> PAY(결제 페이지) 흐름으로 이동한다.
-      window.location.href = prepared.checkoutUrl;
+      // FE -> BE(준비) -> PAY(결제 페이지) 흐름으로 새 창 이동
+      const checkoutPopup = window.open(
+        prepared.checkoutUrl,
+        "EcodrivePayCouponCheckout",
+        "width=500,height=820,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes,resizable=yes",
+      );
+
+      if (!checkoutPopup) {
+        alert("팝업이 차단되어 현재 창에서 결제를 진행합니다.");
+        window.location.href = prepared.checkoutUrl;
+        return;
+      }
+
+      checkoutPopup.focus();
+      setIsCheckoutPopupOpen(true);
     } catch (error: any) {
       console.error("[PAY][COUPON] checkout 준비 실패", error);
       alert(error?.response?.data?.message ?? "쿠폰 결제를 시작하지 못했습니다.");
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -107,7 +147,7 @@ export default function CouponCheckoutPage() {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="coupon-point" className="text-slate-700 font-semibold">포인트 할인</label>
+          <label htmlFor="coupon-point" className="text-slate-700 font-semibold">포인트 사용</label>
           <input
             id="coupon-point"
             type="number"
@@ -137,6 +177,15 @@ export default function CouponCheckoutPage() {
           {isSubmitting ? "PAY 결제창 이동 중..." : "PAY 결제창으로 이동"}
         </button>
       </div>
+
+      {isCheckoutPopupOpen && (
+        <div className="rounded-2xl bg-blue-600 text-white px-5 py-4 shadow-lg">
+          <div className="text-sm font-bold mb-1">결제창이 새 창에서 열렸습니다</div>
+          <p className="text-xs text-blue-100 leading-relaxed">
+            새 창에서 결제를 완료한 뒤 현재 화면으로 돌아와 주세요.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

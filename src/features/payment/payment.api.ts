@@ -16,6 +16,11 @@ interface PayWalletResponse {
   status: string;
 }
 
+export interface PayWalletSummary {
+  balance: number;
+  points: number;
+}
+
 interface PayTransactionResponse {
   id: number;
   transactionType?: string;
@@ -301,6 +306,18 @@ async function getWalletOrNull(): Promise<PayWalletResponse | null> {
     }
     throw error;
   }
+}
+
+// 대시보드 등에서 경량 포인트/잔액 조회 용도로 사용
+export async function getMyWalletSummary(): Promise<PayWalletSummary | null> {
+  const wallet = await getWalletOrNull();
+  if (!wallet) {
+    return null;
+  }
+  return {
+    balance: wallet.balance,
+    points: wallet.points,
+  };
 }
 
 export async function getPaymentData(): Promise<PaymentData> {

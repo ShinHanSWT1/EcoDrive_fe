@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import HeaderNav from './HeaderNav';
 import MoreMenu from './MoreMenu';
+import NotificationDropdown from '../../features/notification/components/NotificationDropdown';
+import { useNotification } from '../../features/notification/useNotification';
 import type { UserMe } from '../types/api';
 
 interface HeaderProps {
@@ -11,6 +14,16 @@ interface HeaderProps {
 }
 
 export default function Header({ currentUser, isAuthenticated, onLogout }: HeaderProps) {
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const {
+    notifications,
+    unreadCount,
+    isLoading,
+    fetchNotifications,
+    handleMarkAsRead,
+    handleMarkAllAsRead,
+  } = useNotification();
+
   return (
     <header className="h-16 md:h-20 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between">
       <div className="flex items-center">
@@ -26,10 +39,16 @@ export default function Header({ currentUser, isAuthenticated, onLogout }: Heade
       <div className="flex items-center gap-2 md:gap-4">
         {isAuthenticated ? (
           <>
-            <button className="p-2 text-slate-500 hover:bg-slate-100 rounded-xl transition-all relative">
-              <Bell size={20} />
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
+            <NotificationDropdown
+              isOpen={isNotificationOpen}
+              onToggle={() => setIsNotificationOpen((prev) => !prev)}
+              notifications={notifications}
+              unreadCount={unreadCount}
+              isLoading={isLoading}
+              onOpen={fetchNotifications}
+              onMarkAsRead={handleMarkAsRead}
+              onMarkAllAsRead={handleMarkAllAsRead}
+            />
             <MoreMenu currentUser={currentUser} onLogout={onLogout} />
           </>
         ) : (
