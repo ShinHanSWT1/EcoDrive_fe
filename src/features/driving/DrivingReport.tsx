@@ -370,7 +370,7 @@ export default function DrivingReport({
             />
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            {showDevDummyButton ? (
+            {showDevDummyButton && selectedUserVehicleId !== null ? (
               <button
                 type="button"
                 onClick={() => void addDummyDrivingData()}

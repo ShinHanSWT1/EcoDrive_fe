@@ -3,18 +3,13 @@
   getDrivingWeeklySummaries,
   getRecentDrivingSessions,
 } from "../driving/driving.api";
-import { getInsuranceFactors, getMyInsurances } from "../insurance/insurance.api";
+import { getMyInsurances } from "../insurance/insurance.api";
+import { api } from "../../shared/api/client";
 import { getMyWalletSummary } from "../payment/payment.api";
 import type { DashboardData, InsurancePreviewItem } from "./dashboard.types";
 import { getMyVehicles } from "../../shared/api/onboarding";
 import { resolveRepresentativeVehicleId } from "../../shared/lib/vehicle";
 
-const BASIC_PLAN_MULTIPLIER = 0.8;
-const PLAN_MULTIPLIERS: Record<string, number> = {
-  BASIC: 0.8,
-  STANDARD: 1.0,
-  PREMIUM: 1.3,
-};
 
 function roundDiscountRate(rate: number | null | undefined): number {
   return Math.round((rate ?? 0) * 1000) / 10;
@@ -158,79 +153,61 @@ export async function getDashboardData(): Promise<DashboardData> {
   let totalSavings: number = 0;
 
   try {
-    const { companies, products, calc } = await getInsuranceFactors(
-      0,
-      Math.round(totalDistance),
-      representativeVehicleId,
-    );
-
-    const activeCompanies = companies.filter((company) => company.status === "ACTIVE");
+    const [companiesRes, productsRes] = await Promise.all([
+      api.get("/insurance/companies"),
+      api.get("/insurance/products"),
+    ]);
+    const companies = companiesRes.data.data.companies;
+    const products = productsRes.data.data.products;
+    const activeCompanies = companies.filter((c: any) => c.status === "ACTIVE");
 
     const activeInsurance = myInsurances.find(
-      (insurance) =>
-        insurance.status === "ACTIVE"
-        && insurance.userVehicleId === representativeVehicleId,
+      (i) => i.status === "ACTIVE" && i.userVehicleId === representativeVehicleId,
     ) ?? null;
 
-    insurancePreviews = activeCompanies.slice(0, 3).map((company) => {
-      const companyProducts = products.filter(
-        (product) =>
-          product.insuranceCompanyId === company.id
-          && (product.status === "ON_SALE" || product.status === "ACTIVE"),
-      );
+    // 각 보험사 상품에 대해 estimatePremium 조회 (BE가 모든 계산 담당)
+    const previewEstimates = await Promise.all(
+      activeCompanies.slice(0, 3).map(async (company: any) => {
+        const product = products.find(
+          (p: any) => p.insuranceCompanyId === company.id && (p.status === "ON_SALE" || p.status === "ACTIVE"),
+        );
+        if (!product) return null;
+        const planType = (activeInsurance?.insuranceCompanyId === company.id)
+          ? (activeInsurance.planType || "BASIC")
+          : "BASIC";
+        const targetProductId = (activeInsurance?.insuranceCompanyId === company.id)
+          ? activeInsurance.insuranceProductId
+          : product.id;
+        try {
+          const res = await api.get(`/insurance/products/${targetProductId}/premium-estimate`, { params: { planType, userVehicleId: representativeVehicleId } });
+          return { company, estimate: res.data.data };
+        } catch {
+          return null;
+        }
+      }),
+    );
 
-      if (activeInsurance && activeInsurance.insuranceCompanyId === company.id) {
-        return {
-          name: company.companyName,
-          discountRate: roundDiscountRate(calc.scoreDiscountRate),
-          premium: activeInsurance.finalAmount,
-        };
-      }
-
-      const baseAmount = companyProducts[0]?.baseAmount ?? 600_000;
-      const adjustedPremium = Math.round(
-        baseAmount
-          * (calc.ageFactor || 1.0)
-          * (calc.experienceFactor || 1.0)
-          * BASIC_PLAN_MULTIPLIER,
-      );
-      const premium = Math.round(adjustedPremium * (1 - (calc.scoreDiscountRate || 0)));
-
-      return {
+    insurancePreviews = previewEstimates
+      .filter((e): e is NonNullable<typeof e> => e !== null)
+      .map(({ company, estimate }) => ({
         name: company.companyName,
-        discountRate: roundDiscountRate(calc.scoreDiscountRate),
-        premium,
-      };
-    });
-
-    discountRate = roundDiscountRate(calc.scoreDiscountRate);
+        discountRate: roundDiscountRate(estimate.discountRate),
+        premium: estimate.finalAmount,
+      }));
 
     if (activeInsurance) {
-      expectedPremium = activeInsurance.finalAmount;
-
-      const product = products.find((item) => item.id === activeInsurance.insuranceProductId);
-      const baseAmount = product?.baseAmount ?? 600_000;
-      const planMultiplier = PLAN_MULTIPLIERS[activeInsurance.planType] ?? 1.0;
-
-      const adjustedPremium = Math.round(
-        baseAmount * (calc.ageFactor || 1.0) * (calc.experienceFactor || 1.0) * planMultiplier,
-      );
-      totalSavings = Math.max(0, adjustedPremium - expectedPremium);
+      try {
+        const res = await api.get(`/insurance/products/${activeInsurance.insuranceProductId}/premium-estimate`, {
+          params: { planType: activeInsurance.planType, userVehicleId: representativeVehicleId },
+        });
+        const est = res.data.data;
+        discountRate = roundDiscountRate(est.discountRate);
+        expectedPremium = est.finalAmount;
+        totalSavings = Math.max(0, est.adjustedBase - est.finalAmount);
+      } catch {}
     } else if (insurancePreviews.length > 0) {
+      discountRate = insurancePreviews[0].discountRate;
       expectedPremium = insurancePreviews[0].premium;
-
-      const firstCompany = activeCompanies[0];
-      const firstProduct = products.find(
-        (item) =>
-          item.insuranceCompanyId === firstCompany?.id
-          && (item.status === "ON_SALE" || item.status === "ACTIVE"),
-      );
-      const baseAmount = firstProduct?.baseAmount ?? 600_000;
-
-      const adjustedPremium = Math.round(
-        baseAmount * (calc.ageFactor || 1.0) * (calc.experienceFactor || 1.0),
-      );
-      totalSavings = Math.max(0, adjustedPremium - expectedPremium);
     }
   } catch (error) {
     console.warn("[대시보드] 보험 데이터 조회 실패", error);

@@ -71,7 +71,7 @@ export async function getProductCoverages(
 // 보험 할인 계산에 필요한 공통 데이터를 조회
 export async function getInsuranceFactors(
   experienceYears: number = 0,
-  annualMileageKm: number = 0,
+  annualMileageKm?: number,
   userVehicleId?: number | null,
 ) {
   const [companiesRes, productsRes] = await Promise.all([
@@ -99,9 +99,20 @@ export async function getInsuranceFactors(
     userAge = 30;
   }
 
+  // 연간 주행거리: 호출자가 넘기지 않으면 BE 기준(최근 1년)으로 직접 조회
+  let resolvedMileage = annualMileageKm ?? 0;
+  if (annualMileageKm === undefined) {
+    try {
+      const mileageRes = await api.get("/driving/annual-distance");
+      resolvedMileage = mileageRes.data.data ?? 0;
+    } catch {
+      resolvedMileage = 0;
+    }
+  }
+
   // 1. 현재 점수 + 주행거리 기준 할인율 계산
   const calcRes = await api.get("/insurance/discount-policies/calculate", {
-    params: { age: userAge, score: safetyScore ?? 0, experienceYears, annualMileageKm },
+    params: { age: userAge, score: safetyScore ?? 0, experienceYears, annualMileageKm: resolvedMileage },
   });
   const calc: CalculateResponse = calcRes.data.data;
 
@@ -202,127 +213,103 @@ export async function confirmInsuranceCheckout(
 export async function getInsurancePageData(
   userVehicleId?: number | null,
 ): Promise<InsurancePageData> {
-  // 1. 계약 목록 먼저 조회 (experienceYears 계산용)
-  let myContracts: ContractResponse[] = [];
+  const [companiesRes, productsRes, myInsurances, myContracts, scoreRes, mileageRes, userRes] = await Promise.all([
+    api.get("/insurance/companies"),
+    api.get("/insurance/products"),
+    getMyInsurances().catch((): InsuranceResponse[] => []),
+    api.get("/insurance/contracts").then((r) => r.data.data.contracts as ContractResponse[]).catch((): ContractResponse[] => []),
+    getLatestDrivingScoreByVehicle(userVehicleId).catch(() => ({ score: null, snapshotDate: null })),
+    api.get("/driving/annual-distance", { params: userVehicleId ? { userVehicleId } : {} }).catch(() => ({ data: { data: 0 } })),
+    api.get("/users/me").catch(() => ({ data: { data: { age: 30 } } })),
+  ]);
+
+  const companies: CompanyResponse[] = companiesRes.data.data.companies;
+  const products: ProductResponse[] = productsRes.data.data.products;
+  const safetyScore = scoreRes.score ?? null;
+  const annualMileageKm: number = mileageRes.data.data ?? 0;
+  const userAge: number = userRes.data.data.age ?? 30;
+
+  // 최대 할인율: 안전점수 100점 기준으로 한 번만 조회
+  let maxDiscountRate = 0;
   try {
-    const contractsRes = await api.get("/insurance/contracts");
-    myContracts = contractsRes.data.data.contracts || [];
+    const maxCalcRes = await api.get("/insurance/discount-policies/calculate", {
+      params: { age: userAge, score: 100, experienceYears: 0, annualMileageKm: 10000 },
+    });
+    maxDiscountRate = maxCalcRes.data.data.scoreDiscountRate ?? 0;
   } catch {
-    myContracts = [];
-  }
-
-  // 온보딩 보험 시작일 기준 운전 경력 계산 (신규는 0년)
-  const oldestContract = myContracts
-    .filter((c) => c.startedAt)
-    .sort(
-      (a, b) =>
-        new Date(a.startedAt!).getTime() - new Date(b.startedAt!).getTime(),
-    )[0];
-  const experienceYears = oldestContract?.startedAt
-    ? Math.max(
-        0,
-        Math.floor(
-          (Date.now() - new Date(oldestContract.startedAt).getTime()) /
-            (1000 * 60 * 60 * 24 * 365),
-        ),
-      )
-    : 0;
-
-  // 2. 공통 데이터 조회 및 최근 주행 기록 합산
-  const recentSessions = await getRecentDrivingSessions(20, userVehicleId).catch(
-    (): DrivingRecentSession[] => [],
-  );
-  const totalDistance = recentSessions.reduce((sum, session) => sum + session.distanceKm, 0);
-  const factors = await getInsuranceFactors(experienceYears, Math.round(totalDistance), userVehicleId);
-  const { companies, products, safetyScore, calc, maxCalc } = factors;
-
-  // 8. 내 보험 목록
-  let myInsurances: InsuranceResponse[] = [];
-  try {
-    myInsurances = await getMyInsurances();
-  } catch {
-    myInsurances = [];
+    maxDiscountRate = 0;
   }
 
   const activeInsurance = myInsurances.find(
-    (insurance) => insurance.status === "ACTIVE" && insurance.userVehicleId === userVehicleId,
+    (i) => i.status === "ACTIVE" && i.userVehicleId === userVehicleId,
   ) ?? null;
   const activeContract = activeInsurance
-    ? myContracts.find(
-        (contract) =>
-          contract.status === "ACTIVE"
-          && contract.id === activeInsurance.insuranceContractsId,
-      ) ?? null
+    ? myContracts.find((c) => c.status === "ACTIVE" && c.id === activeInsurance.insuranceContractsId) ?? null
     : null;
 
-  // 보험사별 예상 보험료 계산 (비교 섹션은 무조건 BASIC 플랜 기준 + 100점 만점 기준)
-  const BASIC_MULTIPLIER = 0.8;
-  const companyList: InsuranceCompany[] = companies
-    .filter((c) => c.status === "ACTIVE")
-    .map((c) => {
-      const companyProducts = products.filter(
-        (p) =>
-          p.insuranceCompanyId === c.id &&
-          (p.status === "ON_SALE" || p.status === "ACTIVE"),
+  // 보험사별 비교 섹션: 각 상품의 BASIC 플랜 기준으로 estimatePremium 조회
+  const activeCompanies = companies.filter((c) => c.status === "ACTIVE");
+  const companyEstimates = await Promise.all(
+    activeCompanies.map(async (c) => {
+      const product = products.find(
+        (p) => p.insuranceCompanyId === c.id && (p.status === "ON_SALE" || p.status === "ACTIVE"),
       );
-
-      const baseAmount =
-        companyProducts.length > 0 ? companyProducts[0].baseAmount : 600_000;
-
-      // 나이, 경력, BASIC 플랜 가중치 적용 (할인 전 기준 금액)
-      // 비교용 기준가는 만점 기준의 보정치(maxCalc)를 따릅니다.
-      const adjustedBase = Math.round(
-        baseAmount *
-          (maxCalc.ageFactor || 1.0) *
-          (maxCalc.experienceFactor || 1.0) *
-          BASIC_MULTIPLIER,
-      );
-
-      // 100점 만점 시 할인율 적용 (최대 예상 혜택 금액)
-      const maxDiscountRate = maxCalc.scoreDiscountRate || 0;
-      const expectedPremium = Math.round(adjustedBase * (1 - maxDiscountRate));
-
-      return {
-        id: companyProducts[0]?.id || 0,
-        name: c.companyName,
-        logo: c.companyName.substring(0, 2),
-        discountRate: Math.round(maxDiscountRate * 1000) / 10,
-        basePremium: adjustedBase,
-        expectedPremium,
-        tags: [
-          "기본형(실속형)",
-          ...companyProducts.map((p) => p.productName).slice(0, 1),
-        ],
-        reason: `안전점수 100점 달성 시 최대 ${Math.round(maxDiscountRate * 100)}% 할인 가능`,
-      };
-    });
-
-  // 가입된 보험 상품 기준 산출서 계산 (없으면 첫 번째 상품 기준)
-  const activeProduct = activeInsurance
-    ? products.find((p) => p.id === activeInsurance.insuranceProductId)
-    : null;
-
-  const representativeBase =
-    activeInsurance && typeof activeInsurance.baseAmount === "number"
-      ? activeInsurance.baseAmount
-      : (activeProduct?.baseAmount ??
-        (products.length > 0 ? products[0].baseAmount : 600_000));
-
-  const representativeAdjusted =
-    activeInsurance && typeof activeInsurance.baseAmount === "number"
-      ? activeInsurance.baseAmount
-      : Math.round(
-          representativeBase *
-            (calc.ageFactor || 1.0) *
-            (calc.experienceFactor || 1.0),
-        );
-
-  const currentDiscountRate = calc.scoreDiscountRate || 0;
-  const representativeFinal = Math.round(
-    representativeAdjusted * (1 - currentDiscountRate),
+      if (!product) return null;
+      try {
+        const res = await api.get(`/insurance/products/${product.id}/premium-estimate`, { params: { planType: "BASIC", userVehicleId: userVehicleId ?? undefined } });
+        return { company: c, product, estimate: res.data.data };
+      } catch {
+        return null;
+      }
+    }),
   );
 
-  const representativeDiscount = representativeAdjusted - representativeFinal;
+  const companyList: InsuranceCompany[] = companyEstimates
+    .filter((e): e is NonNullable<typeof e> => e !== null)
+    .map(({ company, product, estimate }) => ({
+      id: product.id,
+      name: company.companyName,
+      logo: company.companyName.substring(0, 2),
+      discountRate: Math.round(maxDiscountRate * 1000) / 10,
+      basePremium: estimate.adjustedBase,
+      expectedPremium: estimate.finalAmount,
+      tags: ["기본형(실속형)", product.productName],
+      reason: estimate.discountRate > 0
+        ? `안전운전 할인 ${Math.round(estimate.discountRate * 100)}% 적용 중`
+        : `안전점수 100점 달성 시 최대 ${Math.round(maxDiscountRate * 100)}% 할인 가능`,
+    }));
+
+  // 산출서: 가입된 보험 상품 + 플랜 기준으로 estimatePremium 조회
+  let representativeAdjusted = 0;
+  let representativeFinal = 0;
+  let representativeDiscount = 0;
+  let currentDiscountRate = 0;
+
+  if (activeInsurance) {
+    try {
+      const estRes = await api.get(`/insurance/products/${activeInsurance.insuranceProductId}/premium-estimate`, {
+        params: { planType: activeInsurance.planType, userVehicleId: activeInsurance.userVehicleId },
+      });
+      const est = estRes.data.data;
+      representativeAdjusted = est.adjustedBase;
+      representativeFinal = est.finalAmount;
+      representativeDiscount = est.discountAmount;
+      currentDiscountRate = est.discountRate;
+    } catch {
+      representativeFinal = activeInsurance.finalAmount;
+    }
+  } else if (products.length > 0) {
+    try {
+      const estRes = await api.get(`/insurance/products/${products[0].id}/premium-estimate`, {
+        params: { planType: "BASIC" },
+      });
+      const est = estRes.data.data;
+      representativeAdjusted = est.adjustedBase;
+      representativeFinal = est.finalAmount;
+      representativeDiscount = est.discountAmount;
+      currentDiscountRate = est.discountRate;
+    } catch {}
+  }
 
   const planLabels: Record<string, string> = {
     BASIC: "기본형",
@@ -343,39 +330,28 @@ export async function getInsurancePageData(
       .trim();
   }
 
+
   const currentSummary: CurrentInsuranceSummary = {
-    companyName:
-      activeInsurance?.companyName ??
-      activeContract?.companyName ??
-      "가입된 보험 없음",
+    companyName: activeInsurance?.companyName ?? activeContract?.companyName ?? "가입된 보험 없음",
     renewalDday: activeContract?.endedAt
-      ? Math.ceil(
-          (new Date(activeContract.endedAt).getTime() - Date.now()) /
-            (1000 * 60 * 60 * 24),
-        )
+      ? Math.ceil((new Date(activeContract.endedAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
       : 0,
     safetyScore,
-    annualMileageKm: totalDistance,
+    annualMileageKm,
     expectedPremium: representativeFinal,
     expectedDiscountRate: Math.round(currentDiscountRate * 1000) / 10,
     totalExpectedSavings: representativeDiscount,
   };
 
   const bill: InsuranceBill = {
-    issuedAt: new Date().toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }),
-    contractNumber: activeContract
-      ? `ED-${activeContract.id}`
-      : `ED-${new Date().getFullYear()}-NEW`,
+    issuedAt: new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }),
+    contractNumber: activeContract ? `ED-${activeContract.id}` : `ED-${new Date().getFullYear()}-NEW`,
     basePremium: representativeAdjusted,
     discountItems: [
       {
         label: "안전운전 할인",
         amount: representativeDiscount,
-        badge: `${safetyScore ?? 100}점 적용`,
+        badge: safetyScore != null ? `${safetyScore}점 적용` : "조건 미충족",
         tone: "blue" as const,
       },
     ],

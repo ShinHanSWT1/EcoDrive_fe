@@ -6,7 +6,6 @@ import { formatCurrency } from "../shared/lib/format";
 import { api } from "../shared/api/client";
 import {
   cancelInsuranceContract,
-  getInsuranceFactors,
   getMyInsurances,
   getProductCoverages,
   prepareInsuranceCheckout,
@@ -38,8 +37,19 @@ export default function InsuranceConfirmPage() {
   const initialPlan = (searchParams.get("plan") as PlanType) || "BASIC";
   const applicationData = (location.state || {}) as ApplicationData;
 
+  type PremiumEstimate = {
+    planAdjustedBase: number;
+    ageFactor: number;
+    experienceFactor: number;
+    adjustedBase: number;
+    discountRate: number;
+    discountAmount: number;
+    finalAmount: number;
+  };
+
   const [productInfo, setProductInfo] = useState<any>(null);
-  const [factors, setFactors] = useState<any>(null);
+  const [estimates, setEstimates] = useState<Partial<Record<PlanType, PremiumEstimate>>>({});
+  const [safetyScore, setSafetyScore] = useState<number | null>(null);
   const [coverages, setCoverages] = useState<InsuranceCoverage[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<PlanType>(initialPlan);
   const [selectedCoverageIds, setSelectedCoverageIds] = useState<number[]>([]);
@@ -109,19 +119,28 @@ export default function InsuranceConfirmPage() {
     async function fetchData() {
       try {
         setIsError(false);
-        const [productRes, factorData, coverageList, userRes] = await Promise.all([
-          api.get(`/insurance/products/${productId}`),
-          getInsuranceFactors(),
-          getProductCoverages(productId),
-          api.get("/users/me"),
-        ]);
+        const [productRes, basicEst, standardEst, premiumEst, coverageList, userRes, scoreRes] =
+          await Promise.all([
+            api.get(`/insurance/products/${productId}`),
+            api.get(`/insurance/products/${productId}/premium-estimate`, { params: { planType: "BASIC", userVehicleId: applicationData.userVehicleId } }),
+            api.get(`/insurance/products/${productId}/premium-estimate`, { params: { planType: "STANDARD", userVehicleId: applicationData.userVehicleId } }),
+            api.get(`/insurance/products/${productId}/premium-estimate`, { params: { planType: "PREMIUM", userVehicleId: applicationData.userVehicleId } }),
+            getProductCoverages(productId),
+            api.get("/users/me"),
+            api.get("/driving/scores/latest").catch(() => ({ data: { data: { score: null } } })),
+          ]);
 
         if (!coverageList || coverageList.length === 0) {
           throw new Error("보장 내역을 불러올 수 없습니다.");
         }
 
         setProductInfo(productRes.data.data);
-        setFactors(factorData);
+        setEstimates({
+          BASIC: basicEst.data.data,
+          STANDARD: standardEst.data.data,
+          PREMIUM: premiumEst.data.data,
+        });
+        setSafetyScore(scoreRes.data.data.score ?? null);
         setCoverages(coverageList);
         setNickname(userRes.data.data.nickname || "");
 
@@ -165,18 +184,28 @@ export default function InsuranceConfirmPage() {
     return () => window.removeEventListener("message", handlePaymentDone);
   }, [navigate]);
 
+  const getEstimate = (type: PlanType) => estimates[type] ?? null;
+
   const calculatePremiums = (type: PlanType) => {
-    const base = productInfo?.baseAmount || 600000;
-    const ageFactor = factors?.calc?.ageFactor || 1.0;
-    const expFactor = factors?.calc?.experienceFactor || 1.0;
-    const scoreDiscount = factors?.calc?.scoreDiscountRate || 0;
-    const planMultiplier = PLAN_MULTIPLIERS[type];
+    const est = getEstimate(type);
+    return {
+      basePremium: est?.adjustedBase ?? 0,
+      finalPremium: est?.finalAmount ?? 0,
+      discountAmount: est?.discountAmount ?? 0,
+    };
+  };
 
-    const basePremium = Math.round(base * ageFactor * expFactor * planMultiplier);
-    const finalPremium = Math.round(basePremium * (1 - scoreDiscount));
-    const discountAmount = basePremium - finalPremium;
+  const getAgeFactorLabel = (factor: number) => {
+    if (factor >= 1.29) return "20~25세";
+    if (factor >= 1.09) return "26~30세";
+    if (factor >= 0.99) return "31~40세";
+    return "41세 이상";
+  };
 
-    return { basePremium, finalPremium, discountAmount };
+  const getExpFactorLabel = (factor: number) => {
+    if (factor >= 1.29) return "1년 미만";
+    if (factor >= 1.09) return "1~3년";
+    return "3년 이상";
   };
 
   const handlePlanChange = (type: PlanType) => {
@@ -366,11 +395,13 @@ export default function InsuranceConfirmPage() {
           </button>
           <div className="flex items-center gap-3">
             <span className="text-xs font-bold text-slate-400 bg-white px-3 py-1.5 rounded-full border border-slate-100">
-              안전점수 {factors?.safetyScore ?? 0}점
+              안전점수 {safetyScore ?? 0}점
             </span>
-            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <ShieldCheck size={14} /> 안전운전 할인 {formatCurrency(currentPrices.discountAmount)} 절약 중
-            </span>
+            {currentPrices.discountAmount > 0 && (
+              <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                <ShieldCheck size={14} /> 안전운전 할인 {formatCurrency(currentPrices.discountAmount)} 절약 중
+              </span>
+            )}
           </div>
         </div>
 
@@ -396,12 +427,92 @@ export default function InsuranceConfirmPage() {
                   <div className={`text-sm font-bold mb-2 ${isSelected ? "text-[#FF5C35]" : "text-slate-400"}`}>
                     {PLAN_LABELS[type].title}
                   </div>
-                  <div className="text-xs text-slate-400 font-bold line-through mb-1">{formatCurrency(basePremium)}</div>
+                  {basePremium !== finalPremium && (
+                    <div className="text-xs text-slate-400 font-bold line-through mb-1">{formatCurrency(basePremium)}</div>
+                  )}
                   <div className="text-2xl font-black text-slate-900">{formatCurrency(finalPremium)}</div>
                 </div>
               </div>
             );
           })}
+        </div>
+
+        {/* 보험료 산출 내역 */}
+        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-8 mb-8">
+          <h3 className="text-base font-black text-slate-900 mb-6">보험료 산출 내역</h3>
+          <div className="space-y-3 text-sm">
+            {/* 기본 보험료 */}
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">기본 보험료</span>
+              <span className="font-bold text-slate-900">{formatCurrency(productInfo?.baseAmount || 0)}</span>
+            </div>
+
+            {/* 나이 계수 */}
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">
+                나이 계수
+                <span className="ml-2 text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                  {getAgeFactorLabel(estimates[selectedPlan]?.ageFactor ?? 1.0)}
+                </span>
+              </span>
+              <span className={`font-bold ${(estimates[selectedPlan]?.ageFactor ?? 1.0) > 1 ? "text-rose-500" : "text-emerald-600"}`}>
+                × {(estimates[selectedPlan]?.ageFactor ?? 1.0).toFixed(2)}
+              </span>
+            </div>
+
+            {/* 운전경력 계수 */}
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">
+                운전경력 계수
+                <span className="ml-2 text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                  {getExpFactorLabel(estimates[selectedPlan]?.experienceFactor ?? 1.0)}
+                </span>
+              </span>
+              <span className={`font-bold ${(estimates[selectedPlan]?.experienceFactor ?? 1.0) > 1 ? "text-rose-500" : "text-emerald-600"}`}>
+                × {(estimates[selectedPlan]?.experienceFactor ?? 1.0).toFixed(3)}
+              </span>
+            </div>
+
+            {/* 플랜 계수 */}
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">
+                플랜 계수
+                <span className="ml-2 text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                  {PLAN_LABELS[selectedPlan].title}
+                </span>
+              </span>
+              <span className={`font-bold ${PLAN_MULTIPLIERS[selectedPlan] > 1 ? "text-rose-500" : "text-emerald-600"}`}>
+                × {PLAN_MULTIPLIERS[selectedPlan].toFixed(1)}
+              </span>
+            </div>
+
+            {/* 구분선 + 할인 전 금액 */}
+            <div className="border-t border-slate-100 pt-3 flex justify-between items-center">
+              <span className="text-slate-500">할인 전 보험료</span>
+              <span className="font-bold text-slate-900">{formatCurrency(currentPrices.basePremium)}</span>
+            </div>
+
+            {/* 안전운전 할인 */}
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">
+                안전운전 할인
+                <span className="ml-2 text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                  {safetyScore ?? 0}점 적용
+                </span>
+              </span>
+              <span className="font-bold text-blue-600">
+                {currentPrices.discountAmount > 0
+                  ? `- ${formatCurrency(currentPrices.discountAmount)} (${Math.round((estimates[selectedPlan]?.discountRate ?? 0) * 1000) / 10}%)`
+                  : "해당 없음"}
+              </span>
+            </div>
+
+            {/* 최종 금액 */}
+            <div className="border-t-2 border-slate-200 pt-4 flex justify-between items-center">
+              <span className="text-base font-black text-slate-900">최종 보험료</span>
+              <span className="text-2xl font-black text-slate-900">{formatCurrency(currentPrices.finalPremium)}</span>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -468,11 +579,15 @@ export default function InsuranceConfirmPage() {
                 </div>
                 <div className="text-2xl font-black text-slate-900">{formatCurrency(currentPrices.finalPremium)}</div>
               </div>
-              <div className="h-10 w-[1px] bg-slate-100" />
-              <div className="text-left">
-                <div className="text-[10px] font-bold text-blue-500 mb-0.5">안전운전 할인 혜택</div>
-                <div className="text-lg font-bold text-blue-600">-{formatCurrency(currentPrices.discountAmount)}</div>
-              </div>
+              {currentPrices.discountAmount > 0 && (
+                <>
+                  <div className="h-10 w-[1px] bg-slate-100" />
+                  <div className="text-left">
+                    <div className="text-[10px] font-bold text-blue-500 mb-0.5">안전운전 할인 혜택</div>
+                    <div className="text-lg font-bold text-blue-600">-{formatCurrency(currentPrices.discountAmount)}</div>
+                  </div>
+                </>
+              )}
             </div>
             <button
               onClick={handleOpenSignature}

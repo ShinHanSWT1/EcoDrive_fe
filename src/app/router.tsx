@@ -18,6 +18,7 @@ import PaymentPage from "../pages/PaymentPage";
 import CouponCheckoutPage from "../pages/CouponCheckoutPage";
 import CouponCheckoutSuccessPage from "../pages/CouponCheckoutSuccessPage";
 import CouponCheckoutFailPage from "../pages/CouponCheckoutFailPage";
+import ChargeFailPage from "../pages/ChargeFailPage";
 import ProfilePage from "../pages/ProfilePage";
 import VehicleAddPage from "../pages/VehicleAddPage";
 import LoginPage from "../pages/LoginPage";
@@ -331,6 +332,17 @@ export default function AppRouter({
               >
                   <SuccessPage />
               </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payment/fail"
+          element={
+            <ProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isOnboardingCompleted={isOnboardingCompleted}
+            >
+              <ChargeFailPage />
+            </ProtectedRoute>
           }
         />
         <Route
