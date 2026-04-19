@@ -25,7 +25,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10 lg:space-y-14 pb-24 relative z-10 font-sans mt-4">
       <PageHeader
         title="대시보드"
         description="연동된 주행/탄소 데이터는 실제 값을 사용하고, 보험 및 미구현 지표는 화면 구조를 유지한 채 비워둡니다."

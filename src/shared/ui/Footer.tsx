@@ -7,10 +7,8 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-slate-100 text-slate-400 rounded-lg flex items-center justify-center">
-                <ShieldCheck size={20} />
-              </div>
-              <span className="text-lg font-black text-slate-400 tracking-tight">Driving Insight</span>
+              <img src="/media/logo.png" alt="EcoDrive" className="w-8 h-8 object-contain" />
+              <span className="text-lg font-black text-slate-400 tracking-tight">EcoDrive</span>
             </div>
             <p className="text-sm text-slate-400 max-w-md leading-relaxed">
               데이터로 보험료를 줄이는 안전운전 및 탄소 절감 리워드 서비스. <br />

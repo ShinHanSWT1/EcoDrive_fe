@@ -1,4 +1,6 @@
 import type { DailyDrivingData } from "../driving.types";
+import { motion } from "motion/react";
+import { Navigation, Clock, Activity, GaugeCircle } from "lucide-react";
 
 interface DailyDrivingDetailCardProps {
   data: DailyDrivingData;
@@ -9,33 +11,31 @@ export function DailyDrivingDetailCard({
   data,
   dateLabel,
 }: DailyDrivingDetailCardProps) {
+  const items = [
+    { label: "오늘 씽씽 달린 거리", value: data.totalDistance ?? "0.00km", icon: Navigation, color: "text-blue-500", bg: "bg-blue-50" },
+    { label: "조용히 쉰 시간", value: data.idling ?? "0분", icon: Clock, color: "text-emerald-500", bg: "bg-emerald-50" },
+    { label: "보통 이 속도", value: data.avgSpeed ?? "0.00km/h", icon: Activity, color: "text-indigo-500", bg: "bg-indigo-50" },
+    { label: "가장 빨랐던 순간", value: data.maxSpeed ?? "0.00km/h", icon: GaugeCircle, color: "text-amber-500", bg: "bg-amber-50" },
+  ];
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-          <span className="font-bold text-slate-900">{dateLabel} 주행 요약</span>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-          <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">오늘 총 주행거리</div>
-          <div className="text-lg font-black text-slate-900">{data.totalDistance ?? "0.00km"}</div>
-        </div>
-        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-          <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">공회전 시간</div>
-          <div className="text-lg font-black text-slate-900">{data.idling ?? "0분"}</div>
-        </div>
-        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-          <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">평균 속도</div>
-          <div className="text-lg font-black text-slate-900">{data.avgSpeed ?? "0.00km/h"}</div>
-        </div>
-        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-          <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">최고 속도</div>
-          <div className="text-lg font-black text-slate-900">{data.maxSpeed ?? "0.00km/h"}</div>
-        </div>
-      </div>
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      {items.map((item, i) => (
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.1 }}
+          key={i}
+          whileHover={{ y: -5, scale: 1.02 }}
+          className="bg-white p-5 rounded-[32px] border-4 border-white shadow-[0_10px_30px_rgb(0,0,0,0.06)] flex flex-col items-center text-center group cursor-default"
+        >
+          <div className={`w-14 h-14 rounded-2xl ${item.bg} flex items-center justify-center mb-3 group-hover:scale-110 group-hover:rotate-6 transition-transform shadow-inner ${item.color}`}>
+            <item.icon size={26} />
+          </div>
+          <div className="text-[10px] text-slate-400 font-extrabold uppercase mb-1.5 bg-slate-50 px-2 py-0.5 rounded shadow-sm">{item.label}</div>
+          <div className="text-xl font-black text-slate-900 tracking-tight">{item.value}</div>
+        </motion.div>
+      ))}
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { parseYearMonthKey } from "./driving.mapper";
 import { DrivingReportTabs } from "./components/DrivingReportTabs";
 import { DrivingHistorySection } from "./components/DrivingHistorySection";
 import { ScoreCarbonSection } from "./components/ScoreCarbonSection";
+import { Vehicle3DViewer } from "./components/Vehicle3DViewer";
 import PageHeader from "../../shared/ui/PageSectionHeader";
 import VehicleSelector from "../../shared/ui/VehicleSelector";
 import type { MyVehicleResponse } from "../../shared/api/onboarding";
@@ -399,6 +400,12 @@ export default function DrivingReport({
           </div>
         </div>
       </section>
+
+      {(() => {
+        const selVehicle = vehicles.find((v) => v.userVehicleId === selectedUserVehicleId);
+        const isAvante = selVehicle?.modelName?.includes("아반떼") || selVehicle?.modelName?.toUpperCase().includes("AVANTE");
+        return isAvante ? <Vehicle3DViewer /> : null;
+      })()}
 
       {isLoading ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-8 text-slate-500">

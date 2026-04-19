@@ -33,11 +33,11 @@ export const paymentMockData: PaymentData = {
   products: [
     {
       id: 1,
-      name: "GS칼텍스 5,000원 주유권",
-      price: 4500,
-      originalPrice: 5000,
+      name: "GS칼텍스 3,000원 주유 할인권",
+      price: 2700,
+      originalPrice: 3000,
       category: "fuel",
-      image: "https://picsum.photos/seed/fuel/400/300",
+      image: "/media/gs_caltex.png",
       discountLabel: "10%",
     },
     {

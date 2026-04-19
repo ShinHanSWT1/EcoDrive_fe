@@ -10,44 +10,44 @@ type DashboardOverviewProps = {
 
 const toneMap = {
   dark: {
-    card: "bg-white border border-slate-200 shadow-sm",
-    iconWrap: "bg-slate-50 text-slate-700",
-    change: "",
-    label: "text-slate-500",
-    value: "text-slate-900",
-    subText: "text-slate-400",
+    card: "bg-white shadow-[0_10px_30px_rgb(0,0,0,0.06)]",
+    iconWrap: "bg-slate-900 text-white shadow-md shadow-slate-900/20",
+    change: "text-slate-600 bg-slate-100",
+    label: "text-slate-500 font-extrabold",
+    value: "text-slate-900 font-black",
+    subText: "text-slate-400 font-bold",
   },
   orange: {
-    card: "bg-white border border-slate-200 shadow-sm",
-    iconWrap: "bg-orange-50 text-orange-600",
-    change: "text-orange-600 bg-orange-50",
-    label: "text-slate-500",
-    value: "text-slate-900",
-    subText: "text-orange-600",
+    card: "bg-[#FFF8F3] shadow-[0_10px_30px_rgb(255,150,0,0.15)]",
+    iconWrap: "bg-orange-500 text-white shadow-md shadow-orange-500/20",
+    change: "text-orange-700 bg-orange-200/60",
+    label: "text-orange-800/60 font-extrabold",
+    value: "text-orange-950 font-black",
+    subText: "text-orange-600/80 font-bold",
   },
   blue: {
-    card: "bg-white border border-slate-200 shadow-sm",
-    iconWrap: "bg-blue-50 text-blue-600",
-    change: "text-green-600 bg-green-50",
-    label: "text-slate-500",
-    value: "text-slate-900",
-    subText: "text-slate-400",
+    card: "bg-[#EFF6FF] shadow-[0_10px_30px_rgb(59,130,246,0.15)]",
+    iconWrap: "bg-blue-600 text-white shadow-md shadow-blue-600/20",
+    change: "text-blue-700 bg-blue-200/60",
+    label: "text-blue-800/60 font-extrabold",
+    value: "text-blue-950 font-black",
+    subText: "text-blue-600/80 font-bold",
   },
   green: {
-    card: "bg-white border border-slate-200 shadow-sm",
-    iconWrap: "bg-green-50 text-green-600",
-    change: "text-green-600 bg-green-50",
-    label: "text-slate-500",
-    value: "text-slate-900",
-    subText: "text-slate-400",
+    card: "bg-[#F0FDF4] shadow-[0_10px_30px_rgb(34,197,94,0.15)]",
+    iconWrap: "bg-emerald-500 text-white shadow-md shadow-emerald-500/20",
+    change: "text-emerald-700 bg-emerald-200/60",
+    label: "text-emerald-800/60 font-extrabold",
+    value: "text-emerald-950 font-black",
+    subText: "text-emerald-600/80 font-bold",
   },
 };
 
 function renderIcon(id: string) {
   if (id === "discount" || id === "score")
-    return <ShieldCheck size={20} className="md:w-6 md:h-6" />;
-  if (id === "carbon") return <Leaf size={20} className="md:w-6 md:h-6" />;
-  return <Wallet size={20} className="md:w-6 md:h-6" />;
+    return <ShieldCheck size={24} className="md:w-8 md:h-8" />;
+  if (id === "carbon") return <Leaf size={24} className="md:w-8 md:h-8" />;
+  return <Wallet size={24} className="md:w-8 md:h-8" />;
 }
 
 function renderValue(card: DashboardStatCard) {
@@ -63,49 +63,58 @@ export default function DashboardOverview({
 }: DashboardOverviewProps) {
   return (
     <>
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 -mt-2">
-        <div className="text-[10px] md:text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md w-fit">
-          포인트 혜택 별도 적립 ({pointBalance.toLocaleString("ko-KR")}P)
+      <motion.div 
+         initial={{ opacity: 0, y: -10 }} 
+         animate={{ opacity: 1, y: 0 }}
+         className="flex flex-col sm:flex-row sm:items-center gap-2 -mt-2 mb-4"
+      >
+        <div className="text-xs md:text-sm font-black text-white bg-indigo-500 px-4 py-1.5 rounded-xl shadow-md flex items-center gap-2">
+          ✨ <span>포인트 혜택 별도 적립 ({pointBalance.toLocaleString("ko-KR")}P)</span>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((card, index) => {
           const tone = toneMap[card.tone];
 
           return (
             <motion.div
               key={card.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className={`p-5 md:p-6 rounded-3xl ${tone.card}`}
+              initial={{ scale: 0.8, opacity: 0, y: 40 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20, delay: index * 0.1 }}
+              whileHover={{ y: -8, scale: 1.03, transition: { duration: 0.2 } }}
+              className={`p-6 md:p-8 rounded-[40px] ${tone.card} cursor-pointer relative overflow-hidden group`}
             >
-              <div className="flex justify-between items-start mb-4">
-                <div className={`p-2.5 md:p-3 rounded-2xl ${tone.iconWrap}`}>
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/40 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+              
+              <div className="flex justify-between items-start mb-6 relative z-10">
+                <div className={`p-4 rounded-[20px] ${tone.iconWrap} group-hover:rotate-12 transition-transform`}>
                   {renderIcon(card.id)}
                 </div>
                 {card.changeText && (
                   <span
-                    className={`text-[10px] md:text-xs font-bold px-2 py-1 rounded-full ${tone.change}`}
+                    className={`text-xs md:text-sm font-black px-3 py-1.5 rounded-full ${tone.change}`}
                   >
                     {card.changeText}
                   </span>
                 )}
               </div>
 
-              <div className={`text-xs md:text-sm font-medium ${tone.label}`}>
-                {card.label}
-              </div>
-              <div
-                className={`text-2xl md:text-3xl font-bold mt-1 ${tone.value}`}
-              >
-                {renderValue(card)}
-              </div>
-              <div
-                className={`text-[10px] md:text-xs font-bold mt-2 ${tone.subText}`}
-              >
-                {card.subText}
+              <div className="relative z-10">
+                <div className={`text-sm md:text-base ${tone.label} mb-1`}>
+                  {card.label}
+                </div>
+                <div
+                  className={`text-3xl md:text-4xl ${tone.value} tracking-tight`}
+                >
+                  {renderValue(card)}
+                </div>
+                <div
+                  className={`text-xs md:text-sm mt-3 ${tone.subText} bg-white/50 backdrop-blur-sm inline-block px-3 py-1.5 rounded-xl`}
+                >
+                  {card.subText}
+                </div>
               </div>
             </motion.div>
           );
