@@ -1,29 +1,29 @@
-﻿import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { Link } from "react-router-dom";
 import {
-  Car,
-  Camera,
-  ChevronRight,
-  X,
-  Leaf,
-  LogOut,
-  ShieldCheck,
-  Wallet,
+ Car,
+ Camera,
+ ChevronRight,
+ X,
+ Leaf,
+ LogOut,
+ ShieldCheck,
+ Wallet,
 } from "lucide-react";
 import { cn } from "../../shared/lib/utils";
 import {
-  createAvatarFallbackHandler,
-  getAvatarImageSrc,
+ createAvatarFallbackHandler,
+ getAvatarImageSrc,
 } from "../../shared/lib/avatar";
 import { fetchMe, uploadMyProfileImage } from "../../shared/api/auth";
 import {
-  deleteMyVehicle,
-  getMyVehicles,
-  updateRepresentativeVehicle,
-  type MyVehicleResponse,
+ deleteMyVehicle,
+ getMyVehicles,
+ updateRepresentativeVehicle,
+ type MyVehicleResponse,
 } from "../../shared/api/onboarding";
 import {
-  getDrivingOverviewByVehicle,
+ getDrivingOverviewByVehicle,
 } from "../driving/driving.api";
 import { getMyInsurances, type InsuranceResponse } from "../insurance/insurance.api";
 import { getPaymentData } from "../payment/payment.api";
@@ -31,674 +31,674 @@ import VehicleSelector from "../../shared/ui/VehicleSelector";
 import { resolveRepresentativeVehicleId } from "../../shared/lib/vehicle";
 
 type ProfileSummary = {
-  pointBalance: number;
-  couponCount: number;
-  safetyScore: number | null;
-  carbonReductionKg: number | null;
+ pointBalance: number;
+ couponCount: number;
+ safetyScore: number | null;
+ carbonReductionKg: number | null;
 };
 
 type ProfileData = {
-  me: Awaited<ReturnType<typeof fetchMe>>;
-  summary: ProfileSummary;
-  vehicles: MyVehicleResponse[];
-  insurances: InsuranceResponse[];
+ me: Awaited<ReturnType<typeof fetchMe>>;
+ summary: ProfileSummary;
+ vehicles: MyVehicleResponse[];
+ insurances: InsuranceResponse[];
 };
 
 type ProfileImageUploadState = {
-  isModalOpen: boolean;
-  isUploading: boolean;
-  errorMessage: string | null;
+ isModalOpen: boolean;
+ isUploading: boolean;
+ errorMessage: string | null;
 };
 
 function formatNumber(value: number | null | undefined) {
-  return (value ?? 0).toLocaleString("ko-KR");
+ return (value ?? 0).toLocaleString("ko-KR");
 }
 
 function formatCurrency(value: number | null | undefined) {
-  return `${formatNumber(value)}원`;
+ return `${formatNumber(value)}원`;
 }
 
 function formatPlanType(planType: string | null | undefined) {
-  if (!planType) return "미설정";
+ if (!planType) return "미설정";
 
-  const planLabelMap: Record<string, string> = {
-    BASIC: "기본형",
-    STANDARD: "표준형",
-    PREMIUM: "프리미엄형",
-  };
+ const planLabelMap: Record<string, string> = {
+ BASIC: "기본형",
+ STANDARD: "표준형",
+ PREMIUM: "프리미엄형",
+ };
 
-  return planLabelMap[planType] ?? planType;
+ return planLabelMap[planType] ?? planType;
 }
 
 function formatDate(dateText: string | null | undefined) {
-  if (!dateText) return "미입력";
+ if (!dateText) return "미입력";
 
-  return new Date(dateText).toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+ return new Date(dateText).toLocaleDateString("ko-KR", {
+ year: "numeric",
+ month: "2-digit",
+ day: "2-digit",
+ });
 }
 
 async function loadVehiclePerformanceSummary(userVehicleId: number | null) {
-  const { score, carbon } = await getDrivingOverviewByVehicle(userVehicleId).catch(() => ({
-    score: { snapshotDate: null, score: null },
-    carbon: { snapshotDate: null, carbonReductionKg: null, rewardPoint: null },
-  }));
+ const { score, carbon } = await getDrivingOverviewByVehicle(userVehicleId).catch(() => ({
+ score: { snapshotDate: null, score: null },
+ carbon: { snapshotDate: null, carbonReductionKg: null, rewardPoint: null },
+ }));
 
-  return {
-    safetyScore: score.score ?? null,
-    carbonReductionKg: carbon.carbonReductionKg ?? null,
-  };
+ return {
+ safetyScore: score.score ?? null,
+ carbonReductionKg: carbon.carbonReductionKg ?? null,
+ };
 }
 
 function buildActiveInsuranceByVehicleId(insurances: InsuranceResponse[]) {
-  return new Map(
-    insurances
-      .filter((insurance) => insurance.status === "ACTIVE")
-      .map((insurance) => [insurance.userVehicleId, insurance]),
-  );
+ return new Map(
+ insurances
+ .filter((insurance) => insurance.status === "ACTIVE")
+ .map((insurance) => [insurance.userVehicleId, insurance]),
+ );
 }
 
 function buildProfileSummary({
-  paymentData,
-  performanceSummary,
+ paymentData,
+ performanceSummary,
 }: {
-  paymentData: Awaited<ReturnType<typeof getPaymentData>> | null;
-  performanceSummary: Awaited<ReturnType<typeof loadVehiclePerformanceSummary>>;
+ paymentData: Awaited<ReturnType<typeof getPaymentData>> | null;
+ performanceSummary: Awaited<ReturnType<typeof loadVehiclePerformanceSummary>>;
 }): ProfileSummary {
-  return {
-    pointBalance: paymentData?.user.points ?? 0,
-    couponCount:
-      paymentData?.coupons.filter((coupon) => !coupon.used).length ?? 0,
-    safetyScore: performanceSummary.safetyScore,
-    carbonReductionKg: performanceSummary.carbonReductionKg,
-  };
+ return {
+ pointBalance: paymentData?.user.points ?? 0,
+ couponCount:
+ paymentData?.coupons.filter((coupon) => !coupon.used).length ?? 0,
+ safetyScore: performanceSummary.safetyScore,
+ carbonReductionKg: performanceSummary.carbonReductionKg,
+ };
 }
 
 function updateRepresentativeVehicles(
-  vehicles: MyVehicleResponse[],
-  representativeVehicleId: number,
+ vehicles: MyVehicleResponse[],
+ representativeVehicleId: number,
 ) {
-  return vehicles.map((vehicle) => ({
-    ...vehicle,
-    isRepresentative: vehicle.userVehicleId === representativeVehicleId,
-  }));
+ return vehicles.map((vehicle) => ({
+ ...vehicle,
+ isRepresentative: vehicle.userVehicleId === representativeVehicleId,
+ }));
 }
 
 function updateProfileData(
-  current: ProfileData | null,
-  updatedMe: Awaited<ReturnType<typeof fetchMe>>,
+ current: ProfileData | null,
+ updatedMe: Awaited<ReturnType<typeof fetchMe>>,
 ) {
-  if (!current) {
-    return current;
-  }
+ if (!current) {
+ return current;
+ }
 
-  return {
-    ...current,
-    me: updatedMe,
-  };
+ return {
+ ...current,
+ me: updatedMe,
+ };
 }
 
 function updateRepresentativeProfileData(
-  current: ProfileData | null,
-  representativeVehicleId: number,
-  performanceSummary: Awaited<ReturnType<typeof loadVehiclePerformanceSummary>>,
+ current: ProfileData | null,
+ representativeVehicleId: number,
+ performanceSummary: Awaited<ReturnType<typeof loadVehiclePerformanceSummary>>,
 ) {
-  if (!current) {
-    return current;
-  }
+ if (!current) {
+ return current;
+ }
 
-  return {
-    ...current,
-    vehicles: updateRepresentativeVehicles(current.vehicles, representativeVehicleId),
-    summary: {
-      ...current.summary,
-      safetyScore: performanceSummary.safetyScore,
-      carbonReductionKg: performanceSummary.carbonReductionKg,
-    },
-  };
+ return {
+ ...current,
+ vehicles: updateRepresentativeVehicles(current.vehicles, representativeVehicleId),
+ summary: {
+ ...current.summary,
+ safetyScore: performanceSummary.safetyScore,
+ carbonReductionKg: performanceSummary.carbonReductionKg,
+ },
+ };
 }
 
 async function loadProfileData() {
-  const [me, vehicles, insurances, paymentData] = await Promise.all([
-    fetchMe(),
-    getMyVehicles().catch(() => []),
-    getMyInsurances().catch(() => []),
-    getPaymentData().catch(() => null),
-  ]);
+ const [me, vehicles, insurances, paymentData] = await Promise.all([
+ fetchMe(),
+ getMyVehicles().catch(() => []),
+ getMyInsurances().catch(() => []),
+ getPaymentData().catch(() => null),
+ ]);
 
-  const representativeVehicleId = resolveRepresentativeVehicleId(vehicles);
-  const performanceSummary =
-    await loadVehiclePerformanceSummary(representativeVehicleId);
+ const representativeVehicleId = resolveRepresentativeVehicleId(vehicles);
+ const performanceSummary =
+ await loadVehiclePerformanceSummary(representativeVehicleId);
 
-  return {
-    me,
-    summary: buildProfileSummary({ paymentData, performanceSummary }),
-    vehicles,
-    insurances,
-  };
+ return {
+ me,
+ summary: buildProfileSummary({ paymentData, performanceSummary }),
+ vehicles,
+ insurances,
+ };
 }
 
 export default function Profile({
-  onLogout,
-  onUserUpdate,
+ onLogout,
+ onUserUpdate,
 }: {
-  onLogout: () => void;
-  onUserUpdate: (user: Awaited<ReturnType<typeof fetchMe>>) => void;
+ onLogout: () => void;
+ onUserUpdate: (user: Awaited<ReturnType<typeof fetchMe>>) => void;
 }) {
-  const [data, setData] = useState<ProfileData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-  const [isUpdatingRepresentative, setIsUpdatingRepresentative] = useState(false);
-  const [deletingVehicleId, setDeletingVehicleId] = useState<number | null>(null);
-  const [profileImageUploadState, setProfileImageUploadState] = useState<ProfileImageUploadState>({
-    isModalOpen: false,
-    isUploading: false,
-    errorMessage: null,
-  });
-  const fileInputRef = useRef<HTMLInputElement>(null);
+ const [data, setData] = useState<ProfileData | null>(null);
+ const [isLoading, setIsLoading] = useState(true);
+ const [isError, setIsError] = useState(false);
+ const [isUpdatingRepresentative, setIsUpdatingRepresentative] = useState(false);
+ const [deletingVehicleId, setDeletingVehicleId] = useState<number | null>(null);
+ const [profileImageUploadState, setProfileImageUploadState] = useState<ProfileImageUploadState>({
+ isModalOpen: false,
+ isUploading: false,
+ errorMessage: null,
+ });
+ const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    let active = true;
+ useEffect(() => {
+ let active = true;
 
-    async function loadInitialProfileData() {
-      try {
-        setIsLoading(true);
-        setIsError(false);
-        const nextData = await loadProfileData();
+ async function loadInitialProfileData() {
+ try {
+ setIsLoading(true);
+ setIsError(false);
+ const nextData = await loadProfileData();
 
-        if (!active) {
-          return;
-        }
+ if (!active) {
+ return;
+ }
 
-        setData(nextData);
-      } catch (error) {
-        console.error("프로필 데이터 조회 실패:", error);
+ setData(nextData);
+ } catch (error) {
+ console.error("프로필 데이터 조회 실패:", error);
 
-        if (active) {
-          setIsError(true);
-        }
-      } finally {
-        if (active) {
-          setIsLoading(false);
-        }
-      }
-    }
+ if (active) {
+ setIsError(true);
+ }
+ } finally {
+ if (active) {
+ setIsLoading(false);
+ }
+ }
+ }
 
-    void loadInitialProfileData();
+ void loadInitialProfileData();
 
-    return () => {
-      active = false;
-    };
-  }, []);
+ return () => {
+ active = false;
+ };
+ }, []);
 
-  if (isLoading) {
-    return (
-      <div className="rounded-3xl border border-slate-200 bg-white p-8 text-slate-500">
-        마이페이지 정보를 불러오는 중입니다.
-      </div>
-    );
-  }
+ if (isLoading) {
+ return (
+ <div className="rounded-3xl border-[0.5px] bg-white p-8 text-slate-500">
+ 마이페이지 정보를 불러오는 중입니다.
+ </div>
+ );
+ }
 
-  if (isError || !data) {
-    return (
-      <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-red-600">
-        마이페이지 정보를 불러오지 못했습니다.
-      </div>
-    );
-  }
+ if (isError || !data) {
+ return (
+ <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-red-600">
+ 마이페이지 정보를 불러오지 못했습니다.
+ </div>
+ );
+ }
 
-  const { me, summary, vehicles, insurances } = data;
-  const representativeVehicleId = resolveRepresentativeVehicleId(vehicles);
-  const activeInsuranceByVehicleId = buildActiveInsuranceByVehicleId(insurances);
-  const avatarLabel = me.nickname ?? me.email ?? "U";
-  const profileImageSrc = getAvatarImageSrc(me.profileImageUrl, avatarLabel);
-  const handleProfileImageError = createAvatarFallbackHandler(avatarLabel);
-  const {
-    isModalOpen: isProfileImageModalOpen,
-    isUploading: isUploadingProfileImage,
-    errorMessage: profileImageUploadError,
-  } = profileImageUploadState;
+ const { me, summary, vehicles, insurances } = data;
+ const representativeVehicleId = resolveRepresentativeVehicleId(vehicles);
+ const activeInsuranceByVehicleId = buildActiveInsuranceByVehicleId(insurances);
+ const avatarLabel = me.nickname ?? me.email ?? "U";
+ const profileImageSrc = getAvatarImageSrc(me.profileImageUrl, avatarLabel);
+ const handleProfileImageError = createAvatarFallbackHandler(avatarLabel);
+ const {
+ isModalOpen: isProfileImageModalOpen,
+ isUploading: isUploadingProfileImage,
+ errorMessage: profileImageUploadError,
+ } = profileImageUploadState;
 
-  function openProfileImageModal() {
-    setProfileImageUploadState((current) => ({
-      ...current,
-      isModalOpen: true,
-      errorMessage: null,
-    }));
-  }
+ function openProfileImageModal() {
+ setProfileImageUploadState((current) => ({
+ ...current,
+ isModalOpen: true,
+ errorMessage: null,
+ }));
+ }
 
-  function closeProfileImageModal() {
-    if (isUploadingProfileImage) {
-      return;
-    }
+ function closeProfileImageModal() {
+ if (isUploadingProfileImage) {
+ return;
+ }
 
-    setProfileImageUploadState((current) => ({
-      ...current,
-      isModalOpen: false,
-    }));
-  }
+ setProfileImageUploadState((current) => ({
+ ...current,
+ isModalOpen: false,
+ }));
+ }
 
-  async function handleRepresentativeVehicleChange(nextVehicleId: number) {
-    try {
-      setIsUpdatingRepresentative(true);
-      await updateRepresentativeVehicle(nextVehicleId);
-      const performanceSummary =
-        await loadVehiclePerformanceSummary(nextVehicleId);
+ async function handleRepresentativeVehicleChange(nextVehicleId: number) {
+ try {
+ setIsUpdatingRepresentative(true);
+ await updateRepresentativeVehicle(nextVehicleId);
+ const performanceSummary =
+ await loadVehiclePerformanceSummary(nextVehicleId);
 
-      setData((current) => updateRepresentativeProfileData(
-        current,
-        nextVehicleId,
-        performanceSummary,
-      ));
-    } catch (error) {
-      console.error("대표 차량 변경 실패:", error);
-    } finally {
-      setIsUpdatingRepresentative(false);
-    }
-  }
+ setData((current) => updateRepresentativeProfileData(
+ current,
+ nextVehicleId,
+ performanceSummary,
+ ));
+ } catch (error) {
+ console.error("대표 차량 변경 실패:", error);
+ } finally {
+ setIsUpdatingRepresentative(false);
+ }
+ }
 
-  async function handleDeleteVehicle(userVehicleId: number) {
-    if (!window.confirm("선택한 차량을 삭제하시겠습니까?")) {
-      return;
-    }
+ async function handleDeleteVehicle(userVehicleId: number) {
+ if (!window.confirm("선택한 차량을 삭제하시겠습니까?")) {
+ return;
+ }
 
-    try {
-      setDeletingVehicleId(userVehicleId);
-      await deleteMyVehicle(userVehicleId);
+ try {
+ setDeletingVehicleId(userVehicleId);
+ await deleteMyVehicle(userVehicleId);
 
-      const [vehiclesAfterDelete, insurancesAfterDelete] = await Promise.all([
-        getMyVehicles().catch(() => []),
-        getMyInsurances().catch(() => []),
-      ]);
-      const nextRepresentativeVehicleId =
-        resolveRepresentativeVehicleId(vehiclesAfterDelete);
-      const performanceSummary =
-        await loadVehiclePerformanceSummary(nextRepresentativeVehicleId);
+ const [vehiclesAfterDelete, insurancesAfterDelete] = await Promise.all([
+ getMyVehicles().catch(() => []),
+ getMyInsurances().catch(() => []),
+ ]);
+ const nextRepresentativeVehicleId =
+ resolveRepresentativeVehicleId(vehiclesAfterDelete);
+ const performanceSummary =
+ await loadVehiclePerformanceSummary(nextRepresentativeVehicleId);
 
-      setData((current) =>
-        current
-          ? {
-              ...current,
-              vehicles: vehiclesAfterDelete,
-              insurances: insurancesAfterDelete,
-              summary: {
-                ...current.summary,
-                safetyScore: performanceSummary.safetyScore,
-                carbonReductionKg: performanceSummary.carbonReductionKg,
-              },
-            }
-          : current,
-      );
-    } catch (error) {
-      console.error("차량 삭제 실패:", error);
-      alert("차량 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.");
-    } finally {
-      setDeletingVehicleId(null);
-    }
-  }
+ setData((current) =>
+ current
+ ? {
+ ...current,
+ vehicles: vehiclesAfterDelete,
+ insurances: insurancesAfterDelete,
+ summary: {
+ ...current.summary,
+ safetyScore: performanceSummary.safetyScore,
+ carbonReductionKg: performanceSummary.carbonReductionKg,
+ },
+ }
+ : current,
+ );
+ } catch (error) {
+ console.error("차량 삭제 실패:", error);
+ alert("차량 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+ } finally {
+ setDeletingVehicleId(null);
+ }
+ }
 
-  async function handleProfileImageFileChange(
-    event: ChangeEvent<HTMLInputElement>,
-  ) {
-    const file = event.target.files?.[0];
+ async function handleProfileImageFileChange(
+ event: ChangeEvent<HTMLInputElement>,
+ ) {
+ const file = event.target.files?.[0];
 
-    if (!file) {
-      return;
-    }
+ if (!file) {
+ return;
+ }
 
-    try {
-      setProfileImageUploadState((current) => ({
-        ...current,
-        isUploading: true,
-        errorMessage: null,
-      }));
-      await uploadMyProfileImage(file);
-      const updatedMe = await fetchMe();
+ try {
+ setProfileImageUploadState((current) => ({
+ ...current,
+ isUploading: true,
+ errorMessage: null,
+ }));
+ await uploadMyProfileImage(file);
+ const updatedMe = await fetchMe();
 
-      onUserUpdate(updatedMe);
-      setData((current) => updateProfileData(current, updatedMe));
-      setProfileImageUploadState((current) => ({
-        ...current,
-        isUploading: false,
-        isModalOpen: false,
-      }));
-    } catch (error) {
-      console.error("프로필 이미지 업로드 실패:", error);
-      setProfileImageUploadState((current) => ({
-        ...current,
-        isUploading: false,
-        errorMessage: "프로필 이미지를 변경하지 못했습니다. 다시 시도해 주세요.",
-      }));
-    } finally {
-      event.target.value = "";
-    }
-  }
+ onUserUpdate(updatedMe);
+ setData((current) => updateProfileData(current, updatedMe));
+ setProfileImageUploadState((current) => ({
+ ...current,
+ isUploading: false,
+ isModalOpen: false,
+ }));
+ } catch (error) {
+ console.error("프로필 이미지 업로드 실패:", error);
+ setProfileImageUploadState((current) => ({
+ ...current,
+ isUploading: false,
+ errorMessage: "프로필 이미지를 변경하지 못했습니다. 다시 시도해 주세요.",
+ }));
+ } finally {
+ event.target.value = "";
+ }
+ }
 
-  return (
-    <div className="mx-auto max-w-2xl space-y-8">
-      <section className="flex flex-col items-center text-center">
-        <div className="mb-4">
-          <button
-            type="button"
-            onClick={openProfileImageModal}
-            className="group relative overflow-hidden rounded-[32px] border-4 border-white shadow-xl"
-            aria-label="프로필 이미지 크게 보기 및 변경"
-          >
-            <div className="h-24 w-24 overflow-hidden">
-              <img
-                src={profileImageSrc}
-                alt="Profile"
-                onError={handleProfileImageError}
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-900/0 text-white transition group-hover:bg-slate-900/30">
-              <Camera size={20} className="opacity-0 transition group-hover:opacity-100" />
-            </div>
-          </button>
-        </div>
-        <h2 className="text-2xl font-bold text-slate-900">{me.nickname}</h2>
-        <p className="text-sm text-slate-500">
-          {me.email ?? "이메일 정보 없음"}
-        </p>
-        <div className="mt-5 w-full max-w-sm">
-          <VehicleSelector
-            vehicles={vehicles}
-            selectedUserVehicleId={representativeVehicleId}
-            onChange={(nextVehicleId) => {
-              void handleRepresentativeVehicleChange(nextVehicleId);
-            }}
-            label="대표 차량"
-            disabled={isUpdatingRepresentative}
-          />
-        </div>
-      </section>
+ return (
+ <div className="mx-auto max-w-2xl space-y-8">
+ <section className="flex flex-col items-center text-center">
+ <div className="mb-4">
+ <button
+ type="button"
+ onClick={openProfileImageModal}
+ className="group relative overflow-hidden rounded-[32px] border-[0.5px] border-white "
+ aria-label="프로필 이미지 크게 보기 및 변경"
+ >
+ <div className="h-24 w-24 overflow-hidden">
+ <img
+ src={profileImageSrc}
+ alt="Profile"
+ onError={handleProfileImageError}
+ className="h-full w-full object-cover"
+ />
+ </div>
+ <div className="absolute inset-0 flex items-center justify-center bg-slate-900/0 text-white transition group-hover:bg-slate-900/30">
+ <Camera size={20} className="opacity-0 transition group-hover:opacity-100" />
+ </div>
+ </button>
+ </div>
+ <h2 className="text-2xl font-bold text-slate-900">{me.nickname}</h2>
+ <p className="text-sm text-slate-500">
+ {me.email ?? "이메일 정보 없음"}
+ </p>
+ <div className="mt-5 w-full max-w-sm">
+ <VehicleSelector
+ vehicles={vehicles}
+ selectedUserVehicleId={representativeVehicleId}
+ onChange={(nextVehicleId) => {
+ void handleRepresentativeVehicleChange(nextVehicleId);
+ }}
+ label="대표 차량"
+ disabled={isUpdatingRepresentative}
+ />
+ </div>
+ </section>
 
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatCard
-          label="내 포인트"
-          value={`${formatNumber(summary.pointBalance)}P`}
-          icon={Wallet}
-          valueClassName="text-blue-600"
-        />
-        <StatCard
-          label="내 쿠폰"
-          value={`${formatNumber(summary.couponCount)}개`}
-          icon={Wallet}
-          valueClassName="text-slate-900"
-        />
-        <StatCard
-          label="안전점수"
-          value={`${summary.safetyScore ?? 0}점`}
-          icon={ShieldCheck}
-          valueClassName="text-emerald-600"
-        />
-        <StatCard
-          label="탄소 절감"
-          value={`${(summary.carbonReductionKg ?? 0).toFixed(2)}kg`}
-          icon={Leaf}
-          valueClassName="text-green-600"
-        />
-      </section>
+ <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+ <StatCard
+ label="내 포인트"
+ value={`${formatNumber(summary.pointBalance)}P`}
+ icon={Wallet}
+ valueClassName="text-blue-600"
+ />
+ <StatCard
+ label="내 쿠폰"
+ value={`${formatNumber(summary.couponCount)}개`}
+ icon={Wallet}
+ valueClassName="text-slate-900"
+ />
+ <StatCard
+ label="안전점수"
+ value={`${summary.safetyScore ?? 0}점`}
+ icon={ShieldCheck}
+ valueClassName="text-emerald-600"
+ />
+ <StatCard
+ label="탄소 절감"
+ value={`${(summary.carbonReductionKg ?? 0).toFixed(2)}kg`}
+ icon={Leaf}
+ valueClassName="text-green-600"
+ />
+ </section>
 
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between gap-4">
-            <h3 className="ml-4 text-xs font-bold uppercase tracking-widest text-slate-400">
-              내 차량 · 보험 연결
-            </h3>
-            <Link
-              to="/vehicles/new"
-              className="inline-flex items-center rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700 transition hover:bg-blue-100"
-            >
-              차량 추가
-            </Link>
-          </div>
-          {vehicles.length > 0 ? (
-            <div className="space-y-3">
-              {vehicles.map((vehicle) => {
-                const linkedInsurance =
-                  activeInsuranceByVehicleId.get(vehicle.userVehicleId) ?? null;
+ <div className="space-y-6">
+ <div className="space-y-2">
+ <div className="flex items-center justify-between gap-4">
+ <h3 className="ml-4 text-xs font-bold uppercase tracking-widest text-slate-400">
+ 내 차량 · 보험 연결
+ </h3>
+ <Link
+ to="/vehicles/new"
+ className="inline-flex items-center rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700 transition hover:bg-blue-100"
+ >
+ 차량 추가
+ </Link>
+ </div>
+ {vehicles.length > 0 ? (
+ <div className="space-y-3">
+ {vehicles.map((vehicle) => {
+ const linkedInsurance =
+ activeInsuranceByVehicleId.get(vehicle.userVehicleId) ?? null;
 
-                return (
-                  <VehicleInsuranceCard
-                    key={vehicle.userVehicleId}
-                    vehicle={vehicle}
-                    linkedInsurance={linkedInsurance}
-                    onDelete={handleDeleteVehicle}
-                    isDeleting={deletingVehicleId === vehicle.userVehicleId}
-                  />
-                );
-              })}
-            </div>
-          ) : (
-            <div className="rounded-[32px] border border-dashed border-slate-200 bg-white p-6 text-sm font-medium text-slate-500 shadow-sm">
-              등록된 차량이 없습니다. 차량을 추가하고 보험까지 연결해 주세요.
-            </div>
-          )}
-        </div>
+ return (
+ <VehicleInsuranceCard
+ key={vehicle.userVehicleId}
+ vehicle={vehicle}
+ linkedInsurance={linkedInsurance}
+ onDelete={handleDeleteVehicle}
+ isDeleting={deletingVehicleId === vehicle.userVehicleId}
+ />
+ );
+ })}
+ </div>
+ ) : (
+ <div className="rounded-[32px] border border-dashed border-slate-200 bg-white p-6 text-sm font-medium text-slate-500 ">
+ 등록된 차량이 없습니다. 차량을 추가하고 보험까지 연결해 주세요.
+ </div>
+ )}
+ </div>
 
-        <div className="space-y-2">
-          <h3 className="ml-4 text-xs font-bold uppercase tracking-widest text-slate-400">
-            기타
-          </h3>
-          <div className="overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-sm">
-            <button
-              onClick={onLogout}
-              className="group flex w-full items-center justify-between p-5 transition-colors hover:bg-slate-50"
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50">
-                  <LogOut size={20} className="text-red-500" />
-                </div>
-                <div className="text-left">
-                  <div className="text-sm font-bold text-red-500">로그아웃</div>
-                </div>
-              </div>
-              <ChevronRight
-                size={18}
-                className="text-slate-300 transition-colors group-hover:text-slate-400"
-              />
-            </button>
-          </div>
-        </div>
-      </div>
+ <div className="space-y-2">
+ <h3 className="ml-4 text-xs font-bold uppercase tracking-widest text-slate-400">
+ 기타
+ </h3>
+ <div className="overflow-hidden rounded-[32px] border-[0.5px] bg-white ">
+ <button
+ onClick={onLogout}
+ className="group flex w-full items-center justify-between p-5 transition-colors hover:bg-slate-50"
+ >
+ <div className="flex items-center gap-4">
+ <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50">
+ <LogOut size={20} className="text-red-500" />
+ </div>
+ <div className="text-left">
+ <div className="text-sm font-bold text-red-500">로그아웃</div>
+ </div>
+ </div>
+ <ChevronRight
+ size={18}
+ className="text-slate-300 transition-colors group-hover:text-slate-400"
+ />
+ </button>
+ </div>
+ </div>
+ </div>
 
-      {isProfileImageModalOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <button
-            type="button"
-            className="absolute inset-0 bg-slate-900/60"
-            onClick={closeProfileImageModal}
-            aria-label="프로필 이미지 modal 닫기"
-          />
-          <div className="relative z-10 w-full max-w-md rounded-[32px] bg-white p-6 shadow-2xl">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-black text-slate-900">프로필 이미지</h3>
-                <p className="mt-1 text-sm text-slate-500">
-                  사진 형식은 JPG, PNG, WEBP를 지원하고 최대 5MB까지 업로드할 수 있습니다.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={closeProfileImageModal}
-                className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-                aria-label="닫기"
-              >
-                <X size={18} />
-              </button>
-            </div>
+ {isProfileImageModalOpen ? (
+ <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+ <button
+ type="button"
+ className="absolute inset-0 bg-slate-900/60"
+ onClick={closeProfileImageModal}
+ aria-label="프로필 이미지 modal 닫기"
+ />
+ <div className="relative z-10 w-full max-w-md rounded-[32px] bg-white p-6 ">
+ <div className="flex items-start justify-between gap-4">
+ <div>
+ <h3 className="text-lg font-black text-slate-900">프로필 이미지</h3>
+ <p className="mt-1 text-sm text-slate-500">
+ 사진 형식은 JPG, PNG, WEBP를 지원하고 최대 5MB까지 업로드할 수 있습니다.
+ </p>
+ </div>
+ <button
+ type="button"
+ onClick={closeProfileImageModal}
+ className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+ aria-label="닫기"
+ >
+ <X size={18} />
+ </button>
+ </div>
 
-            <div className="mt-6 flex justify-center">
-              <div className="h-48 w-48 overflow-hidden rounded-[40px] border border-slate-200 bg-slate-100 shadow-inner">
-                <img
-                  src={profileImageSrc}
-                  alt="Profile enlarged"
-                  onError={handleProfileImageError}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            </div>
+ <div className="mt-6 flex justify-center">
+ <div className="h-48 w-48 overflow-hidden rounded-[40px] border-[0.5px] bg-slate-100 ">
+ <img
+ src={profileImageSrc}
+ alt="Profile enlarged"
+ onError={handleProfileImageError}
+ className="h-full w-full object-cover"
+ />
+ </div>
+ </div>
 
-            {profileImageUploadError ? (
-              <p className="mt-4 text-sm font-medium text-red-600">
-                {profileImageUploadError}
-              </p>
-            ) : null}
+ {profileImageUploadError ? (
+ <p className="mt-4 text-sm font-medium text-red-600">
+ {profileImageUploadError}
+ </p>
+ ) : null}
 
-            <div className="mt-6 flex justify-end">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                className="hidden"
-                onChange={(event) => {
-                  void handleProfileImageFileChange(event);
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploadingProfileImage}
-                className="inline-flex items-center rounded-2xl bg-blue-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-              >
-                {isUploadingProfileImage ? "변경 중..." : "사진 변경"}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+ <div className="mt-6 flex justify-end">
+ <input
+ ref={fileInputRef}
+ type="file"
+ accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+ className="hidden"
+ onChange={(event) => {
+ void handleProfileImageFileChange(event);
+ }}
+ />
+ <button
+ type="button"
+ onClick={() => fileInputRef.current?.click()}
+ disabled={isUploadingProfileImage}
+ className="inline-flex items-center rounded-2xl bg-blue-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+ >
+ {isUploadingProfileImage ? "변경 중..." : "사진 변경"}
+ </button>
+ </div>
+ </div>
+ </div>
+ ) : null}
 
-    </div>
-  );
+ </div>
+ );
 }
 
 function VehicleInsuranceCard({
-  vehicle,
-  linkedInsurance,
-  onDelete,
-  isDeleting,
+ vehicle,
+ linkedInsurance,
+ onDelete,
+ isDeleting,
 }: {
-  vehicle: MyVehicleResponse;
-  linkedInsurance: InsuranceResponse | null;
-  onDelete: (userVehicleId: number) => void;
-  isDeleting: boolean;
+ vehicle: MyVehicleResponse;
+ linkedInsurance: InsuranceResponse | null;
+ onDelete: (userVehicleId: number) => void;
+ isDeleting: boolean;
 }) {
-  return (
-    <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="text-xs font-bold uppercase tracking-widest text-slate-400">
-            Vehicle
-          </div>
-          <h4 className="mt-2 text-xl font-black text-slate-900">
-            {vehicle.manufacturer} {vehicle.modelName}
-          </h4>
-          <p className="mt-1 text-sm font-medium text-slate-500">
-            {vehicle.modelYear}년식 · {vehicle.vehicleNumber}
-          </p>
-          {vehicle.isRepresentative ? (
-            <span className="mt-3 inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
-              대표 차량
-            </span>
-          ) : null}
-        </div>
-        <Link
-          to="/insurance"
-          className="inline-flex items-center gap-1 text-sm font-bold text-blue-600 hover:underline"
-        >
-          자세히 보기
-          <ChevronRight size={16} />
-        </Link>
-      </div>
+ return (
+ <div className="rounded-[32px] border-[0.5px] bg-white p-6 ">
+ <div className="flex items-start justify-between gap-4">
+ <div>
+ <div className="text-xs font-bold uppercase tracking-widest text-slate-400">
+ Vehicle
+ </div>
+ <h4 className="mt-2 text-xl font-black text-slate-900">
+ {vehicle.manufacturer} {vehicle.modelName}
+ </h4>
+ <p className="mt-1 text-sm font-medium text-slate-500">
+ {vehicle.modelYear}년식 · {vehicle.vehicleNumber}
+ </p>
+ {vehicle.isRepresentative ? (
+ <span className="mt-3 inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+ 대표 차량
+ </span>
+ ) : null}
+ </div>
+ <Link
+ to="/insurance"
+ className="inline-flex items-center gap-1 text-sm font-bold text-blue-600 hover:underline"
+ >
+ 자세히 보기
+ <ChevronRight size={16} />
+ </Link>
+ </div>
 
-      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <InfoTile label="연결 보험" value={linkedInsurance ? linkedInsurance.companyName : "미연결"} />
-        <InfoTile
-          label="상품"
-          value={linkedInsurance ? linkedInsurance.productName : "등록 필요"}
-        />
-        <InfoTile
-          label="상태"
-          value={
-            linkedInsurance
-              ? `${formatPlanType(linkedInsurance.planType)} / 활성`
-              : "보험 미등록"
-          }
-        />
-      </div>
+ <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+ <InfoTile label="연결 보험" value={linkedInsurance ? linkedInsurance.companyName : "미연결"} />
+ <InfoTile
+ label="상품"
+ value={linkedInsurance ? linkedInsurance.productName : "등록 필요"}
+ />
+ <InfoTile
+ label="상태"
+ value={
+ linkedInsurance
+ ? `${formatPlanType(linkedInsurance.planType)} / 활성`
+ : "보험 미등록"
+ }
+ />
+ </div>
 
-      {linkedInsurance && (
-        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <InfoTile
-            label="보험료"
-            value={formatCurrency(linkedInsurance.finalAmount)}
-          />
-          <InfoTile
-            label="연결일"
-            value={formatDate(linkedInsurance.createdAt)}
-          />
-        </div>
-      )}
+ {linkedInsurance && (
+ <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+ <InfoTile
+ label="보험료"
+ value={formatCurrency(linkedInsurance.finalAmount)}
+ />
+ <InfoTile
+ label="연결일"
+ value={formatDate(linkedInsurance.createdAt)}
+ />
+ </div>
+ )}
 
-      <div className="mt-4 flex justify-end">
-        <button
-          type="button"
-          onClick={() => onDelete(vehicle.userVehicleId)}
-          disabled={isDeleting}
-          className="inline-flex items-center rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400"
-        >
-          {isDeleting ? "삭제 중..." : "차량 삭제"}
-        </button>
-      </div>
-    </div>
-  );
+ <div className="mt-4 flex justify-end">
+ <button
+ type="button"
+ onClick={() => onDelete(vehicle.userVehicleId)}
+ disabled={isDeleting}
+ className="inline-flex items-center rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400"
+ >
+ {isDeleting ? "삭제 중..." : "차량 삭제"}
+ </button>
+ </div>
+ </div>
+ );
 }
 
 function StatCard({
-  label,
-  value,
-  icon: Icon,
-  valueClassName,
+ label,
+ value,
+ icon: Icon,
+ valueClassName,
 }: {
-  label: string;
-  value: string;
-  icon: typeof Wallet;
-  valueClassName: string;
+ label: string;
+ value: string;
+ icon: typeof Wallet;
+ valueClassName: string;
 }) {
-  return (
-    <div className="flex items-center justify-between rounded-3xl border border-slate-200 bg-white px-5 py-4 text-left shadow-sm sm:flex-col sm:justify-center sm:gap-2 sm:px-4">
-      <div className="flex items-center gap-2 sm:flex-col sm:gap-1">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
-          <Icon size={18} />
-        </div>
-        <div className="text-[10px] font-bold uppercase text-slate-400 sm:text-center">
-          {label}
-        </div>
-      </div>
-      <div className={cn("text-lg font-black sm:text-xl", valueClassName)}>
-        {value}
-      </div>
-    </div>
-  );
+ return (
+ <div className="flex items-center justify-between rounded-3xl border-[0.5px] bg-white px-5 py-4 text-left sm:flex-col sm:justify-center sm:gap-2 sm:px-4">
+ <div className="flex items-center gap-2 sm:flex-col sm:gap-1">
+ <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+ <Icon size={18} />
+ </div>
+ <div className="text-[10px] font-bold uppercase text-slate-400 sm:text-center">
+ {label}
+ </div>
+ </div>
+ <div className={cn("text-lg font-black sm:text-xl", valueClassName)}>
+ {value}
+ </div>
+ </div>
+ );
 }
 
 function InfoTile({
-  label,
-  value,
+ label,
+ value,
 }: {
-  label: string;
-  value: string;
+ label: string;
+ value: string;
 }) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-      <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
-        {label}
-      </div>
-      <div className="mt-2 text-base font-black text-slate-900">{value}</div>
-    </div>
-  );
+ return (
+ <div className="rounded-2xl border-[0.5px] bg-slate-50 px-4 py-4">
+ <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
+ {label}
+ </div>
+ <div className="mt-2 text-base font-black text-slate-900">{value}</div>
+ </div>
+ );
 }

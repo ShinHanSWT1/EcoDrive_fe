@@ -6,101 +6,101 @@ import { ChargeModal } from "./ChargeModal";
 import { CheckoutModal } from "./CheckoutModal";
 import { WalletInfoModal } from "./WalletInfoModal";
 import type {
-  PaymentCategory,
-  PaymentHistoryItem,
-  PaymentProduct,
-  PaymentUserSummary,
-  PaymentWalletInfo,
+ PaymentCategory,
+ PaymentHistoryItem,
+ PaymentProduct,
+ PaymentUserSummary,
+ PaymentWalletInfo,
 } from "../payment.types";
 
 type PaymentHomeTabProps = {
-  user: PaymentUserSummary;
-  wallet: PaymentWalletInfo | null;
-  walletMissing: boolean;
-  isCreatingWallet: boolean;
-  categories: PaymentCategory[];
-  products: PaymentProduct[];
-  recentHistory: PaymentHistoryItem[];
-  onCreateWallet: () => Promise<boolean>;
-  onOpenCoupons: (category?: string | null) => void;
-  onOpenHistory: () => void;
-  onCharge: (amount: number) => Promise<boolean>;
+ user: PaymentUserSummary;
+ wallet: PaymentWalletInfo | null;
+ walletMissing: boolean;
+ isCreatingWallet: boolean;
+ categories: PaymentCategory[];
+ products: PaymentProduct[];
+ recentHistory: PaymentHistoryItem[];
+ onCreateWallet: () => Promise<boolean>;
+ onOpenCoupons: (category?: string | null) => void;
+ onOpenHistory: () => void;
+ onCharge: (amount: number) => Promise<boolean>;
 };
 
 export default function PaymentHomeTab({
-  user,
-  wallet,
-  walletMissing,
-  isCreatingWallet,
-  categories,
-  products,
-  recentHistory,
-  onCreateWallet,
-  onOpenCoupons,
-  onOpenHistory,
-  onCharge,
+ user,
+ wallet,
+ walletMissing,
+ isCreatingWallet,
+ categories,
+ products,
+ recentHistory,
+ onCreateWallet,
+ onOpenCoupons,
+ onOpenHistory,
+ onCharge,
 }: PaymentHomeTabProps) {
-  const [activeCategoryId, setActiveCategoryId] = useState("all");
-  const [isChargeModalOpen, setIsChargeModalOpen] = useState(false);
-  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
-  const [isWalletInfoModalOpen, setIsWalletInfoModalOpen] = useState(false);
+ const [activeCategoryId, setActiveCategoryId] = useState("all");
+ const [isChargeModalOpen, setIsChargeModalOpen] = useState(false);
+ const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+ const [isWalletInfoModalOpen, setIsWalletInfoModalOpen] = useState(false);
 
-  return (
-    <div className="space-y-12">
-      {walletMissing ? (
-        <div className="rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <p className="text-amber-900 font-semibold">
-            계좌가 연결되어 있지 않습니다. 계좌를 생성하세요.
-          </p>
-          <button
-            onClick={onCreateWallet}
-            disabled={isCreatingWallet}
-            className="rounded-xl bg-amber-500 px-4 py-2 text-white font-semibold disabled:opacity-60"
-          >
-            {isCreatingWallet ? "계좌 생성 중..." : "계좌를 생성하세요"}
-          </button>
-        </div>
-      ) : null}
+ return (
+ <div className="space-y-12">
+ {walletMissing ? (
+ <div className="rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+ <p className="text-amber-900 font-semibold">
+ 계좌가 연결되어 있지 않습니다. 계좌를 생성하세요.
+ </p>
+ <button
+ onClick={onCreateWallet}
+ disabled={isCreatingWallet}
+ className="rounded-xl bg-amber-500 px-4 py-2 text-white font-semibold disabled:opacity-60"
+ >
+ {isCreatingWallet ? "계좌 생성 중..." : "계좌를 생성하세요"}
+ </button>
+ </div>
+ ) : null}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-        <AssetSummaryCard
-          balance={user.balance}
-          points={user.points}
-          monthlyUsage={user.monthlyUsage}
-          chargeDisabled={walletMissing}
-          walletInfoDisabled={walletMissing || wallet == null}
-          onOpenWalletInfo={() => setIsWalletInfoModalOpen(true)}
-          onOpenCoupons={onOpenCoupons}
-          onChargeClick={() => setIsChargeModalOpen(true)}
-          onCheckoutClick={() => setIsCheckoutModalOpen(true)}
-        />
-        <RecentHistorySection
-          history={recentHistory.slice(0, 4)}
-          onViewAll={onOpenHistory}
-        />
-      </div>
+ <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+ <AssetSummaryCard
+ balance={user.balance}
+ points={user.points}
+ monthlyUsage={user.monthlyUsage}
+ chargeDisabled={walletMissing}
+ walletInfoDisabled={walletMissing || wallet == null}
+ onOpenWalletInfo={() => setIsWalletInfoModalOpen(true)}
+ onOpenCoupons={onOpenCoupons}
+ onChargeClick={() => setIsChargeModalOpen(true)}
+ onCheckoutClick={() => setIsCheckoutModalOpen(true)}
+ />
+ <RecentHistorySection
+ history={recentHistory.slice(0, 4)}
+ onViewAll={onOpenHistory}
+ />
+ </div>
 
-      <BenefitProductSection
-        categories={categories}
-        products={products}
-        activeCategoryId={activeCategoryId}
-        onChangeCategory={setActiveCategoryId}
-      />
+ <BenefitProductSection
+ categories={categories}
+ products={products}
+ activeCategoryId={activeCategoryId}
+ onChangeCategory={setActiveCategoryId}
+ />
 
-      <ChargeModal
-        isOpen={isChargeModalOpen}
-        onClose={() => setIsChargeModalOpen(false)}
-        onCharge={onCharge}
-      />
-      <CheckoutModal
-        isOpen={isCheckoutModalOpen}
-        onClose={() => setIsCheckoutModalOpen(false)}
-      />
-      <WalletInfoModal
-        isOpen={isWalletInfoModalOpen}
-        wallet={wallet}
-        onClose={() => setIsWalletInfoModalOpen(false)}
-      />
-    </div>
-  );
+ <ChargeModal
+ isOpen={isChargeModalOpen}
+ onClose={() => setIsChargeModalOpen(false)}
+ onCharge={onCharge}
+ />
+ <CheckoutModal
+ isOpen={isCheckoutModalOpen}
+ onClose={() => setIsCheckoutModalOpen(false)}
+ />
+ <WalletInfoModal
+ isOpen={isWalletInfoModalOpen}
+ wallet={wallet}
+ onClose={() => setIsWalletInfoModalOpen(false)}
+ />
+ </div>
+ );
 }

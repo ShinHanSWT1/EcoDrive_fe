@@ -7,55 +7,55 @@ import { useNotification } from '../../features/notification/useNotification';
 import type { UserMe } from '../types/api';
 
 interface HeaderProps {
-  currentUser: UserMe | null;
-  isAuthenticated: boolean;
-  onLogout: () => void;
+ currentUser: UserMe | null;
+ isAuthenticated: boolean;
+ onLogout: () => void;
 }
 
 export default function Header({ currentUser, isAuthenticated, onLogout }: HeaderProps) {
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const {
-    notifications,
-    unreadCount,
-    isLoading,
-    fetchNotifications,
-    handleMarkAsRead,
-    handleMarkAllAsRead,
-  } = useNotification();
+ const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+ const {
+ notifications,
+ unreadCount,
+ isLoading,
+ fetchNotifications,
+ handleMarkAsRead,
+ handleMarkAllAsRead,
+ } = useNotification();
 
-  return (
-    <header className="h-16 md:h-20 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between">
-      <div className="flex items-center">
-        <Link to="/" className="flex items-center gap-2">
-          <img src="/media/logo3.png" alt="EcoDrive" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
-        </Link>
-        <Link to="/onboarding" className="text-lg md:text-xl font-black text-slate-900 tracking-tight">
-          EcoDrive
-        </Link>
-        {isAuthenticated && <HeaderNav />}
-      </div>
+ return (
+ <header className="h-16 md:h-24 border-b border-slate-200 bg-white sticky top-0 z-40 px-4 md:px-12 flex items-center justify-between shadow-sm">
+ <div className="flex items-center gap-12">
+ <Link to="/" className="flex items-center gap-3">
+ <img src="/media/logo3.png" alt="EcoDrive" className="w-10 h-10 md:w-14 md:h-14 object-contain" />
+ <span className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">
+ EcoDrive
+ </span>
+ </Link>
+ {isAuthenticated && <HeaderNav />}
+ </div>
 
-      <div className="flex items-center gap-2 md:gap-4">
-        {isAuthenticated ? (
-          <>
-            <NotificationDropdown
-              isOpen={isNotificationOpen}
-              onToggle={() => setIsNotificationOpen((prev) => !prev)}
-              notifications={notifications}
-              unreadCount={unreadCount}
-              isLoading={isLoading}
-              onOpen={fetchNotifications}
-              onMarkAsRead={handleMarkAsRead}
-              onMarkAllAsRead={handleMarkAllAsRead}
-            />
-            <MoreMenu currentUser={currentUser} onLogout={onLogout} />
-          </>
-        ) : (
-          <Link to="/login" className="px-6 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
-            로그인
-          </Link>
-        )}
-      </div>
-    </header>
-  );
+ <div className="flex items-center gap-2 md:gap-8">
+ {isAuthenticated ? (
+ <>
+ <NotificationDropdown
+ isOpen={isNotificationOpen}
+ onToggle={() => setIsNotificationOpen((prev) => !prev)}
+ notifications={notifications}
+ unreadCount={unreadCount}
+ isLoading={isLoading}
+ onOpen={fetchNotifications}
+ onMarkAsRead={handleMarkAsRead}
+ onMarkAllAsRead={handleMarkAllAsRead}
+ />
+ <MoreMenu currentUser={currentUser} onLogout={onLogout} />
+ </>
+ ) : (
+ <Link to="/login" className="px-10 py-3.5 bg-blue-600 text-white text-base font-black rounded-full hover:bg-blue-700 transition-all shadow-lg active:scale-95">
+ 로그인
+ </Link>
+ )}
+ </div>
+ </header>
+ );
 }

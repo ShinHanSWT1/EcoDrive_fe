@@ -1,39 +1,39 @@
 export interface DashboardStatCard {
-  id: string;
-  label: string;
-  value: number | string;
-  subText: string;
-  changeText?: string;
-  tone: "dark" | "orange" | "blue" | "green";
+ id: string;
+ label: string;
+ value: number | string;
+ subText: string;
+ changeText?: string;
+ tone: "dark" | "orange" | "blue" | "green";
 }
 
 export interface SavingsChartItem {
-  name: string;
-  savings: number;
+ name: string;
+ savings: number;
 }
 
 export interface TodayDrivingSummaryItem {
-  id: string;
-  title: string;
-  description: string;
-  statusText: string;
-  statusTone: "normal" | "danger";
-  icon: "car" | "trendDown";
+ id: string;
+ title: string;
+ description: string;
+ statusText: string;
+ statusTone: "normal" | "danger";
+ icon: "car" | "trendDown";
 }
 
 export interface InsurancePreviewItem {
-  name: string;
-  discountRate: number;
-  premium: number;
+ name: string;
+ discountRate: number;
+ premium: number;
 }
 
 export interface DashboardData {
-  totalSavings: number;
-  pointBalance: number;
-  todayEarnedPoints: number;
-  summaryNote: string;
-  stats: DashboardStatCard[];
-  savingsChart: SavingsChartItem[];
-  todayDrivingSummary: TodayDrivingSummaryItem[];
-  insurancePreviews: InsurancePreviewItem[];
+ totalSavings: number;
+ pointBalance: number;
+ todayEarnedPoints: number;
+ summaryNote: string;
+ stats: DashboardStatCard[];
+ savingsChart: SavingsChartItem[];
+ todayDrivingSummary: TodayDrivingSummaryItem[];
+ insurancePreviews: InsurancePreviewItem[];
 }
