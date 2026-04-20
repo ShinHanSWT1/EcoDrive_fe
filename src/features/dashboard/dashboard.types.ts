@@ -27,10 +27,20 @@ export interface InsurancePreviewItem {
   premium: number;
 }
 
+export interface DriverInsightCardData {
+  title: string;
+  badge: string;
+  styleLabel: string | null;
+  summary: string | null;
+  insight: string | null;
+  isDefault: boolean;
+}
+
 export interface DashboardData {
   totalSavings: number;
   pointBalance: number;
   todayEarnedPoints: number;
+  driverInsight: DriverInsightCardData;
   summaryNote: string;
   stats: DashboardStatCard[];
   savingsChart: SavingsChartItem[];

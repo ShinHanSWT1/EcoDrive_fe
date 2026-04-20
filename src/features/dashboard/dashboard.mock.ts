@@ -4,6 +4,14 @@ export const dashboardMockData: DashboardData = {
   totalSavings: 155800,
   pointBalance: 12540,
   todayEarnedPoints: 1200,
+  driverInsight: {
+    title: "운전자 유형 인사이트",
+    badge: "최근 7일 기준",
+    styleLabel: "균형 주행형",
+    summary: "전반적인 지표가 고르게 안정적인 주행 패턴입니다.",
+    insight: "급가감속과 과속 지표가 특정 방향으로 크게 치우치지 않았습니다.",
+    isDefault: false,
+  },
   summaryNote: "대시보드 목업용 요약 문구",
 
   stats: [

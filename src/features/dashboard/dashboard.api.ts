@@ -6,10 +6,62 @@
 import { getMyInsurances } from "../insurance/insurance.api";
 import { api } from "../../shared/api/client";
 import { getMyWalletSummary } from "../payment/payment.api";
-import type { DashboardData, InsurancePreviewItem } from "./dashboard.types";
+import type { ApiResponse } from "../../shared/types/api";
+import type { DashboardData, DriverInsightCardData, InsurancePreviewItem } from "./dashboard.types";
 import { getMyVehicles } from "../../shared/api/onboarding";
 import { resolveRepresentativeVehicleId } from "../../shared/lib/vehicle";
 
+function createDefaultDriverInsightCard(): DriverInsightCardData {
+  return {
+    title: "운전자 유형 인사이트",
+    badge: "최근 7일 기준",
+    styleLabel: null,
+    summary: "주행 데이터를 바탕으로 운전자 유형을 분석해드립니다.",
+    insight: null,
+    isDefault: true,
+  };
+}
+
+type DrivingInsightPayload = {
+  styleCode: string;
+  styleLabel: string;
+  summary: string;
+  insight: string;
+  tip: string;
+  confidence: number;
+  version: string;
+  fallbackUsed: boolean;
+};
+
+async function getDriverInsightCard(userVehicleId: number | null): Promise<DriverInsightCardData> {
+  try {
+    const response = await api.post<ApiResponse<DrivingInsightPayload>>(
+      "/driving/insight",
+      userVehicleId ? { userVehicleId } : {},
+    );
+    const insight = response.data.data;
+
+    if (!insight.styleLabel || !insight.summary || !insight.insight) {
+      return createDefaultDriverInsightCard();
+    }
+
+    if (insight.styleCode === "INSUFFICIENT_DATA") {
+      return createDefaultDriverInsightCard();
+    }
+
+    return {
+      title: "운전자 유형 인사이트",
+      badge: "최근 7일 기준",
+      styleLabel: insight.styleLabel,
+      summary: insight.summary,
+      insight: insight.insight,
+      isDefault: false,
+    };
+  } catch (error) {
+    console.warn("[대시보드] 운전자 유형 인사이트 조회 실패", error);
+    return createDefaultDriverInsightCard();
+  }
+}
 
 function roundDiscountRate(rate: number | null | undefined): number {
   return Math.round((rate ?? 0) * 1000) / 10;
@@ -62,6 +114,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       totalSavings: 0,
       pointBalance: 0,
       todayEarnedPoints: 0,
+      driverInsight: createDefaultDriverInsightCard(),
       summaryNote: "대표 차량 정보를 찾을 수 없습니다.",
       stats: [
         {
@@ -126,12 +179,14 @@ export async function getDashboardData(): Promise<DashboardData> {
     myInsurances,
     weeklySummaries,
     walletSummary,
+    driverInsight,
   ] = await Promise.all([
     getDrivingOverviewByVehicle(representativeVehicleId),
     getRecentDrivingSessions(20, representativeVehicleId),
     getMyInsurances().catch(() => []),
     getDrivingWeeklySummaries(year, month, representativeVehicleId).catch(() => []),
     getMyWalletSummary().catch(() => null),
+    getDriverInsightCard(representativeVehicleId),
   ]);
 
   const totalDistance = recentSessions.reduce(
@@ -219,6 +274,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     totalSavings,
     pointBalance: walletSummary?.points ?? (carbon.rewardPoint ?? 0),
     todayEarnedPoints,
+    driverInsight,
     summaryNote:
       carbon.carbonReductionKg != null
         ? `친환경 운전으로 탄소 배출을 ${carbon.carbonReductionKg.toFixed(2)}kg 줄였습니다.`
