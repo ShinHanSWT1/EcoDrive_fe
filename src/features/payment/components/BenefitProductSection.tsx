@@ -120,10 +120,10 @@ export default function BenefitProductSection({
  </p>
  </div>
  <div className="flex gap-2">
- <motion.button whileHover={{ scale: 1.05 }} type="button" onClick={() => setIsSearchOpen((prev) => !prev)} className={cn("w-12 h-12 bg-white border-[0.5px] border-slate-100 rounded-[20px] flex items-center justify-center text-slate-500 hover:border-blue-200 hover:text-blue-600 transition-colors", isSearchOpen && "border-blue-300 text-blue-600")}>
+ <motion.button whileHover={{ scale: 1.05 }} type="button" onClick={() => setIsSearchOpen((prev) => !prev)} className={cn("w-12 h-12 bg-white border-[0.5px] border-slate-100 rounded-[20px] flex items-center justify-center text-slate-500 hover:border-[#1A5D40]/20 hover:text-[#1A5D40] transition-colors", isSearchOpen && "border-[#1A5D40]/30 text-[#1A5D40]")}>
  <Search size={22} />
  </motion.button>
- <motion.button whileHover={{ scale: 1.05 }} type="button" onClick={() => setIsFilterOpen((prev) => !prev)} className={cn("w-12 h-12 bg-white border-[0.5px] border-slate-100 rounded-[20px] flex items-center justify-center text-slate-500 hover:border-blue-200 hover:text-blue-600 transition-colors", isFilterOpen && "border-blue-300 text-blue-600")}>
+ <motion.button whileHover={{ scale: 1.05 }} type="button" onClick={() => setIsFilterOpen((prev) => !prev)} className={cn("w-12 h-12 bg-white border-[0.5px] border-slate-100 rounded-[20px] flex items-center justify-center text-slate-500 hover:border-[#1A5D40]/20 hover:text-[#1A5D40] transition-colors", isFilterOpen && "border-[#1A5D40]/30 text-[#1A5D40]")}>
  <Filter size={22} />
  </motion.button>
  </div>
@@ -168,7 +168,7 @@ export default function BenefitProductSection({
  type="checkbox"
  checked={onlyHighDiscount}
  onChange={handleHighDiscountToggle}
- className="w-4 h-4 accent-blue-600"
+ className="w-4 h-4 accent-[#1A5D40]"
  />
  할인율 20% 이상만 보기
  </label>
@@ -179,7 +179,7 @@ export default function BenefitProductSection({
  onChange={(event) =>
  handleSortChange(event.target.value as "recommend" | "priceAsc" | "priceDesc" | "discountDesc")
  }
- className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-blue-400"
+ className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-[#1A5D40]/50"
  >
  <option value="recommend">추천순</option>
  <option value="discountDesc">할인율 높은순</option>
@@ -255,7 +255,7 @@ export default function BenefitProductSection({
  <div className="text-[10px] text-slate-400 font-extrabold uppercase mb-2 tracking-widest bg-slate-50 inline-block px-2 py-1 rounded w-fit">
  {getCategoryLabel(product.category)}
  </div>
- <h4 className="font-black text-slate-900 mb-4 text-base leading-snug line-clamp-2 flex-1 group-hover:text-blue-600 transition-colors">
+ <h4 className="font-black text-slate-900 mb-4 text-base leading-snug line-clamp-2 flex-1 group-hover:text-[#1A5D40] transition-colors">
  {product.name}
  </h4>
  <div className="flex items-end justify-between mt-auto">
@@ -336,7 +336,7 @@ export default function BenefitProductSection({
  </div>
  <div className="flex items-center justify-between text-sm">
  <span className="text-slate-500 font-bold">마법 유효기간</span>
- <span className="font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full">{selectedProduct.validDays ?? 30}일 남음</span>
+ <span className="font-black text-[#1A5D40] bg-[#1A5D40]/10 px-3 py-1 rounded-full">{selectedProduct.validDays ?? 30}일 남음</span>
  </div>
  </div>
 
@@ -344,7 +344,7 @@ export default function BenefitProductSection({
  whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
  type="button"
  onClick={handlePurchaseMove}
- className="w-full rounded-[24px] bg-blue-600 px-4 py-5 text-white font-black text-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+ className="w-full rounded-[24px] bg-[#1A5D40] px-4 py-5 text-white font-black text-lg hover:bg-[#1A5D40]/90 transition-colors flex items-center justify-center gap-2"
  >
  교환하기 <ArrowRight size={20} />
  </motion.button>

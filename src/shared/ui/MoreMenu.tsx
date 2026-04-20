@@ -62,7 +62,8 @@ export default function MoreMenu({ currentUser, onLogout }: MoreMenuProps) {
  return (
  <div className="relative" ref={menuRef}>
  <div
- className="flex items-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 transition-all hover:border-blue-200 hover:bg-white"
+ className="flex items-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 transition-all hover:border-[#1a5d40] hover:bg-white"
+
  >
  <Link
  to="/profile"
@@ -101,7 +102,8 @@ export default function MoreMenu({ currentUser, onLogout }: MoreMenuProps) {
  key={item.to}
  to={item.to}
  onClick={closeMenu}
- className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-all"
+ className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#1a5d40] transition-all"
+
  >
  <item.icon size={18} />
  {item.label}

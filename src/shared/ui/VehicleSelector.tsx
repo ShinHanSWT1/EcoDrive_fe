@@ -52,7 +52,7 @@ export default function VehicleSelector({
  value={selectedValue}
  onChange={(event) => handleChange(event.target.value)}
  disabled={disabled}
- className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 outline-none transition focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+ className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 outline-none transition focus:ring-2 focus:ring-[#1A5D40] focus:border-[#1A5D40] disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
  >
  {includeIntegratedOption ? (
  <option value={EMPTY_SELECTION_VALUE}>전체 차량 (통합)</option>

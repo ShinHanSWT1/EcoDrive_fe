@@ -60,7 +60,7 @@ export default function AssetSummaryCard({
  <div className="text-xs text-slate-700 font-black uppercase tracking-wider">
  현재 빵빵한 PAY 총 잔액
  </div>
- <div className="text-5xl font-black tracking-tight drop- text-slate-900">
+ <div className="text-5xl font-black tracking-tight text-slate-900">
  {totalBalance.toLocaleString("ko-KR")}
  <span className="text-3xl ml-1 font-bold">원</span>
  </div>
@@ -70,8 +70,8 @@ export default function AssetSummaryCard({
  <Coins size={18} className="text-amber-500" />
  <span className="text-sm font-black">{points.toLocaleString("ko-KR")}P</span>
  </div>
- <div className="px-4 py-2.5 bg-blue-50 rounded-2xl border border-blue-100 flex items-center gap-2">
- <CreditCard size={18} className="text-blue-600" />
+ <div className="px-4 py-2.5 bg-[#1A5D40]/10 rounded-2xl border border-[#1A5D40]/20 flex items-center gap-2">
+ <CreditCard size={18} className="text-[#1A5D40]" />
  <span className="text-sm font-black">{balance.toLocaleString("ko-KR")}원</span>
  </div>
  </div>
@@ -94,7 +94,7 @@ export default function AssetSummaryCard({
  whileTap={{ scale: 0.95 }}
  onClick={onCheckoutClick}
  disabled={chargeDisabled}
- className="bg-blue-600 text-white rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors disabled:opacity-50"
+ className="bg-[#1A5D40] text-white rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 hover:bg-[#1A5D40]/90 transition-colors disabled:opacity-50"
  >
  <ShoppingBag size={16} />
  바로 결제
@@ -103,9 +103,9 @@ export default function AssetSummaryCard({
  whileHover={{ scale: 1.05 }}
  whileTap={{ scale: 0.95 }}
  onClick={onOpenCoupons}
- className="bg-white text-slate-900 rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 border-[0.5px] border-slate-100 hover:border-blue-200 transition-colors"
+ className="bg-white text-slate-900 rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 border-[0.5px] border-slate-100 hover:border-[#1A5D40]/20 transition-colors"
  >
- <Ticket size={16} className="text-blue-500" />
+ <Ticket size={16} className="text-[#1A5D40]" />
  쿠폰함
  </motion.button>
  </div>

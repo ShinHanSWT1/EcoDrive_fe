@@ -43,7 +43,7 @@ export function SuccessPage() {
  <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
  {status === "loading" && (
  <div className="text-center">
- <div className="w-16 h-16 mx-auto mb-4 border-4 border-blue-500 rounded-full border-t-transparent animate-spin" />
+ <div className="w-16 h-16 mx-auto mb-4 border-4 border-[#1A5D40] rounded-full border-t-transparent animate-spin" />
  <h2 className="text-2xl font-bold text-slate-800">결제 승인 중...</h2>
  <p className="mt-2 text-slate-500">지갑 충전을 반영하고 있습니다.</p>
  </div>
@@ -51,14 +51,14 @@ export function SuccessPage() {
 
  {status === "success" && (
  <div className="text-center animate-in fade-in zoom-in duration-300">
- <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-green-100 rounded-full">
- <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+ <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-[#1A5D40]/20 rounded-full">
+ <svg className="w-10 h-10 text-[#1A5D40]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
  </svg>
  </div>
  <h2 className="mb-2 text-3xl font-bold text-slate-800">충전 완료</h2>
  <p className="mb-8 text-lg text-slate-600">
- 지갑에 <span className="font-bold text-blue-600">{Number(searchParams.get("amount")).toLocaleString()}원</span>이 충전되었습니다.
+ 지갑에 <span className="font-bold text-[#1A5D40]">{Number(searchParams.get("amount")).toLocaleString()}원</span>이 충전되었습니다.
  </p>
  <p className="text-sm text-slate-400">잠시 후 Pay 화면으로 이동합니다.</p>
  </div>

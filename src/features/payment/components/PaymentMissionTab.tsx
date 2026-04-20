@@ -63,7 +63,7 @@ function MissionGroupSection({
 
  <div className="text-right">
  <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1 bg-slate-50 inline-block px-2 py-0.5 rounded-lg">보상 팡팡</div>
- <div className="text-2xl font-black text-blue-600 drop- flex items-center justify-end gap-1">
+ <div className="text-2xl font-black text-[#1A5D40] flex items-center justify-end gap-1">
  <Sparkles size={16} className="text-[#A0C878]" /> {mission.rewardPoint.toLocaleString("ko-KR")}P
  </div>
  </div>
@@ -74,7 +74,7 @@ function MissionGroupSection({
  <span className="text-slate-500 bg-slate-50 px-2 py-1 rounded-lg">
  현재 {mission.current} / 목표 {mission.target}
  </span>
- <span className={isCompleted ? "text-emerald-500 text-sm" : "text-blue-600 text-sm"}>
+ <span className={isCompleted ? "text-emerald-500 text-sm" : "text-[#1A5D40] text-sm"}>
  {isCompleted ? "미션 완수! 🎉" : `${mission.progress}% 진행 중`}
  </span>
  </div>
@@ -91,7 +91,7 @@ function MissionGroupSection({
 
  <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest pt-2 border-t-2 border-dashed border-slate-100 relative z-10">
  {isCompleted ? (
- <span className="text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-1 rounded-lg">
+ <span className="text-[#1A5D40] flex items-center gap-1 bg-[#1A5D40]/10 px-2 py-1 rounded-lg">
  <ShieldCheck size={14} /> 보상 지급 대기 중
  </span>
  ) : isSafeScoreSettlementPending ? (
@@ -144,7 +144,7 @@ export default function PaymentMissionTab({ summary, missions }: PaymentMissionT
  </motion.div>
  <motion.div whileHover={{ scale: 1.05 }} className="bg-white p-6 rounded-[32px] border-[0.5px] border-slate-100 flex flex-col justify-center items-center text-center">
  <div className="text-[10px] text-slate-400 font-black uppercase mb-2 tracking-widest">이달 마스터율</div>
- <div className="text-3xl font-black text-blue-600">{summary.monthlyAchievementRate}%</div>
+ <div className="text-3xl font-black text-[#1A5D40]">{summary.monthlyAchievementRate}%</div>
  </motion.div>
  <motion.div whileHover={{ scale: 1.05 }} className="bg-white p-6 rounded-[32px] border-[0.5px] border-slate-900 flex flex-col justify-center items-center text-center relative overflow-hidden">
  <div className="absolute top-0 right-0 w-16 h-16 bg-slate-100/50 rounded-full blur-xl"></div>
@@ -159,12 +159,12 @@ export default function PaymentMissionTab({ summary, missions }: PaymentMissionT
  <MissionGroupSection
  title="일일 미션 타임"
  subtitle="Daily Missions"
- icon={<Clock size={28} className="text-blue-600 bg-white p-1 rounded-xl " />}
- badgeClass="text-blue-600 bg-blue-100 border border-blue-200"
+ icon={<Clock size={28} className="text-[#1A5D40] bg-white p-1 rounded-xl " />}
+ badgeClass="text-[#1A5D40] bg-[#1A5D40]/20 border border-[#1A5D40]/30"
  progressClass="bg-[#143D60]"
- pulseClass="bg-blue-500"
+ pulseClass="bg-[#1A5D40]"
  items={dailyMissions}
- containerBg="bg-blue-50/80"
+ containerBg="bg-[#1A5D40]/10"
  />
 
  <MissionGroupSection
@@ -181,12 +181,12 @@ export default function PaymentMissionTab({ summary, missions }: PaymentMissionT
  <MissionGroupSection
  title="월간 스페셜 목표"
  subtitle="Monthly Goals"
- icon={<Calendar size={28} className="text-emerald-600 bg-white p-1 rounded-xl " />}
- badgeClass="text-emerald-600 bg-emerald-100 border border-emerald-200"
+ icon={<Calendar size={28} className="text-[#1A5D40] bg-white p-1 rounded-xl " />}
+ badgeClass="text-[#1A5D40] bg-[#1A5D40]/20 border border-[#1A5D40]/30"
  progressClass="bg-[#143D60]"
- pulseClass="bg-emerald-500"
+ pulseClass="bg-[#1A5D40]"
  items={monthlyMissions}
- containerBg="bg-emerald-50/80"
+ containerBg="bg-[#1A5D40]/10"
  />
  </div>
  );

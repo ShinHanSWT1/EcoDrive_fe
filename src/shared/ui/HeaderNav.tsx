@@ -20,9 +20,9 @@ export default function HeaderNav() {
  key={item.path}
  to={item.path}
  className={cn(
- "text-base font-black transition-all hover:text-blue-600 relative py-2",
+ "text-base font-black transition-all hover:text-[#1a5d40] relative py-2",
  isActive 
- ? "text-blue-600 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-blue-600" 
+ ? "text-[#1a5d40] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-[#1a5d40]" 
  : "text-slate-600",
  )}
  >

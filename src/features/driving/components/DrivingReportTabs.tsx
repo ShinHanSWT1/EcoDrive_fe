@@ -12,20 +12,20 @@ export function DrivingReportTabs({
  onTabChange,
 }: DrivingReportTabsProps) {
  return (
- <div className="flex bg-slate-100/80 p-2 rounded-full w-full sm:w-fit mb-4 border-2 border-white backdrop-blur-md">
+ <div className="flex bg-slate-100/80 p-2 rounded-full w-full sm:w-fit mb-4 backdrop-blur-md">
  <button
  onClick={() => onTabChange("history")}
  className={cn(
  "relative flex-1 sm:flex-none px-6 py-3 rounded-full text-sm font-black transition-all whitespace-nowrap overflow-hidden",
  activeTab === "history"
- ? "text-slate-900 transform scale-100"
- : "text-slate-400 hover:text-slate-600 hover:bg-slate-200/50",
+ ? "text-white transform scale-100"
+ : "text-slate-900 hover:text-[#1A5D40] hover:bg-slate-200/50",
  )}
  >
  {activeTab === "history" && (
  <motion.div
  layoutId="activeTabDriving"
- className="absolute inset-0 bg-white"
+ className="absolute inset-0 bg-[#1A5D40]"
  style={{ borderRadius: 9999 }}
  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
  />
@@ -38,14 +38,14 @@ export function DrivingReportTabs({
  className={cn(
  "relative flex-1 sm:flex-none px-6 py-3 rounded-full text-sm font-black transition-all whitespace-nowrap overflow-hidden",
  activeTab === "score"
- ? "text-slate-900 transform scale-100"
- : "text-slate-400 hover:text-slate-600 hover:bg-slate-200/50",
+ ? "text-white transform scale-100"
+ : "text-slate-900 hover:text-[#1A5D40] hover:bg-slate-200/50",
  )}
  >
  {activeTab === "score" && (
  <motion.div
  layoutId="activeTabDriving"
- className="absolute inset-0 bg-white"
+ className="absolute inset-0 bg-[#1A5D40]"
  style={{ borderRadius: 9999 }}
  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
  />

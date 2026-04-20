@@ -36,4 +36,12 @@ export interface DashboardData {
  savingsChart: SavingsChartItem[];
  todayDrivingSummary: TodayDrivingSummaryItem[];
  insurancePreviews: InsurancePreviewItem[];
+ // 새롭게 추가된 지표들
+ todayMetrics?: {
+   totalDistance: number;
+   avgSpeed: number;
+   maxSpeed: number;
+   idlingTime: number;
+   ecoScore: number;
+ };
 }

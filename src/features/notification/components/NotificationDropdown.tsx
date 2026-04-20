@@ -58,7 +58,7 @@ export default function NotificationDropdown({
  {unreadCount > 0 && (
  <button
  onClick={onMarkAllAsRead}
- className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium"
+ className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 font-medium"
  >
  <CheckCheck size={14} />
  모두 읽음
@@ -82,7 +82,7 @@ export default function NotificationDropdown({
  key={n.id}
  onClick={() => !n.isRead && onMarkAsRead(n.id)}
  className={`px-4 py-3 border-b border-slate-50 cursor-pointer hover:bg-slate-50 transition-all ${
- !n.isRead ? 'bg-blue-50/50' : ''
+ !n.isRead ? 'bg-slate-50' : ''
  }`}
  >
  <div className="flex items-start justify-between gap-2">
@@ -94,7 +94,7 @@ export default function NotificationDropdown({
  </p>
  </div>
  {!n.isRead && (
- <span className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 shrink-0" />
+ <span className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: '#1A5D40' }} />
  )}
  </div>
  </div>

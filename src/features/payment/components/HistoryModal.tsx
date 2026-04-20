@@ -168,7 +168,7 @@ export default function HistoryModal({
  onClick={() => setFilterType("earn")}
  className={cn(
  "flex-1 py-2.5 rounded-xl text-sm font-bold transition-all",
- filterType === "earn" ? "bg-emerald-500 text-white " : "bg-slate-100 text-slate-500"
+ filterType === "earn" ? "bg-[#1A5D40] text-white " : "bg-slate-100 text-slate-500"
  )}
  >
  충전/적립
@@ -263,7 +263,7 @@ export default function HistoryModal({
  className={cn(
  "w-11 h-11 rounded-2xl flex items-center justify-center",
  item.type === "earn"
- ? "bg-emerald-50 text-emerald-600"
+ ? "bg-[#1A5D40]/10 text-[#1A5D40]"
  : "bg-slate-100 text-slate-600",
  )}
  >
@@ -288,7 +288,7 @@ export default function HistoryModal({
  <div
  className={cn(
  "font-black",
- item.type === "earn" ? "text-emerald-600" : "text-slate-900",
+ item.type === "earn" ? "text-[#1A5D40]" : "text-slate-900",
  )}
  >
  {item.type === "earn" ? "+" : "-"}

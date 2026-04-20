@@ -27,13 +27,13 @@ export function DailyDrivingDetailCard({
  transition={{ delay: i * 0.1 }}
  key={i}
  whileHover={{ y: -5, scale: 1.02 }}
- className="bg-white p-5 rounded-[32px] border-[0.5px] border-slate-100 flex flex-col items-center text-center group cursor-default"
+ className="bg-white/60 backdrop-blur-sm p-5 rounded-[32px] flex flex-col items-center text-center group cursor-default"
  >
  <div className={`w-14 h-14 rounded-2xl ${item.bg} flex items-center justify-center mb-3 group-hover:scale-110 group-hover:rotate-6 transition-transform ${item.color}`}>
  <item.icon size={26} />
  </div>
- <div className="text-[10px] text-slate-400 font-extrabold uppercase mb-1.5 bg-slate-50 px-2 py-0.5 rounded ">{item.label}</div>
- <div className="text-xl font-black text-slate-900 tracking-tight">{item.value}</div>
+ <div className="text-[15px] text-slate-900 font-extrabold uppercase mb-1.5 bg-white/40 px-2 py-0.5 rounded ">{item.label}</div>
+ <div className="text-[25px] font-black text-slate-900 tracking-tight">{item.value}</div>
  </motion.div>
  ))}
  </div>

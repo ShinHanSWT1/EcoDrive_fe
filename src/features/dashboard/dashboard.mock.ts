@@ -48,23 +48,31 @@ export const dashboardMockData: DashboardData = {
  ],
 
  todayDrivingSummary: [
- {
- id: "distance",
- title: "총 주행거리",
- description: "12.4 km",
- statusText: "정상",
- statusTone: "normal",
- icon: "car",
- },
- {
- id: "brake",
- title: "급감속 발생",
- description: "오후 2:34 · 강남대로",
- statusText: "-2점",
- statusTone: "danger",
- icon: "trendDown",
- },
+  {
+  id: "distance",
+  title: "총 주행거리",
+  description: "12.4 km",
+  statusText: "정상",
+  statusTone: "normal",
+  icon: "car",
+  },
+  {
+  id: "brake",
+  title: "급감속 발생",
+  description: "오후 2:34 · 강남대로",
+  statusText: "-2점",
+  statusTone: "danger",
+  icon: "trendDown",
+  },
  ],
+
+ todayMetrics: {
+  totalDistance: 12.4,
+  avgSpeed: 42,
+  maxSpeed: 85,
+  idlingTime: 12,
+  ecoScore: 85,
+ },
 
  insurancePreviews: [
  { name: "삼성화재", discountRate: 12.5, premium: 842000 },

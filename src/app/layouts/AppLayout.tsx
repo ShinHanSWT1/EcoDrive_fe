@@ -42,7 +42,7 @@ export default function AppLayout({
  )}
  </main>
 
- {!isFullBleed && <Footer />}
+ <Footer />
  {isAuthenticated && <MobileTabBar />}
  </div>
  );

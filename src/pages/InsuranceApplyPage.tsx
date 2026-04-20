@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Check, ChevronLeft } from "lucide-react";
 import { api } from "../shared/api/client";
@@ -141,7 +141,7 @@ export default function InsuranceApplyPage() {
 
  return (
  <div className="bg-white min-h-screen">
- <div className="max-w-4xl mx-auto py-16 px-8">
+ <div className="max-w-[1400px] mx-auto py-16 px-8">
  <button
  onClick={() => navigate(-1)}
  className="flex items-center gap-1 text-slate-400 hover:text-slate-600 font-medium mb-12 transition-colors"
@@ -151,7 +151,7 @@ export default function InsuranceApplyPage() {
 
  <div className="space-y-16">
  <header className="space-y-3 text-left">
- <div className="text-[#FF5C35] font-bold text-base">피보험자/계약자 정보</div>
+ <div className="text-[#1A5D40] font-bold text-base">피보험자/계약자 정보</div>
  <h1 className="text-[34px] font-bold text-slate-900 leading-tight tracking-tight">
  보험 가입을 위해 고객님의 정보를 입력해 주세요
  </h1>
@@ -172,7 +172,7 @@ export default function InsuranceApplyPage() {
  className={`w-full px-6 py-5 rounded-[20px] border bg-[#F2F4F6] focus:outline-none focus:ring-2 transition-all text-slate-700 font-medium text-lg ${
  phoneNumber && !isPhoneValid
  ? "border-red-400 focus:ring-red-200 focus:border-red-400"
- : "border-slate-200 focus:ring-[#FF5C35]/20 focus:border-[#FF5C35]"
+ : "border-slate-200 focus:ring-[#1A5D40]/20 focus:border-[#1A5D40]"
  }`}
  />
  {phoneNumber && !isPhoneValid && (
@@ -181,7 +181,7 @@ export default function InsuranceApplyPage() {
  </div>
 
  <div className="space-y-3 text-left">
- <label className="text-sm font-bold text-slate-400 ml-1">이메일<span className="text-[#FF5C35]">*</span></label>
+ <label className="text-sm font-bold text-slate-400 ml-1">이메일<span className="text-[#1A5D40]">*</span></label>
  <input
  type="email"
  value={email}
@@ -190,7 +190,7 @@ export default function InsuranceApplyPage() {
  className={`w-full px-6 py-5 rounded-[20px] border bg-white focus:outline-none focus:ring-2 transition-all text-slate-700 font-medium text-lg ${
  email && !isEmailValid
  ? "border-red-400 focus:ring-red-200 focus:border-red-400"
- : "border-slate-200 focus:ring-[#FF5C35]/20 focus:border-[#FF5C35]"
+ : "border-slate-200 focus:ring-[#1A5D40]/20 focus:border-[#1A5D40]"
  }`}
  />
  {email && !isEmailValid && (
@@ -205,7 +205,7 @@ export default function InsuranceApplyPage() {
  onClick={() => setAddressType("HOME")}
  className={`w-[180px] py-5 rounded-[16px] font-bold transition-all border-2 text-lg ${
  addressType === "HOME"
- ? "bg-white border-[#FF5C35] text-[#FF5C35]"
+ ? "bg-white border-[#1A5D40] text-[#1A5D40]"
  : "bg-white border-slate-100 text-slate-400"
  }`}
  >
@@ -215,7 +215,7 @@ export default function InsuranceApplyPage() {
  onClick={() => setAddressType("WORK")}
  className={`w-[180px] py-5 rounded-[16px] font-bold transition-all border-2 text-lg ${
  addressType === "WORK"
- ? "bg-white border-[#FF5C35] text-[#FF5C35]"
+ ? "bg-white border-[#1A5D40] text-[#1A5D40]"
  : "bg-white border-slate-100 text-slate-400"
  }`}
  >
@@ -255,7 +255,7 @@ export default function InsuranceApplyPage() {
  value={addressDetail}
  onChange={(event) => setAddressDetail(event.target.value)}
  placeholder="상세주소"
- className="flex-1 px-6 py-5 rounded-[20px] border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5C35]/20 focus:border-[#FF5C35] transition-all text-slate-700 font-medium text-lg"
+ className="flex-1 px-6 py-5 rounded-[20px] border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#1A5D40]/20 focus:border-[#1A5D40] transition-all text-slate-700 font-medium text-lg"
  />
  <input
  type="text"
@@ -282,7 +282,7 @@ export default function InsuranceApplyPage() {
  >
  <div
  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
- agreements[item.id as keyof typeof agreements] ? "bg-[#FF5C35]" : "bg-slate-100"
+ agreements[item.id as keyof typeof agreements] ? "bg-[#1A5D40]" : "bg-slate-100"
  }`}
  >
  <Check size={20} className="text-white" strokeWidth={3} />
@@ -304,8 +304,8 @@ export default function InsuranceApplyPage() {
  disabled={!isFormValid}
  className={`min-w-[340px] py-6 rounded-[24px] font-black text-xl transition-all ${
  isFormValid
- ? "bg-blue-600 text-white -200 hover:bg-blue-700 active:scale-[0.98]"
- : "bg-slate-100 text-slate-300 cursor-not-allowed "
+ ? "bg-[#1A5D40] text-white hover:bg-[#143D60] active:scale-[0.98]"
+ : "bg-slate-100 text-slate-300 cursor-not-allowed"
  }`}
  >
  모두 입력했어요
@@ -316,4 +316,3 @@ export default function InsuranceApplyPage() {
  </div>
  );
 }
-

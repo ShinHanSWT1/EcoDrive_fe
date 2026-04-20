@@ -165,23 +165,23 @@ export default function CouponCheckoutPage() {
 
  <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
  <span className="text-slate-700 font-semibold">최종 결제 금액</span>
- <span className="text-xl font-black text-emerald-600">{finalAmount.toLocaleString("ko-KR")}원</span>
+ <span className="text-xl font-black text-[#1A5D40]">{finalAmount.toLocaleString("ko-KR")}원</span>
  </div>
 
  <button
  type="button"
  onClick={handleSubmit}
  disabled={isSubmitting}
- className="w-full rounded-2xl bg-emerald-600 px-4 py-3 text-white font-black disabled:opacity-60"
+ className="w-full rounded-2xl bg-[#1A5D40] px-4 py-3 text-white font-black disabled:opacity-60"
  >
  {isSubmitting ? "PAY 결제창 이동 중..." : "PAY 결제창으로 이동"}
  </button>
  </div>
 
  {isCheckoutPopupOpen && (
- <div className="rounded-2xl bg-blue-600 text-white px-5 py-4 ">
+ <div className="rounded-2xl bg-[#1A5D40] text-white px-5 py-4 ">
  <div className="text-sm font-bold mb-1">결제창이 새 창에서 열렸습니다</div>
- <p className="text-xs text-blue-100 leading-relaxed">
+ <p className="text-xs text-[#1A5D40]/10 leading-relaxed text-white/80">
  새 창에서 결제를 완료한 뒤 현재 화면으로 돌아와 주세요.
  </p>
  </div>

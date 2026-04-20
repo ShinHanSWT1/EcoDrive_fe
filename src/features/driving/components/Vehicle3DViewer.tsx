@@ -26,10 +26,9 @@ useGLTF.preload("/media/avante/base_basic_pbr.glb");
 function LoaderFallback() {
  return (
  <Html center>
- <div className="flex flex-col items-center justify-center text-slate-400 gap-3 whitespace-nowrap pointer-events-none">
- <Loader2 className="w-12 h-12 animate-spin text-blue-500" />
- <span className="font-bold text-sm text-slate-700 bg-white/90 backdrop-blur px-5 py-2.5 rounded-full border border-slate-100">
- 고사양 3D 모델 불러오는 중 ...
+ <div className="flex flex-col items-center justify-center text-slate-900 gap-3 whitespace-nowrap pointer-events-none">
+ <Loader2 className="w-12 h-12 animate-spin text-slate-900" />
+ <span className="font-bold text-sm text-slate-700 bg-white/90 backdrop-blur px-5 py-2.5 rounded-full"> 고사양 3D 모델 불러오는 중 ...
  </span>
  </div>
  </Html>
@@ -38,13 +37,13 @@ function LoaderFallback() {
 
 export function Vehicle3DViewer({ hideTitle = false }: { hideTitle?: boolean }) {
  return (
- <div className="w-full h-[400px] md:h-[500px] bg-white rounded-[40px] border-[0.5px] border-[#A0C878] relative overflow-hidden my-8 cursor-grab active:cursor-grabbing">
+ <div className="w-full h-[400px] md:h-[500px] bg-white rounded-[40px] relative overflow-hidden my-8 cursor-grab active:cursor-grabbing">
  {!hideTitle && (
- <div className="absolute top-6 left-6 z-10 bg-white border border-slate-200 px-4 py-2 rounded-2xl pointer-events-none">
+ <div className="absolute top-6 left-6 z-10 bg-white px-4 py-2 rounded-2xl pointer-events-none">
  <h3 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
- <Car size={24} className="text-blue-600" /> 아반떼 3D Studio
+ <Car size={24} className="text-slate-900" /> 아반떼 3D Studio
  </h3>
- <p className="text-[11px] font-bold text-slate-500 mt-1 pb-0.5">
+ <p className="text-[11px] font-bold text-slate-900 mt-1 pb-0.5">
  완전한 3D 모델! 마우스로 이리저리 빙빙 돌려보세요! 🚀
  </p>
  </div>

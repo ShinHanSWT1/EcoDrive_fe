@@ -9,12 +9,12 @@ interface PageContainerProps {
 
 export default function PageContainer({ children, className, isFullWidth = false }: PageContainerProps) {
  return (
- <div className={cn(
- "w-full mx-auto px-4 md:px-8",
- !isFullWidth && "max-w-7xl",
- className
- )}>
- {children}
- </div>
+  <div className={cn(
+   "w-full mx-auto px-4 md:px-12",
+   !isFullWidth && "max-w-[1400px]",
+   className
+  )}>
+   {children}
+  </div>
  );
 }

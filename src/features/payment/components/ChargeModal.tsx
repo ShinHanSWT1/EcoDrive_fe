@@ -64,7 +64,7 @@ export const ChargeModal = ({ isOpen, onClose }: ChargeModalProps) => {
 
  <div className="mb-6">
  <label className="block mb-2 text-sm font-medium text-gray-500">충전할 금액</label>
- <div className="relative flex items-center border-b-2 border-gray-200 focus-within:border-blue-500 transition-colors pb-2">
+ <div className="relative flex items-center border-b-2 border-gray-200 focus-within:border-[#1A5D40] transition-colors pb-2">
  <input
  type="number"
  value={amount || ""}
@@ -91,7 +91,7 @@ export const ChargeModal = ({ isOpen, onClose }: ChargeModalProps) => {
  <button
  onClick={handlePayment}
  disabled={amount === 0 || isSubmitting}
- className="w-full py-4 text-lg font-bold text-white transition-colors bg-blue-600 rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+ className="w-full py-4 text-lg font-bold text-white transition-colors bg-[#1A5D40] rounded-xl hover:bg-[#1A5D40]/90 disabled:bg-gray-300 disabled:cursor-not-allowed"
  >
  {isSubmitting
  ? "결제창 여는 중..."

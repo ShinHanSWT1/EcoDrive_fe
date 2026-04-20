@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Check, ChevronDown, ChevronLeft, ChevronUp, RotateCcw, ShieldCheck } from "lucide-react";
 import SignatureCanvas from "react-signature-canvas";
@@ -368,7 +368,7 @@ export default function InsuranceConfirmPage() {
  <p className="text-slate-500 mb-8">잠시 후 다시 시도해주세요.</p>
  <button
  onClick={() => navigate(-1)}
- className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-bold -200"
+ className="bg-[#1A5D40] text-white px-8 py-3 rounded-2xl font-bold -200"
  >
  뒤로가기
  </button>
@@ -385,7 +385,7 @@ export default function InsuranceConfirmPage() {
 
  return (
  <div className="bg-[#F8F9FA] min-h-screen pb-32">
- <div className="max-w-5xl mx-auto py-12 px-8">
+ <div className="max-w-[1400px] mx-auto py-12 px-8">
  <div className="flex items-center justify-between mb-12">
  <button
  onClick={() => navigate(-1)}
@@ -398,7 +398,7 @@ export default function InsuranceConfirmPage() {
  안전점수 {safetyScore ?? 0}점
  </span>
  {currentPrices.discountAmount > 0 && (
- <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+ <span className="text-xs font-bold text-[#1A5D40] bg-[#1A5D40]/10 px-3 py-1.5 rounded-full flex items-center gap-1.5">
  <ShieldCheck size={14} /> 안전운전 할인 {formatCurrency(currentPrices.discountAmount)} 절약 중
  </span>
  )}
@@ -496,11 +496,11 @@ export default function InsuranceConfirmPage() {
  <div className="flex justify-between items-center">
  <span className="text-slate-500">
  안전운전 할인
- <span className="ml-2 text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+ <span className="ml-2 text-[11px] font-bold text-[#1A5D40] bg-[#1A5D40]/10 px-2 py-0.5 rounded-full">
  {safetyScore ?? 0}점 적용
  </span>
  </span>
- <span className="font-bold text-blue-600">
+ <span className="font-bold text-[#1A5D40]">
  {currentPrices.discountAmount > 0
  ? `- ${formatCurrency(currentPrices.discountAmount)} (${Math.round((estimates[selectedPlan]?.discountRate ?? 0) * 1000) / 10}%)`
  : "해당 없음"}
@@ -583,8 +583,8 @@ export default function InsuranceConfirmPage() {
  <>
  <div className="h-10 w-[1px] bg-slate-100" />
  <div className="text-left">
- <div className="text-[10px] font-bold text-blue-500 mb-0.5">안전운전 할인 혜택</div>
- <div className="text-lg font-bold text-blue-600">-{formatCurrency(currentPrices.discountAmount)}</div>
+ <div className="text-[10px] font-bold text-[#1A5D40] mb-0.5">안전운전 할인 혜택</div>
+ <div className="text-lg font-bold text-[#1A5D40]">-{formatCurrency(currentPrices.discountAmount)}</div>
  </div>
  </>
  )}
@@ -592,7 +592,7 @@ export default function InsuranceConfirmPage() {
  <button
  onClick={handleOpenSignature}
  disabled={isSubmitting}
- className="bg-blue-600 text-white px-12 py-4 rounded-2xl font-black text-lg -200 hover:bg-blue-700 active:scale-[0.98] transition-all"
+ className="bg-[#1A5D40] text-white px-12 py-4 rounded-2xl font-black text-lg -200 hover:bg-[#1A5D40]/90 active:scale-[0.98] transition-all"
  >
  최종 가입 완료하기
  </button>
@@ -629,7 +629,7 @@ export default function InsuranceConfirmPage() {
  disabled={!isSigned || isSubmitting}
  className={`flex-1 py-4 rounded-[16px] font-black text-lg transition-all ${
  isSigned && !isSubmitting
- ? "bg-blue-600 text-white -200 hover:bg-blue-700"
+ ? "bg-[#1A5D40] text-white -200 hover:bg-[#1A5D40]/90"
  : "bg-slate-100 text-slate-300 cursor-not-allowed"
  }`}
  >
@@ -685,9 +685,9 @@ export default function InsuranceConfirmPage() {
  )}
 
  {isCheckoutPopupOpen && (
- <div className="fixed top-6 right-6 z-70 max-w-sm bg-blue-600 text-white rounded-2xl px-5 py-4">
+ <div className="fixed top-6 right-6 z-70 max-w-sm bg-[#1A5D40] text-white rounded-2xl px-5 py-4">
  <div className="text-sm font-bold mb-1">결제창이 새 창에서 열렸습니다</div>
- <p className="text-xs leading-relaxed text-blue-100">
+ <p className="text-xs leading-relaxed text-[#1A5D40]/20">
  새 창에서 결제를 완료한 뒤 현재 화면으로 돌아와 주세요.
  </p>
  <button

@@ -43,7 +43,7 @@ function getWalletStatusMeta(status: string | null | undefined) {
  if (normalized === "ACTIVE") {
  return {
  text: "ACTIVE",
- className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+ className: "bg-[#1A5D40]/10 text-[#1A5D40] border-[#1A5D40]/30",
  };
  }
  if (normalized === "SUSPENDED") {

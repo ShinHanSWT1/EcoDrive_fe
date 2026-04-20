@@ -398,7 +398,7 @@ export default function DrivingReport({
  type="button"
  onClick={() => void addDummyDrivingData()}
  disabled={isLoading || isRefreshing || isGeneratingDummyData}
- className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400"
+ className="rounded-2xl bg-[#1A5D40] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#1A5D40]/90 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-200"
  >
  {isGeneratingDummyData ? "더미 주행 추가 중..." : "테스트용 더미 주행 추가"}
  </button>
@@ -407,7 +407,7 @@ export default function DrivingReport({
  type="button"
  onClick={() => void refresh()}
  disabled={isLoading || isRefreshing || isGeneratingDummyData}
- className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
+ className="rounded-2xl bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-200"
  >
  {isRefreshing ? "새로고침 중..." : "리포트 새로고침"}
  </button>
@@ -416,7 +416,7 @@ export default function DrivingReport({
  onClick={handleExportMonthlyPdf}
  disabled={isLoading || isRefreshing || isGeneratingDummyData}
  aria-label="월간 PDF 내보내기"
- className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
+ className="rounded-2xl bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-200"
  >
  <img
  src="/media/download_icon.png"
@@ -431,13 +431,13 @@ export default function DrivingReport({
 
 
  {isLoading ? (
- <div className="rounded-3xl border border-slate-200 bg-white p-8 text-slate-500">
+ <div className="rounded-3xl bg-white p-8 text-slate-900">
  주행 데이터를 불러오는 중입니다.
  </div>
  ) : null}
 
  {isError ? (
- <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-red-600">
+ <div className="rounded-3xl bg-red-50 p-8 text-slate-900">
  주행 데이터를 불러오지 못했습니다.
  </div>
  ) : null}

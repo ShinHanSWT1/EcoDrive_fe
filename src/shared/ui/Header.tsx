@@ -24,7 +24,8 @@ export default function Header({ currentUser, isAuthenticated, onLogout }: Heade
  } = useNotification();
 
  return (
- <header className="h-16 md:h-24 border-b border-slate-200 bg-white sticky top-0 z-40 px-4 md:px-12 flex items-center justify-between shadow-sm">
+ <header className="h-16 md:h-24 border-b border-slate-200 bg-white sticky top-0 z-40 shadow-sm flex items-center">
+ <div className="max-w-[1400px] mx-auto w-full px-4 md:px-12 flex items-center justify-between">
  <div className="flex items-center gap-12">
  <Link to="/" className="flex items-center gap-3">
  <img src="/media/logo3.png" alt="EcoDrive" className="w-10 h-10 md:w-14 md:h-14 object-contain" />
@@ -55,6 +56,7 @@ export default function Header({ currentUser, isAuthenticated, onLogout }: Heade
  로그인
  </Link>
  )}
+ </div>
  </div>
  </header>
  );

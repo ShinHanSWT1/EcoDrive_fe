@@ -2,7 +2,8 @@ import PageHeader from "../../shared/ui/PageSectionHeader";
 import { useDashboard } from "./useDashboard";
 import DashboardOverview from "./components/DashboardOverview";
 import SavingsChartCard from "./components/SavingsChartCard";
-import DashboardSidePanel from "./components/DashboardSidePanel";
+import WalletWidget from "./components/WalletWidget";
+import DrivingSummaryWidget from "./components/DrivingSummaryWidget";
 import InsuranceDiscountPreview from "./components/InsuranceDiscountPreview";
 
 export default function Dashboard() {
@@ -25,25 +26,38 @@ export default function Dashboard() {
  }
 
  return (
- <div className="space-y-10 lg:space-y-14 pb-24 relative z-10 font-sans mt-4">
+ <div className="flex flex-col items-start space-y-10 lg:space-y-14 pb-24 relative z-10 font-sans mt-4 px-4 md:px-12 w-full max-w-[1400px] mx-auto">
+ <div className="w-full">
  <PageHeader
  title="대시보드"
- description="연동된 주행/탄소 데이터는 실제 값을 사용하고, 보험 및 미구현 지표는 화면 구조를 유지한 채 비워둡니다."
- />
-
- <DashboardOverview stats={data.stats} pointBalance={data.pointBalance} />
-
- <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
- <SavingsChartCard chartData={data.savingsChart} />
- <DashboardSidePanel
- pointBalance={data.pointBalance}
- todayEarnedPoints={data.todayEarnedPoints}
- summaryNote={data.summaryNote}
- todayDrivingSummary={data.todayDrivingSummary}
  />
  </div>
 
+ <div className="w-full">
+ <DashboardOverview 
+ stats={data.stats.filter(s => s.id !== "score")} 
+ pointBalance={data.pointBalance}
+ todayEarnedPoints={data.todayEarnedPoints}
+ />
+ </div>
+
+ <div className="flex flex-col gap-6 w-full">
+ <div className="w-full">
+ <SavingsChartCard chartData={data.savingsChart} />
+ </div>
+
+ <div className="w-full">
+ <DrivingSummaryWidget
+ summaryNote={data.summaryNote}
+ todayDrivingSummary={data.todayDrivingSummary}
+ metrics={data.todayMetrics}
+ />
+ </div>
+ </div>
+
+ <div className="w-full">
  <InsuranceDiscountPreview items={data.insurancePreviews} />
+ </div>
  </div>
  );
 }

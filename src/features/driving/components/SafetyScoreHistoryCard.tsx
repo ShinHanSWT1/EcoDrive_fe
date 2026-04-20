@@ -21,28 +21,27 @@ export function SafetyScoreHistoryCard({
  );
 
  return (
- <div className="flex h-full flex-col rounded-[30px] border-[1px] border-slate-200 bg-white overflow-hidden shadow-sm">
- <div className="border-b border-slate-100 px-6 pb-5 pt-6">
- <div className="flex min-h-[52px] items-start justify-between gap-4">
- <div className="flex items-center gap-2.5">
- <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
- <History size={16} />
- </div>
- <div>
- <h3 className="text-base font-bold text-slate-900">최근 점수 변화</h3>
- <p className="mt-1 text-xs font-medium text-slate-400">
- 선택한 월 기준으로 점수 변화 이력을 확인합니다.
- </p>
- </div>
- </div>
- <MonthSelect
- monthOptions={orderedMonthOptions}
- selectedMonthKey={selectedMonthKey}
- onMonthChange={onMonthChange}
- />
- </div>
- </div>
-
+   <div className="flex h-full flex-col rounded-[30px] bg-white overflow-hidden shadow-sm">
+     <div className="px-6 pb-5 pt-6">
+       <div className="flex min-h-[52px] items-start justify-between gap-4">
+         <div className="flex items-center gap-2.5">
+           <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-100 text-slate-900">
+             <History size={16} />
+           </div>
+           <div>
+             <h3 className="text-[19px] font-bold text-slate-900">최근 점수 변화</h3>
+             <p className="mt-1 text-[15px] font-medium text-slate-900">
+               선택한 월 기준으로 점수 변화 이력을 확인합니다.
+             </p>
+           </div>
+         </div>
+         <MonthSelect
+           monthOptions={orderedMonthOptions}
+           selectedMonthKey={selectedMonthKey}
+           onMonthChange={onMonthChange}
+         />
+       </div>
+     </div>
  <div className="min-h-0 flex-1 px-6 pb-6 pt-4">
  {visibleItems.length > 0 ? (
  <div className="max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
@@ -77,11 +76,10 @@ function MonthSelect({
  <label className="relative shrink-0">
  <span className="sr-only">최근 점수 변화 월 선택</span>
  <select
- value={selectedMonthKey}
- onChange={(event) => onMonthChange(event.target.value)}
- className="h-11 appearance-none rounded-2xl border border-slate-200 bg-white pl-4 pr-10 text-sm font-semibold text-slate-700 outline-none transition hover:border-slate-300 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
- >
- {monthOptions.map((option) => (
+   value={selectedMonthKey}
+   onChange={(event) => onMonthChange(event.target.value)}
+   className="h-11 appearance-none rounded-2xl bg-white pl-4 pr-10 text-sm font-semibold text-slate-700 outline-none transition focus:ring-4 focus:ring-blue-100"
+ > {monthOptions.map((option) => (
  <option key={option.key} value={option.key}>
  {option.label}
  </option>
@@ -89,7 +87,7 @@ function MonthSelect({
  </select>
  <ChevronDown
  size={16}
- className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+ className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-900"
  />
  </label>
  );
@@ -116,23 +114,23 @@ function ScoreChangeRow({
 
  <div
  className={cn(
- "rounded-2xl border px-5 py-4 transition",
- item.isToday ? "border-blue-200 bg-white shadow-sm" : "border-slate-100 bg-white",
+ "rounded-2xl px-5 py-4 transition",
+ item.isToday ? "bg-white shadow-sm" : "bg-white",
  )}
  >
  <div className="flex items-start justify-between gap-4">
  <div className="min-w-0">
  <div className="flex items-center gap-2">
- <div className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
+ <div className="text-[15px] font-bold uppercase tracking-[0.14em] text-slate-900">
  {item.dateLabel}
  </div>
  {item.isToday ? (
- <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700">
+ <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-slate-900">
  TODAY
  </span>
  ) : null}
  </div>
- <div className="mt-1 text-sm font-semibold leading-5 text-slate-900">
+ <div className="mt-1 text-[21px] font-semibold leading-7 text-slate-900">
  {item.summary}
  </div>
  </div>
@@ -140,8 +138,8 @@ function ScoreChangeRow({
  <div className="shrink-0 text-right">
  <DeltaBadge delta={item.deltaFromPrevious} />
  <div className="mt-2 flex items-end justify-end gap-1">
- <div className="text-xl font-black text-slate-900">{item.score}</div>
- <div className="pb-0.5 text-[11px] font-bold text-slate-400">점</div>
+ <div className="text-[22px] font-black text-slate-900">{item.score}</div>
+ <div className="pb-0.5 text-[13px] font-bold text-slate-900">점</div>
  </div>
  </div>
  </div>
@@ -153,7 +151,7 @@ function ScoreChangeRow({
 function DeltaBadge({ delta }: { delta: number | null }) {
  if (delta === null) {
  return (
- <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-500">
+ <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[14px] font-black text-slate-900">
  비교 기준 없음
  </div>
  );
@@ -161,7 +159,7 @@ function DeltaBadge({ delta }: { delta: number | null }) {
 
  if (delta === 0) {
  return (
- <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-500">
+ <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[14px] font-black text-slate-900">
  변동 없음
  </div>
  );
@@ -172,8 +170,8 @@ function DeltaBadge({ delta }: { delta: number | null }) {
  return (
  <div
  className={cn(
- "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black",
- isPositive ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600",
+ "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[14px] font-black",
+ isPositive ? "bg-emerald-50 text-slate-900" : "bg-rose-50 text-slate-900",
  )}
  >
  {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
@@ -184,16 +182,15 @@ function DeltaBadge({ delta }: { delta: number | null }) {
 }
 
 function EmptyState() {
- return (
- <div className="flex h-full min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-center">
- <div>
- <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-slate-400 ">
+  return (
+    <div className="flex h-full min-h-[240px] items-center justify-center rounded-2xl bg-slate-50/80 p-6 text-center">
+      <div> <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-slate-900 ">
  <Activity size={18} />
  </div>
  <div className="mt-4 text-sm font-semibold text-slate-700">
  선택한 월에는 점수 변화 이력이 없습니다
  </div>
- <div className="mt-1 text-xs font-medium text-slate-400">
+ <div className="mt-1 text-xs font-medium text-slate-900">
  다른 월을 선택해 다시 확인해 보세요.
  </div>
  </div>

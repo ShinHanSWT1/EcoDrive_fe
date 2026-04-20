@@ -67,7 +67,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
  <button
  onClick={handleCheckout}
  disabled={isSubmitting}
- className="w-full py-4 text-lg font-bold text-white transition-colors bg-emerald-600 rounded-xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+ className="w-full py-4 text-lg font-bold text-white transition-colors bg-[#1A5D40] rounded-xl hover:bg-[#1A5D40]/90 disabled:bg-gray-300 disabled:cursor-not-allowed"
  >
  {isSubmitting
  ? "결제코드 페이지 여는 중..."
@@ -75,8 +75,8 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
  </button>
 
  {isCheckoutPopupOpen && (
- <div className="mt-4 rounded-xl bg-blue-50 border border-blue-100 px-4 py-3">
- <p className="text-xs font-semibold text-blue-700">
+ <div className="mt-4 rounded-xl bg-[#1A5D40]/10 border border-[#1A5D40]/20 px-4 py-3">
+ <p className="text-xs font-semibold text-[#1A5D40]">
  결제창이 새 창에서 열렸습니다. 결제 완료 후 현재 화면으로 돌아와 주세요.
  </p>
  </div>

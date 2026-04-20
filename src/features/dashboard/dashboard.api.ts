@@ -281,5 +281,16 @@ export async function getDashboardData(): Promise<DashboardData> {
  },
  ],
  insurancePreviews,
+ todayMetrics: {
+   totalDistance: Number(totalDistance.toFixed(2)),
+   avgSpeed: recentSessions.length > 0 
+     ? Math.round(recentSessions.reduce((sum, s) => sum + s.averageSpeed, 0) / recentSessions.length)
+     : 0,
+   maxSpeed: recentSessions.length > 0 
+     ? Math.max(...recentSessions.map(s => s.maxSpeed))
+     : 0,
+   idlingTime: totalIdling,
+   ecoScore: score.score ?? 100,
+ },
  };
 }

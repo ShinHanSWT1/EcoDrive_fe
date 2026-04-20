@@ -17,7 +17,7 @@ export default function InsuranceDiscountPreview({
  initial={{ opacity: 0, y: 40 }}
  animate={{ opacity: 1, y: 0 }}
  transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.4 }}
- className="bg-white border-[0.5px] border-[#143D60] p-8 md:p-10 rounded-[40px] relative overflow-hidden"
+ className="bg-white border-none p-8 md:p-10 rounded-[40px] relative overflow-hidden"
  >
  <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/10 rounded-full blur-[80px] pointer-events-none"></div>
  
@@ -34,7 +34,7 @@ export default function InsuranceDiscountPreview({
  </button>
  </div>
 
- <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+ <div className="flex flex-wrap gap-6 relative z-10">
  {items.length > 0 ? (
  items.map((item, index) => (
  <motion.div
@@ -43,7 +43,7 @@ export default function InsuranceDiscountPreview({
  animate={{ opacity: 1, x: 0 }}
  transition={{ delay: 0.5 + index * 0.1, type: "spring" }}
  whileHover={{ y: -8, rotate: -2 }}
- className="p-6 bg-white rounded-[32px] border-[0.5px] border-[#143D60]/20 flex flex-col justify-between cursor-pointer group"
+ className="p-5 md:p-6 bg-white rounded-[32px] border-[0.5px] border-[#143D60]/20 flex flex-col justify-between cursor-pointer group flex-1 min-w-[280px] max-w-[320px]"
  >
  <div className="mb-6">
  <div className="text-sm font-extrabold text-slate-400 mb-1">

@@ -145,14 +145,14 @@ export default function CouponListModal({
  <button
  type="button"
  key={coupon.id}
- className="rounded-3xl border border-slate-200 p-5 bg-slate-50/50 text-left hover:border-blue-300"
+ className="rounded-3xl border border-slate-200 p-5 bg-slate-50/50 text-left hover:border-[#1A5D40]/30"
  onClick={() => {
  setSelectedCoupon(coupon);
  setUseToken(null);
  }}
  >
  <div className="flex items-start justify-between gap-3 mb-4">
- <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+ <div className="w-11 h-11 rounded-2xl bg-[#1A5D40]/10 text-[#1A5D40] flex items-center justify-center">
  <Ticket size={20} />
  </div>
  <div
@@ -160,7 +160,7 @@ export default function CouponListModal({
  "text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest",
  coupon.used
  ? "bg-slate-200 text-slate-500"
- : "bg-emerald-50 text-emerald-600",
+ : "bg-[#1A5D40]/10 text-[#1A5D40]",
  )}
  >
  {coupon.used ? "사용 완료" : "사용 가능"}
@@ -169,7 +169,7 @@ export default function CouponListModal({
 
  <div className="space-y-2">
  {coupon.category ? (
- <div className="text-xs font-black text-blue-600 uppercase tracking-widest">
+ <div className="text-xs font-black text-[#1A5D40] uppercase tracking-widest">
  {coupon.category}
  </div>
  ) : null}

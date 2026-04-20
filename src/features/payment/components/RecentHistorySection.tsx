@@ -16,7 +16,7 @@ export function RecentHistorySection({
  <div className="p-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
  <div>
  <h4 className="font-black text-slate-900 flex items-center gap-2 text-base">
- <History size={18} className="text-blue-600" /> 최근 이용내역
+ <History size={18} className="text-[#1A5D40]" /> 최근 이용내역
  </h4>
  <p className="text-[10px] text-slate-400 font-medium mt-0.5">
  최근 4건의 내역을 확인하세요
@@ -24,7 +24,7 @@ export function RecentHistorySection({
  </div>
  <button
  onClick={onViewAll}
- className="text-[10px] font-bold text-blue-600 flex items-center gap-1 hover:bg-blue-50 px-2.5 py-1.5 rounded-lg transition-all"
+ className="text-[10px] font-bold text-[#1A5D40] flex items-center gap-1 hover:bg-[#1A5D40]/10 px-2.5 py-1.5 rounded-lg transition-all"
  >
  전체보기 <ChevronRight size={12} />
  </button>
@@ -43,7 +43,7 @@ export function RecentHistorySection({
  className={cn(
  "w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:scale-110 ",
  item.type === "earn"
- ? "bg-emerald-50 text-emerald-600"
+ ? "bg-[#1A5D40]/10 text-[#1A5D40]"
  : "bg-slate-100 text-slate-600",
  )}
  >
@@ -66,7 +66,7 @@ export function RecentHistorySection({
  <div
  className={cn(
  "text-sm font-black",
- item.type === "earn" ? "text-emerald-600" : "text-slate-900",
+ item.type === "earn" ? "text-[#1A5D40]" : "text-slate-900",
  )}
  >
  {item.type === "earn" ? "+" : "-"}

@@ -29,19 +29,19 @@ export default function PaymentHistoryTab({
  <section className="bg-white rounded-3xl p-8 border border-slate-200 ">
  <div className="flex justify-between items-center mb-6">
  <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
- <History size={20} className="text-blue-600" /> 3월 Pay 이용 리포트
+ <History size={20} className="text-[#1A5D40]" /> 3월 Pay 이용 리포트
  </h3>
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
- <div className="p-5 bg-blue-50 rounded-3xl border border-blue-100">
- <div className="text-[10px] text-blue-400 font-bold uppercase mb-2">
+ <div className="p-5 bg-[#1A5D40]/10 rounded-3xl border border-[#1A5D40]/20">
+ <div className="text-[10px] text-[#1A5D40] font-bold uppercase mb-2">
  미션 및 주행 리워드
  </div>
- <div className="text-xl font-black text-blue-600">
+ <div className="text-xl font-black text-[#1A5D40]">
  + {historySummary.earnedPoint.toLocaleString("ko-KR")} P
  </div>
- <div className="text-[10px] text-blue-500 font-bold mt-1">
+ <div className="text-[10px] text-[#1A5D40] font-bold mt-1">
  안전/탄소 절감 주행 실적 보상
  </div>
  </div>
@@ -75,9 +75,9 @@ export default function PaymentHistoryTab({
  <section className="bg-white rounded-3xl p-8 border border-slate-200 ">
  <div className="flex justify-between items-center mb-6">
  <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
- <Tag size={20} className="text-blue-600" /> 보유 중인 결제 쿠폰
+ <Tag size={20} className="text-[#1A5D40]" /> 보유 중인 결제 쿠폰
  </h3>
- <button className="text-xs text-slate-400 font-bold hover:text-blue-600 transition-colors">
+ <button className="text-xs text-slate-400 font-bold hover:text-[#1A5D40] transition-colors">
  전체 보기
  </button>
  </div>
@@ -86,10 +86,10 @@ export default function PaymentHistoryTab({
  {coupons.map((coupon) => (
  <div
  key={coupon.id}
- className="bg-slate-50 p-5 rounded-3xl flex items-center justify-between border border-slate-100 hover:border-blue-200 transition-all group"
+ className="bg-slate-50 p-5 rounded-3xl flex items-center justify-between border border-slate-100 hover:border-[#1A5D40]/30 transition-all group"
  >
  <div className="flex items-center gap-4">
- <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
+ <div className="w-12 h-12 bg-[#1A5D40]/20 text-[#1A5D40] rounded-2xl flex items-center justify-center group-hover:bg-[#1A5D40] group-hover:text-white transition-all">
  <Ticket size={24} />
  </div>
 
@@ -103,7 +103,7 @@ export default function PaymentHistoryTab({
  </div>
  </div>
 
- <button className="text-xs font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-xl hover:bg-blue-600 hover:text-white transition-all">
+ <button className="text-xs font-bold text-[#1A5D40] bg-[#1A5D40]/10 px-4 py-2 rounded-xl hover:bg-[#1A5D40] hover:text-white transition-all">
  사용
  </button>
  </div>
@@ -140,8 +140,8 @@ export default function PaymentHistoryTab({
  className={cn(
  "w-10 h-10 rounded-xl flex items-center justify-center",
  item.type === "earn"
- ? "bg-emerald-50 text-emerald-600"
- : "bg-blue-50 text-blue-600",
+ ? "bg-[#1A5D40]/10 text-[#1A5D40]"
+ : "bg-[#1A5D40]/10 text-[#1A5D40]",
  )}
  >
  {item.type === "earn" ? (
@@ -164,7 +164,7 @@ export default function PaymentHistoryTab({
  <div
  className={cn(
  "text-sm font-black",
- item.type === "earn" ? "text-emerald-600" : "text-slate-900",
+ item.type === "earn" ? "text-[#1A5D40]" : "text-slate-900",
  )}
  >
  {item.amountText} P
