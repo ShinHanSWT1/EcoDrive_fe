@@ -39,13 +39,17 @@ async function getDriverInsightCard(userVehicleId: number | null): Promise<Drive
       "/driving/insight",
       userVehicleId ? { userVehicleId } : {},
     );
-    const insight = response.data.data;
+    const insight = response.data?.data;
 
-    if (!insight.styleLabel || !insight.summary || !insight.insight) {
+    if (!response.data?.success || !insight) {
       return createDefaultDriverInsightCard();
     }
 
     if (insight.styleCode === "INSUFFICIENT_DATA") {
+      return createDefaultDriverInsightCard();
+    }
+
+    if (!insight.styleLabel || !insight.summary || !insight.insight) {
       return createDefaultDriverInsightCard();
     }
 

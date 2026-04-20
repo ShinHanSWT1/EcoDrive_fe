@@ -36,9 +36,11 @@ export default function DriverInsightCard({ insight }: DriverInsightCardProps) {
           </div>
 
           <div className="max-w-3xl space-y-3">
-            <p className="text-base font-bold leading-relaxed text-slate-700 md:text-lg">
-              {insight.summary}
-            </p>
+            {insight.summary ? (
+              <p className="text-base font-bold leading-relaxed text-slate-700 md:text-lg">
+                {insight.summary}
+              </p>
+            ) : null}
             {insight.insight ? (
               <p className="text-sm font-bold leading-relaxed text-blue-700 md:text-base">
                 {insight.insight}
