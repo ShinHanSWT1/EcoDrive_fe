@@ -9,6 +9,7 @@ import { parseYearMonthKey } from "./driving.mapper";
 import { DrivingReportTabs } from "./components/DrivingReportTabs";
 import { DrivingHistorySection } from "./components/DrivingHistorySection";
 import { ScoreCarbonSection } from "./components/ScoreCarbonSection";
+import { Vehicle3DViewer } from "./components/Vehicle3DViewer";
 import PageHeader from "../../shared/ui/PageSectionHeader";
 import VehicleSelector from "../../shared/ui/VehicleSelector";
 import type { MyVehicleResponse } from "../../shared/api/onboarding";
@@ -93,6 +94,28 @@ export default function DrivingReport({
   const selectedMonthLabel =
     availableMonthOptions.find((option) => option.key === selectedMonthKey)?.label ??
     selectedMonthKey;
+
+  const handleWeekChange = (weekKey: string) => {
+    setSelectedWeekKey(weekKey);
+
+    const selectedWeek = weeklySummaries.find((item) => item.weekKey === weekKey);
+    if (!selectedWeek || !selectedWeek.startDate || !selectedWeek.endDate) {
+      return;
+    }
+
+    // 주차 선택 시 실제 일간 데이터도 해당 주차 범위로 동기화한다.
+    const inRangeDateKeys = availableDateKeys.filter(
+      (dateKey) => selectedWeek.startDate! <= dateKey && dateKey <= selectedWeek.endDate!,
+    );
+    const nextDateKey =
+      inRangeDateKeys.length > 0
+        ? inRangeDateKeys[inRangeDateKeys.length - 1]
+        : normalizeDateKey(selectedWeek.endDate);
+
+    if (nextDateKey && nextDateKey !== selectedDate) {
+      setSelectedDate(nextDateKey);
+    }
+  };
 
   const handleExportMonthlyPdf = () => {
     if (!monthlySummary) {
@@ -392,13 +415,24 @@ export default function DrivingReport({
               type="button"
               onClick={handleExportMonthlyPdf}
               disabled={isLoading || isRefreshing || isGeneratingDummyData}
+              aria-label="월간 PDF 내보내기"
               className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
             >
-              월간 PDF 내보내기
+              <img
+                src="/media/download_icon.png"
+                alt="PDF 다운로드"
+                className="h-5 w-5 object-contain"
+              />
             </button>
           </div>
         </div>
       </section>
+
+      {(() => {
+        const selVehicle = vehicles.find((v) => v.userVehicleId === selectedUserVehicleId);
+        const isAvante = selVehicle?.modelName?.includes("아반떼") || selVehicle?.modelName?.toUpperCase().includes("AVANTE");
+        return isAvante ? <Vehicle3DViewer /> : null;
+      })()}
 
       {isLoading ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-8 text-slate-500">
@@ -431,7 +465,7 @@ export default function DrivingReport({
               onDateChange={setSelectedDate}
               onGoToToday={goToToday}
               onMonthChange={setSelectedMonthKey}
-              onWeekChange={setSelectedWeekKey}
+              onWeekChange={handleWeekChange}
               isTodaySelected={selectedDate === todayKey}
             />
           ) : (

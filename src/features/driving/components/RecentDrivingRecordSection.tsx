@@ -1,6 +1,8 @@
 import type { DailyDrivingData } from "../driving.types";
 import { DailyDrivingDetailCard } from "./DailyDrivingDetailCard";
 import { DrivingBehaviorStats } from "./DrivingBehaviorStats";
+import { CalendarDays, MapPin } from "lucide-react";
+import { motion } from "motion/react";
 
 interface RecentDrivingRecordSectionProps {
   selectedDate: string;
@@ -22,45 +24,51 @@ export function RecentDrivingRecordSection({
   isTodaySelected,
 }: RecentDrivingRecordSectionProps) {
   return (
-    <div className="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm">
-      <div className="flex flex-col gap-4 mb-8 px-2 lg:flex-row lg:items-end lg:justify-between">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-[#FEE500] p-8 md:p-10 rounded-[40px] border-4 border-white shadow-[0_20px_50px_rgb(254,229,0,0.3)] relative overflow-hidden"
+    >
+      <div className="absolute top-0 right-0 w-64 h-64 bg-white/40 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="flex flex-col gap-6 mb-10 relative z-10 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h3 className="font-black text-2xl text-slate-900 mb-1">
-            오늘 주행 기록
+          <div className="text-[10px] text-[#191600]/60 font-black uppercase tracking-widest mb-2 flex items-center gap-1.5 bg-white/30 backdrop-blur-sm w-fit px-3 py-1 rounded-full shadow-inner">
+            <MapPin size={14} className="text-amber-600" /> 오늘의 요정 주행 일기
+          </div>
+          <h3 className="font-black text-3xl md:text-4xl text-[#191600] tracking-tight">
+            신나는 드라이브 기록
           </h3>
-          <p className="text-sm text-slate-400 font-medium">
-            날짜를 선택해 확인하고 오늘 버튼으로 다시 오늘 기록으로 돌아올 수 있습니다.
-          </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-600">
-            <span>날짜 선택</span>
+          <label className="flex items-center gap-3 rounded-2xl border-4 border-white bg-white/70 backdrop-blur-md px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-white cursor-pointer">
+            <CalendarDays size={18} className="text-blue-500" />
             <input
               type="date"
               value={selectedDate}
               min={minDate}
               max={maxDate}
               onChange={(event) => onDateChange(event.target.value)}
-              className="bg-transparent font-medium text-slate-700 outline-none"
+              className="bg-transparent font-black text-slate-800 outline-none cursor-pointer"
             />
           </label>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             type="button"
             onClick={onGoToToday}
             disabled={isTodaySelected}
-            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
+            className="rounded-2xl border-4 border-white bg-slate-900 px-5 py-2.5 text-sm font-black text-white shadow-md transition-colors hover:bg-black disabled:cursor-not-allowed disabled:bg-slate-400 disabled:border-slate-300 disabled:text-slate-200 flex-shrink-0"
           >
-            오늘
-          </button>
+            오늘로 뿅!
+          </motion.button>
         </div>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-6 relative z-10">
         <DailyDrivingDetailCard data={selectedDailyData} dateLabel={selectedDate} />
-        <div className="pt-4 border-t border-slate-50">
-          <DrivingBehaviorStats data={selectedDailyData} />
-        </div>
+        <DrivingBehaviorStats data={selectedDailyData} />
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -4,6 +4,7 @@ import { RecentHistorySection } from "./RecentHistorySection";
 import BenefitProductSection from "./BenefitProductSection";
 import { ChargeModal } from "./ChargeModal";
 import { CheckoutModal } from "./CheckoutModal";
+import { WalletInfoModal } from "./WalletInfoModal";
 import type {
   PaymentCategory,
   PaymentHistoryItem,
@@ -42,6 +43,7 @@ export default function PaymentHomeTab({
   const [activeCategoryId, setActiveCategoryId] = useState("all");
   const [isChargeModalOpen, setIsChargeModalOpen] = useState(false);
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [isWalletInfoModalOpen, setIsWalletInfoModalOpen] = useState(false);
 
   return (
     <div className="space-y-12">
@@ -58,25 +60,6 @@ export default function PaymentHomeTab({
             {isCreatingWallet ? "계좌 생성 중..." : "계좌를 생성하세요"}
           </button>
         </div>
-      ) : wallet ? (
-        <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <p className="text-xs text-slate-500">계좌번호</p>
-            <p className="text-sm font-semibold text-slate-900">{wallet.accountNumber}</p>
-          </div>
-          <div>
-            <p className="text-xs text-slate-500">예금주</p>
-            <p className="text-sm font-semibold text-slate-900">{wallet.ownerName}</p>
-          </div>
-          <div>
-            <p className="text-xs text-slate-500">은행코드</p>
-            <p className="text-sm font-semibold text-slate-900">{wallet.bankCode ?? "-"}</p>
-          </div>
-          <div>
-            <p className="text-xs text-slate-500">상태</p>
-            <p className="text-sm font-semibold text-slate-900">{wallet.status}</p>
-          </div>
-        </div>
       ) : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
@@ -85,6 +68,8 @@ export default function PaymentHomeTab({
           points={user.points}
           monthlyUsage={user.monthlyUsage}
           chargeDisabled={walletMissing}
+          walletInfoDisabled={walletMissing || wallet == null}
+          onOpenWalletInfo={() => setIsWalletInfoModalOpen(true)}
           onOpenCoupons={onOpenCoupons}
           onChargeClick={() => setIsChargeModalOpen(true)}
           onCheckoutClick={() => setIsCheckoutModalOpen(true)}
@@ -110,6 +95,11 @@ export default function PaymentHomeTab({
       <CheckoutModal
         isOpen={isCheckoutModalOpen}
         onClose={() => setIsCheckoutModalOpen(false)}
+      />
+      <WalletInfoModal
+        isOpen={isWalletInfoModalOpen}
+        wallet={wallet}
+        onClose={() => setIsWalletInfoModalOpen(false)}
       />
     </div>
   );

@@ -1,5 +1,6 @@
-import { Leaf, Navigation, Zap, Fuel } from "lucide-react";
+import { Leaf, Navigation, Zap, Fuel, Sparkles } from "lucide-react";
 import { cn } from "../../../shared/lib/utils";
+import { motion } from "motion/react";
 
 interface CarbonReductionEquivalenceCardProps {
   carbonReductionKg: number | null;
@@ -12,6 +13,7 @@ type EquivalenceItem = {
   icon: typeof Leaf;
   color: string;
   bg: string;
+  borderColor: string;
 };
 
 function formatCarbonSaved(carbonReductionKg: number) {
@@ -29,79 +31,87 @@ export function CarbonReductionEquivalenceCard({
 
   const items: EquivalenceItem[] = [
     {
-      title: "나무 흡수량 기준",
+      title: "울창한 나무 파워",
       value: `${treeMonths.toFixed(1)}개월`,
-      label: "도심 나무 1그루가 흡수하는 기간과 비슷합니다.",
+      label: "산신령 나무 1그루가 흡수하는 어마어마한 양!",
       icon: Leaf,
-      color: "text-emerald-600",
-      bg: "bg-emerald-100/60",
+      color: "text-emerald-500",
+      bg: "bg-emerald-50",
+      borderColor: "border-emerald-200"
     },
     {
-      title: "주행 배출량 기준",
+      title: "슈퍼 드라이빙 파워",
       value: `${drivingKm.toFixed(1)}km`,
-      label: "자동차 주행 시 발생하는 배출량 기준으로 환산한 값입니다.",
+      label: "요술 자동차가 뿜어내는 가스와 맞먹어요!",
       icon: Navigation,
-      color: "text-blue-600",
-      bg: "bg-blue-100/60",
+      color: "text-blue-500",
+      bg: "bg-blue-50",
+      borderColor: "border-blue-200"
     },
     {
-      title: "휘발유 사용량 기준",
+      title: "에너지 기름 파워",
       value: `${gasolineLiters.toFixed(2)}L`,
-      label: "휘발유 사용 과정에서 배출되는 탄소량으로 환산할 수 있습니다.",
+      label: "찰랑찰랑 아낀 소중한 휘발유!",
       icon: Fuel,
-      color: "text-orange-600",
-      bg: "bg-orange-100/60",
+      color: "text-amber-500",
+      bg: "bg-amber-50",
+      borderColor: "border-amber-200"
     },
     {
-      title: "전력 사용량 기준",
+      title: "번개번개 전기 파워",
       value: `${electricityKwh.toFixed(2)}kWh`,
-      label: "전력 소비에 따른 배출량 기준으로도 비교해볼 수 있습니다.",
+      label: "피카피카 번개 파워로 환산 가능한 기적!",
       icon: Zap,
-      color: "text-indigo-600",
-      bg: "bg-indigo-100/60",
+      color: "text-indigo-500",
+      bg: "bg-indigo-50",
+      borderColor: "border-indigo-200"
     },
   ];
 
   return (
-    <div className="bg-emerald-50 p-6 rounded-[32px] border border-emerald-100 sm:p-8">
-      <div className="mb-8">
-        <h3 className="text-xl font-black text-emerald-900">
-          이번 활동으로 줄인 <span className="text-3xl">{formatCarbonSaved(normalizedCarbonReductionKg)}</span>는
+    <div className="bg-[#F8FAFC] p-8 rounded-[40px] border-4 border-white shadow-xl sm:p-10 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-100/50 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="mb-10 relative z-10">
+        <h3 className="text-2xl font-black text-slate-800 flex items-center gap-2">
+          내가 모은 신비한 아우라 <span className="text-4xl text-emerald-500 mx-1">{formatCarbonSaved(normalizedCarbonReductionKg)}</span> 는?
         </h3>
-        <p className="text-sm text-emerald-600/70 font-medium">
-          일상 속에서 다음과 같은 가치와 비슷합니다.
+        <p className="text-sm text-slate-500 font-bold mt-2 bg-white px-4 py-2 rounded-full inline-block shadow-sm flex items-center gap-1">
+          우리 주변의 어마어마한 마법으로 변환해봤어요! <Sparkles className="text-[#FEE500]" fill="#FEE500" size={16} />
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {items.map((item) => (
-          <div
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 relative z-10">
+        {items.map((item, index) => (
+          <motion.div
+            whileHover={{ y: -6, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
             key={item.title}
-            className="rounded-2xl bg-white border border-emerald-100/60 p-5 shadow-sm"
+            className={`rounded-[32px] bg-white border-4 ${item.borderColor} p-6 shadow-[0_10px_30px_rgb(0,0,0,0.04)]`}
           >
             <div className="flex items-start gap-4">
               <div
                 className={cn(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0",
+                  "w-16 h-16 rounded-[24px] flex items-center justify-center shrink-0 shadow-inner",
                   item.bg,
                   item.color,
                 )}
               >
-                <item.icon size={22} />
+                <item.icon size={28} />
               </div>
-              <div className="min-w-0">
-                <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
+              <div className="min-w-0 pt-1">
+                <div className={`text-xs font-black uppercase tracking-widest ${item.color}`}>
                   {item.title}
                 </div>
-                <div className="mt-2 text-2xl font-black tracking-tight text-slate-950">
+                <div className="mt-1 text-3xl font-black tracking-tight text-slate-900 drop-shadow-sm">
                   {item.value}
                 </div>
-                <p className="mt-2 text-sm font-medium leading-relaxed text-slate-500">
+                <p className="mt-2 text-[11px] font-bold leading-relaxed text-slate-500 bg-slate-50 p-2 rounded-xl">
                   {item.label}
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

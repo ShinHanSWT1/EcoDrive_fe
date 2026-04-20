@@ -171,6 +171,16 @@ function inferPriceFromDiscountLabel(label: string): number {
   return numeric;
 }
 
+function resolveWashCouponImage(name: string): string | null {
+  if (name.includes("코인") && name.includes("세차")) {
+    return "/media/coin_carwash.png";
+  }
+  if (name.includes("스팀") && name.includes("세차")) {
+    return "/media/steam_carwash.png";
+  }
+  return null;
+}
+
 function resolveHistoryDescription(tx: PayTransactionResponse): string {
   if (tx.transactionType === "CHARGE") {
     return "고라니페이 잔액 충전";
@@ -234,16 +244,72 @@ function calculateThisMonthUsage(transactions: PayTransactionResponse[]): number
 
 function toPaymentProducts(templates: CouponTemplateResponse[]) {
   return templates.map((template, index) => {
-    const price = inferPriceFromDiscountLabel(template.discountLabel);
+    let name = template.name;
+    let price = inferPriceFromDiscountLabel(template.discountLabel);
+    let discountLabel = template.discountLabel;
+    
+    let image = `https://picsum.photos/seed/coupon-${template.id}-${index}/400/300`;
+    const washCouponImage = resolveWashCouponImage(name);
+    if (washCouponImage) {
+      image = washCouponImage;
+    } else if (name.includes("GS칼텍스") || name.includes("GS 칼텍스")) {
+      image = "/media/gs_caltex.png";
+      discountLabel = "3,000원";
+    } else if (name.includes("SK에너지") || name.includes("SK 에너지")) {
+      image = "/media/sk_energy.jpg";
+      discountLabel = "5,000원";
+    } else if (name.includes("S-OIL") || name.includes("에쓰오일") || name.includes("S-Oil")) {
+      name = "S-OIL 만원 할인권";
+      image = "/media/s_oil.png";
+      price = 9000;
+      discountLabel = "10,000원";
+    } else if (name.includes("아이파킹") || name.toUpperCase().includes("IPARKING")) {
+      name = "아이파킹 10,000원권";
+      image = "/media/i_parking.avif";
+      price = 10000;
+      discountLabel = "10,000원";
+    } else if (name.includes("엔진오일")) {
+      name = "엔진오일 교환 30,000원권";
+      image = "/media/engine_oil.png";
+      price = 30000;
+      discountLabel = "30,000원";
+    } else if (name.toUpperCase().includes("CU")) {
+      name = "CU 3,000원권";
+      image = "/media/CU.jpg";
+      price = 3000;
+      discountLabel = "3,000원";
+    } else if (name.includes("GS25")) {
+      name = "GS25 50,000원 금액권";
+      image = "/media/gs25.png";
+      price = 50000;
+      discountLabel = "50,000원";
+    } else if (name.includes("스타벅스")) {
+      image = "/media/starbucks.jpg";
+    } else if (name.includes("이디야")) {
+      name = "이디야 5,000원권";
+      image = "/media/ediya.avif";
+      price = 5000;
+      discountLabel = "5,000원";
+    } else if (name.includes("메가커피") || name.includes("메가MGC") || name.includes("MGC")) {
+      image = "/media/mega.jpg";
+      discountLabel = "1+1";
+    } else if (name.includes("모두의주차장") || name.includes("모두의 주차장")) {
+      image = "/media/parking.png";
+    } else if (name.includes("타이어") && name.includes("점검")) {
+      image = "/media/tire.jpg";
+    } else if (name.includes("와이퍼")) {
+      image = "/media/wiper.jpg";
+    }
+
     return {
       id: template.id,
-      name: template.name,
-      description: buildCouponDescription(template.category, template.name, template.validDays),
+      name,
+      description: buildCouponDescription(template.category, name, template.validDays),
       price,
-      originalPrice: price,
+      originalPrice: price > 0 ? Math.floor(price * 1.1 / 100) * 100 : price,
       category: template.category,
-      image: `https://picsum.photos/seed/coupon-${template.id}-${index}/400/300`,
-      discountLabel: template.discountLabel,
+      image,
+      discountLabel,
       validDays: template.validDays,
     };
   });
@@ -253,15 +319,55 @@ function toPaymentCoupons(userCoupons: UserCouponResponse[], templateMap: Map<nu
   return userCoupons.map((coupon) => {
     const template = templateMap.get(coupon.templateId);
     const validDays = template?.validDays ?? 30;
+    
+    let name = coupon.name;
+    let image = `https://picsum.photos/seed/owned-coupon-${coupon.templateId}/400/300`;
+    const washCouponImage = resolveWashCouponImage(name);
+    if (washCouponImage) {
+      image = washCouponImage;
+    } else if (name.includes("GS칼텍스") || name.includes("GS 칼텍스")) {
+      image = "/media/gs_caltex.png";
+    } else if (name.includes("SK에너지") || name.includes("SK 에너지")) {
+      image = "/media/sk_energy.jpg";
+    } else if (name.includes("S-OIL") || name.includes("에쓰오일") || name.includes("S-Oil")) {
+      name = "S-OIL 만원 할인권";
+      image = "/media/s_oil.png";
+    } else if (name.includes("아이파킹") || name.toUpperCase().includes("IPARKING")) {
+      name = "아이파킹 10,000원권";
+      image = "/media/i_parking.avif";
+    } else if (name.includes("엔진오일")) {
+      name = "엔진오일 교환 30,000원권";
+      image = "/media/engine_oil.png";
+    } else if (name.toUpperCase().includes("CU")) {
+      name = "CU 3,000원권";
+      image = "/media/CU.jpg";
+    } else if (name.includes("GS25")) {
+      name = "GS25 50,000원 금액권";
+      image = "/media/gs25.png";
+    } else if (name.includes("스타벅스")) {
+      image = "/media/starbucks.jpg";
+    } else if (name.includes("이디야")) {
+      name = "이디야 5,000원권";
+      image = "/media/ediya.avif";
+    } else if (name.includes("메가카페") || name.includes("메가MGC") || name.includes("MGC")) {
+      image = "/media/mega.jpg";
+    } else if (name.includes("모두의주차장") || name.includes("모두의 주차장")) {
+      image = "/media/parking.png";
+    } else if (name.includes("타이어") && name.includes("점검")) {
+      image = "/media/tire.jpg";
+    } else if (name.includes("와이퍼")) {
+      image = "/media/wiper.jpg";
+    }
+
     return {
       id: coupon.id,
       templateId: coupon.templateId,
-      name: coupon.name,
+      name: name,
       expiry: new Date(coupon.expiresAt).toLocaleDateString("ko-KR"),
       discount: coupon.discountLabel,
       category: buildCategoryLabel(coupon.category),
-      description: buildCouponDescription(coupon.category, coupon.name, validDays),
-      image: `https://picsum.photos/seed/owned-coupon-${coupon.templateId}/400/300`,
+      description: buildCouponDescription(coupon.category, name, validDays),
+      image,
       used: coupon.status !== "AVAILABLE",
     };
   });

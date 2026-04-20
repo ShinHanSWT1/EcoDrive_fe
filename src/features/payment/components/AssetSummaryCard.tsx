@@ -1,4 +1,4 @@
-﻿import { Coins, CreditCard, Plus, ShoppingBag, Ticket, TrendingUp, Wallet } from "lucide-react";
+import { Coins, CreditCard, Plus, ShoppingBag, Ticket, TrendingUp, Wallet, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 
 interface AssetSummaryCardProps {
@@ -6,6 +6,8 @@ interface AssetSummaryCardProps {
   points: number;
   monthlyUsage: number;
   chargeDisabled?: boolean;
+  walletInfoDisabled?: boolean;
+  onOpenWalletInfo: () => void;
   onOpenCoupons: () => void;
   onChargeClick: () => void;
   onCheckoutClick: () => void;
@@ -16,6 +18,8 @@ export default function AssetSummaryCard({
   points,
   monthlyUsage,
   chargeDisabled = false,
+  walletInfoDisabled = false,
+  onOpenWalletInfo,
   onOpenCoupons,
   onChargeClick,
   onCheckoutClick,
@@ -26,70 +30,84 @@ export default function AssetSummaryCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-emerald-500 to-blue-600 p-8 rounded-[40px] text-white shadow-2xl shadow-blue-100 relative overflow-hidden group h-full flex flex-col justify-between"
+      className="bg-[#FEE500] p-8 rounded-[40px] text-slate-900 shadow-[0_20px_40px_rgb(254,229,0,0.3)] relative overflow-hidden group h-full flex flex-col justify-between border-4 border-white"
     >
+      <div className="absolute -top-10 -right-10 w-64 h-64 bg-white/40 rounded-full blur-3xl pointer-events-none"></div>
+
       <div className="relative z-10">
         <div className="flex justify-between items-start mb-8">
-          <div className="p-3 bg-white/20 backdrop-blur-md text-white rounded-2xl border border-white/30">
+          <button
+            type="button"
+            onClick={onOpenWalletInfo}
+            disabled={walletInfoDisabled}
+            className="p-3 bg-white/50 backdrop-blur-md text-slate-900 rounded-2xl border border-white max-w-fit shadow-sm hover:bg-white/70 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="연결 계좌 정보 열기"
+          >
             <Wallet size={28} />
-          </div>
+          </button>
           <div className="text-right">
-            <div className="text-[10px] text-white/60 font-bold uppercase tracking-widest mb-1">
-              이번 달 총 사용액
+            <div className="text-[10px] text-slate-600 font-black uppercase tracking-widest mb-1 flex items-center justify-end gap-1">
+              이번 달 쏠쏠한 사용액 <Sparkles size={12} className="text-amber-500" />
             </div>
-            <div className="text-lg font-black flex items-center justify-end gap-1">
+            <div className="text-xl font-black flex items-center justify-end gap-1">
               {monthlyUsage.toLocaleString("ko-KR")}원
-              <TrendingUp size={16} className="text-emerald-300" />
+              <TrendingUp size={18} className="text-indigo-600" />
             </div>
           </div>
         </div>
 
         <div className="space-y-1.5 mb-8">
-          <div className="text-[11px] text-white/80 font-black uppercase tracking-widest">
-            현재 PAY 총 잔액
+          <div className="text-xs text-slate-700 font-black uppercase tracking-wider">
+            현재 빵빵한 PAY 총 잔액
           </div>
-          <div className="text-5xl font-black tracking-tighter text-white drop-shadow-md">
+          <div className="text-5xl font-black tracking-tight drop-shadow-sm text-slate-900">
             {totalBalance.toLocaleString("ko-KR")}
-            <span className="text-3xl ml-1">원</span>
+            <span className="text-3xl ml-1 font-bold">원</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 mt-6">
-            <div className="px-4 py-2.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 flex items-center gap-2">
-              <Coins size={18} className="text-amber-300" />
-              <span className="text-sm font-bold">{points.toLocaleString("ko-KR")}P</span>
+            <div className="px-4 py-2.5 bg-white/70 backdrop-blur-md rounded-2xl border border-white shadow-sm flex items-center gap-2">
+              <Coins size={18} className="text-amber-500" />
+              <span className="text-sm font-black">{points.toLocaleString("ko-KR")}P</span>
             </div>
-            <div className="px-4 py-2.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 flex items-center gap-2">
-              <CreditCard size={18} className="text-blue-200" />
-              <span className="text-sm font-bold">{balance.toLocaleString("ko-KR")}원</span>
+            <div className="px-4 py-2.5 bg-white/70 backdrop-blur-md rounded-2xl border border-white shadow-sm flex items-center gap-2">
+              <CreditCard size={18} className="text-blue-600" />
+              <span className="text-sm font-black">{balance.toLocaleString("ko-KR")}원</span>
             </div>
           </div>
         </div>
       </div>
 
       <div className="relative z-10 grid grid-cols-3 gap-3">
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={onChargeClick}
           disabled={chargeDisabled}
-          className="bg-white text-slate-900 rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] transition-transform disabled:opacity-60 disabled:hover:scale-100"
+          className="bg-slate-900 text-white rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 shadow-lg hover:bg-black transition-colors disabled:opacity-50"
         >
           <Plus size={16} />
-          충전하기
-        </button>
-        <button
+          충전 꽉꽉
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={onCheckoutClick}
           disabled={chargeDisabled}
-          className="bg-white text-slate-900 rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] transition-transform disabled:opacity-60 disabled:hover:scale-100"
+          className="bg-blue-600 text-white rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 shadow-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
         >
           <ShoppingBag size={16} />
-          결제하기
-        </button>
-        <button
+          바로 결제
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={onOpenCoupons}
-          className="bg-white/10 backdrop-blur-md text-white rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 border border-white/20 hover:bg-white/15 transition-colors"
+          className="bg-white text-slate-900 rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 shadow-lg border-2 border-slate-100 hover:border-blue-200 transition-colors"
         >
-          <Ticket size={16} />
+          <Ticket size={16} className="text-blue-500" />
           쿠폰함
-        </button>
+        </motion.button>
       </div>
     </motion.div>
   );

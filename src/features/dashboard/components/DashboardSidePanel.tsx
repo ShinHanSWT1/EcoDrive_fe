@@ -1,5 +1,6 @@
-import { Car, Info, TrendingDown, ChevronRight, Wallet } from "lucide-react";
+import { Car, Info, TrendingDown, ChevronRight, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "motion/react";
 import type { TodayDrivingSummaryItem } from "../dashboard.types";
 
 type DashboardSidePanelProps = {
@@ -18,71 +19,96 @@ export default function DashboardSidePanel({
   const navigate = useNavigate();
 
   return (
-    <div className="space-y-4">
-      <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-        <div className="flex justify-between items-start mb-4">
-          <div className="p-3 rounded-2xl bg-slate-50 text-slate-700">
-            <Wallet size={20} />
+    <div className="space-y-6">
+      {/* Playful Wallet Widget */}
+      <motion.div 
+        initial={{ opacity: 0, x: 40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.2 }}
+        whileHover={{ scale: 1.02 }}
+        onClick={() => navigate("/payment")}
+        className="bg-[#FEE500] p-8 rounded-[40px] shadow-[0_15px_40px_rgb(254,229,0,0.3)] relative overflow-hidden cursor-pointer group block"
+      >
+        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/30 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+        <div className="absolute left-10 top-5 w-10 h-10 bg-white/40 rounded-full blur-lg"></div>
+
+        <div className="flex justify-between items-start mb-6 relative z-10">
+          <div className="p-4 rounded-[20px] bg-[#191600] text-[#FEE500] shadow-lg shadow-black/10 group-hover:-rotate-12 transition-transform">
+            <Gift size={28} />
           </div>
           <button
             type="button"
-            onClick={() => navigate("/payment")}
-            className="text-[10px] text-blue-600 font-bold flex items-center gap-1"
+            className="text-xs text-[#191600] font-black flex items-center gap-1 bg-white/50 px-3 py-1.5 rounded-full"
           >
-            상세보기 <ChevronRight size={10} />
+             혜택 보기 <ChevronRight size={14} />
           </button>
         </div>
 
-        <div className="text-sm font-medium text-slate-500">보유 포인트</div>
-        <div className="flex items-baseline gap-1 mt-1">
-          <span className="text-3xl font-bold text-slate-900">
+        <div className="text-sm font-extrabold text-[#191600]/60 relative z-10">보유 포인트</div>
+        <div className="flex items-baseline gap-1 mt-1 relative z-10">
+          <span className="text-4xl font-black text-[#191600] tracking-tight">
             {pointBalance.toLocaleString("ko-KR")}
           </span>
-          <span className="text-sm font-bold text-slate-400">P</span>
+          <span className="text-lg font-black text-[#191600]">P</span>
         </div>
 
-        <div className="mt-2 text-xs font-bold text-slate-400">
-          오늘 {todayEarnedPoints.toLocaleString("ko-KR")}포인트 적립 되었습니다.
+        <div className="mt-4 text-xs font-bold text-white bg-[#191600] px-4 py-2 rounded-2xl w-fit relative z-10 shadow-md">
+          오늘 🎉 {todayEarnedPoints.toLocaleString("ko-KR")}P 적립!
         </div>
-      </div>
+      </motion.div>
 
-      <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-        <h3 className="font-bold mb-4">오늘의 주행 요약</h3>
+      {/* Playful Driving Summary Widget */}
+      <motion.div 
+        initial={{ opacity: 0, x: 40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.3 }}
+        className="bg-white p-8 rounded-[40px] shadow-[0_10px_30px_rgb(0,0,0,0.06)] relative"
+      >
+        <h3 className="font-black text-xl mb-6 text-slate-900">오늘의 주행 요약</h3>
 
-        <div className="space-y-4">
-          {todayDrivingSummary.map((item) => (
-            <div key={item.id} className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-500">
+        <div className="space-y-5">
+          {todayDrivingSummary.map((item, index) => (
+            <motion.div 
+              key={item.id} 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 + index * 0.1 }}
+              className="flex items-center gap-4 group hover:bg-slate-50 p-3 -mx-3 rounded-3xl transition-colors cursor-default"
+            >
+              <div className="w-14 h-14 bg-slate-100 rounded-[20px] flex items-center justify-center text-slate-600 group-hover:scale-110 group-hover:bg-blue-100 group-hover:text-blue-600 transition-all">
                 {item.icon === "car" ? (
-                  <Car size={20} />
+                  <Car size={24} />
                 ) : (
-                  <TrendingDown size={20} />
+                  <TrendingDown size={24} />
                 )}
               </div>
 
               <div className="flex-1">
-                <div className="text-sm font-bold">{item.title}</div>
-                <div className="text-xs text-slate-500">{item.description}</div>
+                <div className="text-base font-black text-slate-900">{item.title}</div>
+                <div className="text-sm font-bold text-slate-400">{item.description}</div>
               </div>
 
               <div
-                className={`text-sm font-bold ${
+                className={`text-sm font-black px-3 py-1.5 rounded-full ${
                   item.statusTone === "danger"
-                    ? "text-red-500"
-                    : "text-blue-600"
+                    ? "text-red-600 bg-red-50"
+                    : "text-blue-600 bg-blue-50"
                 }`}
               >
                 {item.statusText}
               </div>
-            </div>
+            </motion.div>
           ))}
 
-          <div className="p-3 bg-blue-50 rounded-2xl text-[11px] text-blue-700 font-medium leading-relaxed">
-            <Info size={14} className="inline mr-1 mb-0.5" />
-            {summaryNote}
-          </div>
+          <motion.div 
+             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
+             className="mt-6 p-4 bg-blue-50 rounded-[24px] text-xs text-blue-700 font-bold leading-relaxed border border-blue-100 flex items-start gap-2"
+          >
+            <Info size={16} className="flex-shrink-0 mt-0.5" />
+            <div>{summaryNote}</div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
