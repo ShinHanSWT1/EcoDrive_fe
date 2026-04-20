@@ -1,4 +1,4 @@
-import { BarChart3, Presentation } from "lucide-react";
+import { Presentation } from "lucide-react";
 import type { MonthOption, WeeklySummaryItem } from "../driving.types";
 import { motion } from "motion/react";
 
@@ -38,13 +38,10 @@ export function WeeklyDrivingSummarySection({
             <Presentation size={14} className="text-[#FEE500]" /> 에코드라이브 리포트 센터
           </div>
           <h3 className="font-black text-3xl md:text-4xl text-white tracking-tight leading-snug">
-            주차별 요정님<br className="md:hidden" /> 주행데이터
+            주차별<br className="md:hidden" /> 주행 데이터
           </h3>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="p-2.5 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white border border-white/30 shadow-inner">
-            <BarChart3 size={24} />
-          </div>
           <select
             value={selectedMonthKey}
             onChange={(event) => onMonthChange(event.target.value)}

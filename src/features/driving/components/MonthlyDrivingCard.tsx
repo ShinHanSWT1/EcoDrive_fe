@@ -1,4 +1,4 @@
-import { TrendingDown, BarChart3, LineChart } from "lucide-react";
+import { TrendingDown, LineChart } from "lucide-react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -54,9 +54,6 @@ export function MonthlyDrivingCard({
               </span>
             )}
           </div>
-        </div>
-        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-[24px] flex items-center justify-center text-white shadow-lg shrink-0 border-2 border-white/50 group-hover:scale-110 transition-transform duration-500">
-          <BarChart3 size={28} />
         </div>
       </div>
 

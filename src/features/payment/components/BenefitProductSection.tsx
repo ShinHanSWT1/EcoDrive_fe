@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowRight, Filter, Search, X, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router-dom";
@@ -20,11 +20,48 @@ export default function BenefitProductSection({
 }: BenefitProductSectionProps) {
   const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState<PaymentProduct | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [onlyHighDiscount, setOnlyHighDiscount] = useState(false);
+  const [sortType, setSortType] = useState<"recommend" | "priceAsc" | "priceDesc" | "discountDesc">("recommend");
 
-  const filteredProducts =
+  const categoryProducts =
     activeCategoryId === "all"
       ? products
       : products.filter((product) => product.category === activeCategoryId);
+
+  const getDiscountRate = (product: PaymentProduct) => {
+    if (product.originalPrice <= 0) return 0;
+    return Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+  };
+
+  // 검색/필터/정렬 적용 목록 계산
+  const filteredProducts = useMemo(() => {
+    const normalizedKeyword = searchKeyword.trim().toLowerCase();
+    let result = categoryProducts.filter((product) => {
+      const nameMatched = product.name.toLowerCase().includes(normalizedKeyword);
+      const descriptionMatched = (product.description ?? "").toLowerCase().includes(normalizedKeyword);
+      const keywordMatched = normalizedKeyword.length === 0 || nameMatched || descriptionMatched;
+      const discountMatched = !onlyHighDiscount || getDiscountRate(product) >= 20;
+      return keywordMatched && discountMatched;
+    });
+
+    switch (sortType) {
+      case "priceAsc":
+        result = [...result].sort((a, b) => a.price - b.price);
+        break;
+      case "priceDesc":
+        result = [...result].sort((a, b) => b.price - a.price);
+        break;
+      case "discountDesc":
+        result = [...result].sort((a, b) => getDiscountRate(b) - getDiscountRate(a));
+        break;
+      default:
+        break;
+    }
+    return result;
+  }, [categoryProducts, onlyHighDiscount, searchKeyword, sortType]);
 
   const getCategoryLabel = (categoryId: string) =>
     categories.find((category) => category.id === categoryId)?.label ?? categoryId;
@@ -32,6 +69,42 @@ export default function BenefitProductSection({
   const handlePurchaseMove = () => {
     if (!selectedProduct) return;
     navigate(`/payment/checkout?templateId=${selectedProduct.id}`);
+  };
+
+  const handleSearchKeywordChange = (value: string) => {
+    // 검색 입력 로그
+    console.info("[특가상품] 검색어 변경", value);
+    setSearchKeyword(value);
+  };
+
+  const handleHighDiscountToggle = () => {
+    const nextValue = !onlyHighDiscount;
+    // 할인 필터 토글 로그
+    console.info("[특가상품] 고할인 필터 토글", nextValue);
+    setOnlyHighDiscount(nextValue);
+  };
+
+  const handleSortChange = (value: "recommend" | "priceAsc" | "priceDesc" | "discountDesc") => {
+    // 정렬 변경 로그
+    console.info("[특가상품] 정렬 변경", value);
+    setSortType(value);
+  };
+
+  const handleResetFilter = () => {
+    // 검색/필터 초기화 로그
+    console.info("[특가상품] 검색/필터 초기화");
+    setSearchKeyword("");
+    setOnlyHighDiscount(false);
+    setSortType("recommend");
+  };
+
+  const isContainImageProduct = (productName: string) => {
+    return (
+      productName.includes("SK에너지") ||
+      productName.includes("SK 에너지") ||
+      (productName.includes("코인") && productName.includes("세차")) ||
+      (productName.includes("스팀") && productName.includes("세차"))
+    );
   };
 
   return (
@@ -47,14 +120,83 @@ export default function BenefitProductSection({
             </p>
           </div>
           <div className="flex gap-2">
-            <motion.button whileHover={{ scale: 1.05 }} type="button" className="w-12 h-12 bg-white border-2 border-slate-100 rounded-[20px] flex items-center justify-center text-slate-500 shadow-sm hover:border-blue-200 hover:text-blue-600 transition-colors">
+            <motion.button whileHover={{ scale: 1.05 }} type="button" onClick={() => setIsSearchOpen((prev) => !prev)} className={cn("w-12 h-12 bg-white border-2 border-slate-100 rounded-[20px] flex items-center justify-center text-slate-500 shadow-sm hover:border-blue-200 hover:text-blue-600 transition-colors", isSearchOpen && "border-blue-300 text-blue-600")}>
               <Search size={22} />
             </motion.button>
-            <motion.button whileHover={{ scale: 1.05 }} type="button" className="w-12 h-12 bg-white border-2 border-slate-100 rounded-[20px] flex items-center justify-center text-slate-500 shadow-sm hover:border-blue-200 hover:text-blue-600 transition-colors">
+            <motion.button whileHover={{ scale: 1.05 }} type="button" onClick={() => setIsFilterOpen((prev) => !prev)} className={cn("w-12 h-12 bg-white border-2 border-slate-100 rounded-[20px] flex items-center justify-center text-slate-500 shadow-sm hover:border-blue-200 hover:text-blue-600 transition-colors", isFilterOpen && "border-blue-300 text-blue-600")}>
               <Filter size={22} />
             </motion.button>
           </div>
         </div>
+
+        <AnimatePresence initial={false}>
+          {isSearchOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="px-2"
+            >
+              <div className="flex items-center gap-2 rounded-2xl border-2 border-slate-200 bg-white px-4 py-3">
+                <Search size={18} className="text-slate-400" />
+                <input
+                  value={searchKeyword}
+                  onChange={(event) => handleSearchKeywordChange(event.target.value)}
+                  placeholder="상품명 또는 설명 검색"
+                  className="w-full bg-transparent text-sm text-slate-700 placeholder:text-slate-400 outline-none"
+                />
+                {searchKeyword.length > 0 ? (
+                  <button type="button" onClick={handleResetFilter} className="text-xs font-bold text-slate-500 hover:text-slate-700">
+                    초기화
+                  </button>
+                ) : null}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence initial={false}>
+          {isFilterOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="mx-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3"
+            >
+              <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={onlyHighDiscount}
+                  onChange={handleHighDiscountToggle}
+                  className="w-4 h-4 accent-blue-600"
+                />
+                할인율 20% 이상만 보기
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-slate-700">정렬</span>
+                <select
+                  value={sortType}
+                  onChange={(event) =>
+                    handleSortChange(event.target.value as "recommend" | "priceAsc" | "priceDesc" | "discountDesc")
+                  }
+                  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-blue-400"
+                >
+                  <option value="recommend">추천순</option>
+                  <option value="discountDesc">할인율 높은순</option>
+                  <option value="priceAsc">가격 낮은순</option>
+                  <option value="priceDesc">가격 높은순</option>
+                </select>
+                <button
+                  type="button"
+                  onClick={handleResetFilter}
+                  className="ml-auto rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-100"
+                >
+                  조건 초기화
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide -mx-2 px-2">
           {categories.map((cat) => (
@@ -72,6 +214,10 @@ export default function BenefitProductSection({
               {cat.label}
             </button>
           ))}
+        </div>
+
+        <div className="px-2 text-xs text-slate-500 font-semibold">
+          총 {filteredProducts.length}개 상품
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -94,7 +240,7 @@ export default function BenefitProductSection({
                     alt={product.name}
                     className={cn(
                       "w-full h-full transition-transform duration-700 group-hover:scale-110",
-                      product.name.includes("SK에너지") || product.name.includes("SK 에너지") 
+                      isContainImageProduct(product.name)
                         ? "object-contain p-6 scale-90" 
                         : "object-cover"
                     )}
@@ -133,6 +279,13 @@ export default function BenefitProductSection({
             ))}
           </AnimatePresence>
         </div>
+
+        {filteredProducts.length === 0 ? (
+          <div className="mx-2 rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
+            <p className="text-sm font-semibold text-slate-600">조건에 맞는 상품이 없습니다.</p>
+            <p className="text-xs text-slate-400 mt-1">검색어 또는 필터를 다시 설정해 주세요.</p>
+          </div>
+        ) : null}
       </div>
 
       <AnimatePresence>
@@ -168,7 +321,7 @@ export default function BenefitProductSection({
                   alt={selectedProduct.name}
                   className={cn(
                     "w-full h-56 transition-transform duration-700 hover:scale-105",
-                    selectedProduct.name.includes("SK에너지") || selectedProduct.name.includes("SK 에너지")
+                    isContainImageProduct(selectedProduct.name)
                       ? "object-contain p-6 scale-90"
                       : "object-cover"
                   )}

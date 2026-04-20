@@ -95,6 +95,28 @@ export default function DrivingReport({
     availableMonthOptions.find((option) => option.key === selectedMonthKey)?.label ??
     selectedMonthKey;
 
+  const handleWeekChange = (weekKey: string) => {
+    setSelectedWeekKey(weekKey);
+
+    const selectedWeek = weeklySummaries.find((item) => item.weekKey === weekKey);
+    if (!selectedWeek || !selectedWeek.startDate || !selectedWeek.endDate) {
+      return;
+    }
+
+    // 주차 선택 시 실제 일간 데이터도 해당 주차 범위로 동기화한다.
+    const inRangeDateKeys = availableDateKeys.filter(
+      (dateKey) => selectedWeek.startDate! <= dateKey && dateKey <= selectedWeek.endDate!,
+    );
+    const nextDateKey =
+      inRangeDateKeys.length > 0
+        ? inRangeDateKeys[inRangeDateKeys.length - 1]
+        : normalizeDateKey(selectedWeek.endDate);
+
+    if (nextDateKey && nextDateKey !== selectedDate) {
+      setSelectedDate(nextDateKey);
+    }
+  };
+
   const handleExportMonthlyPdf = () => {
     if (!monthlySummary) {
       alert("월간 요약 데이터가 없어 PDF를 생성할 수 없습니다.");
@@ -393,9 +415,14 @@ export default function DrivingReport({
               type="button"
               onClick={handleExportMonthlyPdf}
               disabled={isLoading || isRefreshing || isGeneratingDummyData}
+              aria-label="월간 PDF 내보내기"
               className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
             >
-              월간 PDF 내보내기
+              <img
+                src="/media/download_icon.png"
+                alt="PDF 다운로드"
+                className="h-5 w-5 object-contain"
+              />
             </button>
           </div>
         </div>
@@ -438,7 +465,7 @@ export default function DrivingReport({
               onDateChange={setSelectedDate}
               onGoToToday={goToToday}
               onMonthChange={setSelectedMonthKey}
-              onWeekChange={setSelectedWeekKey}
+              onWeekChange={handleWeekChange}
               isTodaySelected={selectedDate === todayKey}
             />
           ) : (

@@ -47,6 +47,13 @@ export default function CouponListModal({
     ? `https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(useToken.oneTimeCode)}&code=Code128&dpi=96`
     : null;
 
+  const isContainImageCoupon = (couponName: string) => {
+    return (
+      (couponName.includes("코인") && couponName.includes("세차")) ||
+      (couponName.includes("스팀") && couponName.includes("세차"))
+    );
+  };
+
   const handleIssueToken = async () => {
     if (!selectedCoupon) {
       return;
@@ -208,7 +215,12 @@ export default function CouponListModal({
                   <img
                     src={selectedCoupon.image}
                     alt={selectedCoupon.name}
-                    className="w-full h-44 rounded-2xl object-cover"
+                    className={cn(
+                      "w-full h-44 rounded-2xl",
+                      isContainImageCoupon(selectedCoupon.name)
+                        ? "object-contain bg-slate-50 p-4"
+                        : "object-cover",
+                    )}
                     referrerPolicy="no-referrer"
                   />
                 ) : null}

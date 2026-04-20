@@ -6,6 +6,8 @@ interface AssetSummaryCardProps {
   points: number;
   monthlyUsage: number;
   chargeDisabled?: boolean;
+  walletInfoDisabled?: boolean;
+  onOpenWalletInfo: () => void;
   onOpenCoupons: () => void;
   onChargeClick: () => void;
   onCheckoutClick: () => void;
@@ -16,6 +18,8 @@ export default function AssetSummaryCard({
   points,
   monthlyUsage,
   chargeDisabled = false,
+  walletInfoDisabled = false,
+  onOpenWalletInfo,
   onOpenCoupons,
   onChargeClick,
   onCheckoutClick,
@@ -32,9 +36,15 @@ export default function AssetSummaryCard({
 
       <div className="relative z-10">
         <div className="flex justify-between items-start mb-8">
-          <div className="p-3 bg-white/50 backdrop-blur-md text-slate-900 rounded-2xl border border-white max-w-fit shadow-sm">
+          <button
+            type="button"
+            onClick={onOpenWalletInfo}
+            disabled={walletInfoDisabled}
+            className="p-3 bg-white/50 backdrop-blur-md text-slate-900 rounded-2xl border border-white max-w-fit shadow-sm hover:bg-white/70 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="연결 계좌 정보 열기"
+          >
             <Wallet size={28} />
-          </div>
+          </button>
           <div className="text-right">
             <div className="text-[10px] text-slate-600 font-black uppercase tracking-widest mb-1 flex items-center justify-end gap-1">
               이번 달 쏠쏠한 사용액 <Sparkles size={12} className="text-amber-500" />

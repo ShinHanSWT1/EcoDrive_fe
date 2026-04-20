@@ -27,8 +27,10 @@ export default function Header({ currentUser, isAuthenticated, onLogout }: Heade
     <header className="h-16 md:h-20 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between">
       <div className="flex items-center">
         <Link to="/" className="flex items-center gap-2">
-          <img src="/media/logo.png" alt="EcoDrive" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
-          <span className="text-lg md:text-xl font-black text-slate-900 tracking-tight">EcoDrive</span>
+          <img src="/media/logo3.png" alt="EcoDrive" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
+        </Link>
+        <Link to="/onboarding" className="text-lg md:text-xl font-black text-slate-900 tracking-tight">
+          EcoDrive
         </Link>
         {isAuthenticated && <HeaderNav />}
       </div>

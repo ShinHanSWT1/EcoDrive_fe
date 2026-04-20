@@ -171,6 +171,16 @@ function inferPriceFromDiscountLabel(label: string): number {
   return numeric;
 }
 
+function resolveWashCouponImage(name: string): string | null {
+  if (name.includes("코인") && name.includes("세차")) {
+    return "/media/coin_carwash.png";
+  }
+  if (name.includes("스팀") && name.includes("세차")) {
+    return "/media/steam_carwash.png";
+  }
+  return null;
+}
+
 function resolveHistoryDescription(tx: PayTransactionResponse): string {
   if (tx.transactionType === "CHARGE") {
     return "고라니페이 잔액 충전";
@@ -239,7 +249,10 @@ function toPaymentProducts(templates: CouponTemplateResponse[]) {
     let discountLabel = template.discountLabel;
     
     let image = `https://picsum.photos/seed/coupon-${template.id}-${index}/400/300`;
-    if (name.includes("GS칼텍스") || name.includes("GS 칼텍스")) {
+    const washCouponImage = resolveWashCouponImage(name);
+    if (washCouponImage) {
+      image = washCouponImage;
+    } else if (name.includes("GS칼텍스") || name.includes("GS 칼텍스")) {
       image = "/media/gs_caltex.png";
       discountLabel = "3,000원";
     } else if (name.includes("SK에너지") || name.includes("SK 에너지")) {
@@ -309,8 +322,10 @@ function toPaymentCoupons(userCoupons: UserCouponResponse[], templateMap: Map<nu
     
     let name = coupon.name;
     let image = `https://picsum.photos/seed/owned-coupon-${coupon.templateId}/400/300`;
-    
-    if (name.includes("GS칼텍스") || name.includes("GS 칼텍스")) {
+    const washCouponImage = resolveWashCouponImage(name);
+    if (washCouponImage) {
+      image = washCouponImage;
+    } else if (name.includes("GS칼텍스") || name.includes("GS 칼텍스")) {
       image = "/media/gs_caltex.png";
     } else if (name.includes("SK에너지") || name.includes("SK 에너지")) {
       image = "/media/sk_energy.jpg";
