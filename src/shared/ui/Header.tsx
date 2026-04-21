@@ -28,7 +28,7 @@ export default function Header({ currentUser, isAuthenticated, onLogout }: Heade
  <div className="max-w-[1400px] mx-auto w-full px-4 md:px-12 flex items-center justify-between">
  <div className="flex items-center gap-12">
  <Link to="/" className="flex items-center gap-3">
-            <img src="/media/logo4.png" alt="EcoDrive" className="w-10 h-10 md:w-14 md:h-14 object-contain" />
+            <img src="/media/logo5.png" alt="EcoDrive" className="w-12 h-12 md:w-[67px] md:h-[67px] object-contain" />
  <span className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">
  EcoDrive
  </span>

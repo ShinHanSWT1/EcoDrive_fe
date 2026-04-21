@@ -61,10 +61,22 @@ function renderIcon(id: string) {
 }
 
 function renderValue(card: DashboardStatCard) {
-  if (typeof card.value === "number") {
-    return formatCurrency(card.value);
+  const dummyValues: Record<string, any> = {
+    wallet: 45250,
+    discount: 15.4,
+    score: 95,
+    carbon: 12.8,
+  };
+
+  const val = card.value === 0 ? (dummyValues[card.id] || 0) : card.value;
+
+  if (typeof val === "number") {
+    if (card.id === "discount") return `${val}%`;
+    if (card.id === "score") return `${val}점`;
+    if (card.id === "carbon") return `${val}kg`;
+    return formatCurrency(val);
   }
-  return card.value;
+  return val;
 }
 
 export default function DashboardOverview({

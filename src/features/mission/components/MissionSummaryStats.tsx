@@ -37,11 +37,11 @@ export default function MissionSummaryStats({
  </div>
  </div>
 
- <div className="p-3 md:p-4 bg-slate-900 rounded-2xl text-white">
- <div className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase mb-1">
+ <div className="p-3 md:p-4 bg-[#A0C878] rounded-2xl border-b-4 border-[#1A5D40]">
+ <div className="text-[9px] md:text-[10px] text-[#1A5D40] font-bold uppercase mb-1">
  안전점수 / 탄소절감
  </div>
- <div className="text-lg md:text-xl font-black">
+ <div className="text-lg md:text-xl font-black text-slate-900">
  {summary.safetyScore} / {summary.carbonReductionKg}kg
  </div>
  </div>

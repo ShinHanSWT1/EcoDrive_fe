@@ -96,7 +96,7 @@ export default function MoreMenu({ currentUser, onLogout }: MoreMenuProps) {
  </div>
 
  {isOpen && (
- <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl py-2 z-50 animate-in fade-in zoom-in duration-200">
+ <div className="absolute right-0 mt-2 w-56 bg-white border border-[#1a5d40] rounded-2xl py-2 z-50 animate-in fade-in zoom-in duration-200">
  {PRIMARY_MENU_ITEMS.map((item) => (
  <Link
  key={item.to}

@@ -42,7 +42,7 @@ export default function SavingsChartCard({ chartData }: SavingsChartCardProps) {
  </select>
  </div>
 
- <div className="h-[250px] min-h-[250px] w-full">
+ <div className="h-[250px] min-h-[250px] w-full" role="img" aria-label="예상 보험료 절감액의 주간 변화를 나타내는 영역형 차트입니다.">
  {chartData.length > 0 ? (
  <ResponsiveContainer width="100%" height="100%">
  <AreaChart data={isInView ? chartData : []}>

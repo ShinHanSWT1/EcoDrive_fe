@@ -248,7 +248,7 @@ export default function Landing() {
             viewport={{ once: false }}
             className="rounded-3xl border border-slate-100 bg-slate-50 p-8 md:p-16 shadow-xl"
           >
-            <DashboardOverview stats={previewData.stats} pointBalance={previewData.pointBalance} />
+            <DashboardOverview stats={previewData.stats.filter((s: any) => s.id !== "score")} pointBalance={previewData.pointBalance} todayEarnedPoints={previewData.todayEarnedPoints} />
             
             <div className="mt-10 flex flex-col gap-10">
               <div className="flex flex-wrap lg:flex-nowrap gap-10 items-stretch">

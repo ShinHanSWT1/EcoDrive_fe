@@ -47,12 +47,12 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
  };
 
  return (
- <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
- <div className="w-full max-w-sm p-6 bg-white rounded-2xl animate-in fade-in zoom-in-95 duration-200">
+ <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" aria-hidden="true">
+ <div role="dialog" aria-modal="true" aria-labelledby="checkout-modal-title" className="w-full max-w-sm p-6 bg-white rounded-2xl animate-in fade-in zoom-in-95 duration-200">
  <div className="flex items-center justify-between mb-6">
- <h2 className="text-xl font-bold text-gray-800">GORANI PAY 결제</h2>
- <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
- <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+ <h2 id="checkout-modal-title" className="text-xl font-bold text-gray-800">GORANI PAY 결제</h2>
+ <button onClick={onClose} aria-label="닫기" className="text-gray-400 hover:text-gray-600 transition-colors">
+ <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
  </svg>
  </button>

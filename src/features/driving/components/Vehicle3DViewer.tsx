@@ -37,7 +37,7 @@ function LoaderFallback() {
 
 export function Vehicle3DViewer({ hideTitle = false }: { hideTitle?: boolean }) {
  return (
- <div className="w-full h-[400px] md:h-[500px] bg-white rounded-[40px] relative overflow-hidden my-8 cursor-grab active:cursor-grabbing">
+ <div className="w-full h-[400px] md:h-[500px] bg-white rounded-[40px] relative overflow-hidden my-8 cursor-grab active:cursor-grabbing" role="img" aria-label="아반떼 차량의 3D 인터랙티브 뷰어입니다. 마우스로 회전하여 차량을 다양한 각도에서 확인할 수 있습니다.">
  {!hideTitle && (
  <div className="absolute top-6 left-6 z-10 bg-white px-4 py-2 rounded-2xl pointer-events-none">
  <h3 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">

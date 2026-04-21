@@ -7,10 +7,10 @@ type MissionRewardPanelProps = {
 
 function getRewardCardClass(tone: MonthlyRewardItem["tone"]) {
  if (tone === "special") {
- return "bg-blue-600 rounded-2xl -900/20";
+ return "p-4 bg-[#1A5D40] rounded-2xl";
  }
 
- return "p-4 bg-white/5 rounded-2xl border border-white/10";
+ return "p-4 bg-white/50 rounded-2xl border border-[#1A5D40]/20";
 }
 
 function getRewardTitleClass(tone: MonthlyRewardItem["tone"]) {
@@ -18,18 +18,18 @@ function getRewardTitleClass(tone: MonthlyRewardItem["tone"]) {
  return "text-xs font-bold text-white";
  }
 
- return "text-xs font-bold text-slate-300";
+ return "text-xs font-bold text-slate-700";
 }
 
 function getRewardValueClass(tone: MonthlyRewardItem["tone"]) {
- if (tone === "blue") return "text-sm font-black text-blue-400";
- if (tone === "green") return "text-sm font-black text-emerald-400";
+ if (tone === "blue") return "text-sm font-black text-[#1A5D40]";
+ if (tone === "green") return "text-sm font-black text-[#1A5D40]";
  return "text-sm font-black text-white";
 }
 
 function getRewardDescriptionClass(tone: MonthlyRewardItem["tone"]) {
- if (tone === "special") return "text-[10px] text-blue-100";
- return "text-[10px] text-slate-500";
+ if (tone === "special") return "text-[10px] text-white/80";
+ return "text-[10px] text-slate-600";
 }
 
 export default function MissionRewardPanel({
@@ -44,12 +44,12 @@ export default function MissionRewardPanel({
  </h3>
  </div>
 
- <div className="bg-slate-900 rounded-[32px] p-6 text-white space-y-6">
+ <div className="bg-[#A0C878] rounded-[32px] p-6 space-y-6 border-b-4 border-[#1A5D40]">
  <div className="space-y-1">
- <div className="text-[10px] text-blue-400 font-bold uppercase tracking-widest">
+ <div className="text-[10px] text-[#1A5D40] font-bold uppercase tracking-widest">
  Monthly Top Rewards
  </div>
- <h4 className="text-lg font-bold">상위 10명 추가 혜택</h4>
+ <h4 className="text-lg font-bold text-slate-900">상위 10명 추가 혜택</h4>
  </div>
 
  <div className="space-y-4">
@@ -70,8 +70,8 @@ export default function MissionRewardPanel({
  ))}
  </div>
 
- <div className="pt-4 border-t border-white/10">
- <p className="text-[10px] text-slate-500 leading-relaxed italic">
+ <div className="pt-4 border-t border-[#1A5D40]/30">
+ <p className="text-[10px] text-slate-700 leading-relaxed italic">
  * 랭킹은 매월 1일 초기화되며, 보상은 익월 5일 이내 지급됩니다.
  </p>
  </div>

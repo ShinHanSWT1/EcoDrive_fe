@@ -113,7 +113,7 @@ export default function HistoryModal({
  return (
  <AnimatePresence>
  {isOpen ? (
- <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+ <div className="fixed inset-0 z-50 flex items-center justify-center p-4" aria-hidden="true">
  <motion.div
  initial={{ opacity: 0 }}
  animate={{ opacity: 1 }}
@@ -123,6 +123,9 @@ export default function HistoryModal({
  />
 
  <motion.div
+ role="dialog"
+ aria-modal="true"
+ aria-labelledby="history-modal-title"
  initial={{ opacity: 0, scale: 0.95, y: 20 }}
  animate={{ opacity: 1, scale: 1, y: 0 }}
  exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -130,16 +133,17 @@ export default function HistoryModal({
  >
  <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
  <div>
- <h3 className="text-xl font-black text-slate-900">전체 이용내역</h3>
+ <h3 id="history-modal-title" className="text-xl font-black text-slate-900">전체 이용내역</h3>
  <p className="text-sm text-slate-400 mt-0.5">
  결제/충전 내역을 검색하고 확인하세요.
  </p>
  </div>
  <button
  onClick={onClose}
+ aria-label="닫기"
  className="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center"
  >
- <X size={18} />
+ <X size={18} aria-hidden="true" />
  </button>
  </div>
 
@@ -274,12 +278,12 @@ export default function HistoryModal({
  )}
  </div>
  <div>
- <div className="font-bold text-slate-900">{item.title}</div>
- <div className="text-xs text-slate-400 mt-1">
+ <div className="font-bold text-slate-900 text-base">{item.title}</div>
+ <div className="text-[14px] text-slate-400 mt-1">
  {item.date} · {item.category}
  </div>
  {item.description ? (
- <div className="text-xs text-slate-500 mt-1">{item.description}</div>
+ <div className="text-[14px] text-slate-500 mt-1">{item.description}</div>
  ) : null}
  </div>
  </div>
@@ -287,7 +291,7 @@ export default function HistoryModal({
  <div className="text-right">
  <div
  className={cn(
- "font-black",
+ "font-black text-base",
  item.type === "earn" ? "text-[#1A5D40]" : "text-slate-900",
  )}
  >

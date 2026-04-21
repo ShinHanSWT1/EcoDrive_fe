@@ -16,7 +16,7 @@ export default function DashboardPreviewPage() {
  description="로그인 없이 더미 데이터로 대시보드 화면을 둘러볼 수 있습니다."
  />
 
- <DashboardOverview stats={data.stats} pointBalance={data.pointBalance} />
+ <DashboardOverview stats={data.stats.filter(s => s.id !== "score")} pointBalance={data.pointBalance} todayEarnedPoints={data.todayEarnedPoints} />
 
  <div className="flex flex-col gap-6">
  <div className="flex flex-wrap lg:flex-nowrap gap-6 items-stretch">

@@ -51,25 +51,27 @@ export const ChargeModal = ({ isOpen, onClose }: ChargeModalProps) => {
  };
 
  return (
- <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
- <div className="w-full max-w-sm p-6 bg-white rounded-2xl animate-in fade-in zoom-in-95 duration-200">
+ <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" aria-hidden="true">
+ <div role="dialog" aria-modal="true" aria-labelledby="charge-modal-title" className="w-full max-w-sm p-6 bg-white rounded-2xl animate-in fade-in zoom-in-95 duration-200">
  <div className="flex items-center justify-between mb-6">
- <h2 className="text-xl font-bold text-gray-800">잔액 충전</h2>
- <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
- <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+ <h2 id="charge-modal-title" className="text-xl font-bold text-gray-800">잔액 충전</h2>
+ <button onClick={onClose} aria-label="닫기" className="text-gray-400 hover:text-gray-600 transition-colors">
+ <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
  </svg>
  </button>
  </div>
 
  <div className="mb-6">
- <label className="block mb-2 text-sm font-medium text-gray-500">충전할 금액</label>
+ <label htmlFor="charge-amount" className="block mb-2 text-sm font-medium text-gray-500">충전할 금액</label>
  <div className="relative flex items-center border-b-2 border-gray-200 focus-within:border-[#1A5D40] transition-colors pb-2">
  <input
+ id="charge-amount"
  type="number"
  value={amount || ""}
  onChange={(e) => setAmount(Number(e.target.value))}
  placeholder="0"
+ aria-label="충전할 금액 입력"
  className="w-full text-3xl font-bold text-right outline-none bg-transparent"
  />
  <span className="ml-2 text-xl font-bold text-gray-800">원</span>

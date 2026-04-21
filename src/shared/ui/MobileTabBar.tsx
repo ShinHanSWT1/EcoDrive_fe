@@ -20,21 +20,23 @@ export default function MobileTabBar() {
  const location = useLocation();
 
  return (
- <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-200 px-6 py-3 flex justify-around items-center md:hidden z-50 pb-safe">
+ <nav aria-label="하단 탐색 메뉴" className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-200 px-6 py-3 flex justify-around items-center md:hidden z-50 pb-safe">
  {navItems.map((item) => {
  const Icon = item.icon;
  const isActive = location.pathname === item.path;
  return (
- <Link 
- key={item.path} 
+ <Link
+ key={item.path}
  to={item.path}
+ aria-label={item.label}
+ aria-current={isActive ? "page" : undefined}
  className={cn(
  "flex flex-col items-center gap-1 transition-all",
  isActive ? "text-blue-600 scale-110" : "text-slate-400"
  )}
  >
- <Icon size={24} />
- <span className="text-[10px] font-bold tracking-tight">{item.label}</span>
+ <Icon size={24} aria-hidden="true" />
+ <span className="text-[10px] font-bold tracking-tight" aria-hidden="true">{item.label}</span>
  </Link>
  );
  })}
