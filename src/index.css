@@ -1,1 +1,37 @@
+@import url('https://static.toss.im/tps/main.css');
 @import "tailwindcss";
+
+@theme {
+  /* Slate mapped to DB Professional Gray/Navy palette */
+  --color-slate-50: #eff2f6;
+  --color-slate-100: #f8fafc;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+
+  /* Blue/Green mapped to DB Vibrant Green accents (#1A5D40) */
+  --color-blue-50: #eff7f2;
+  --color-blue-100: #dcfce7;
+  --color-blue-200: #bbf7d0;
+  --color-blue-300: #86efac;
+  --color-blue-400: #4ade80;
+  --color-blue-500: #22c55e;
+  --color-blue-600: #1A5D40;
+  --color-blue-700: #144d34;
+  --color-blue-800: #0e3d29;
+  --color-blue-900: #092e1e;
+
+  /* Additional safety overrides. Emerald (positive status/checkmarks) */
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #1A5D40;}
+
+@layer base {
+  * {
+    font-family: 'Toss Product Sans', sans-serif;
+  }
+}

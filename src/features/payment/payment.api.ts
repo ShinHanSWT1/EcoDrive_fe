@@ -6,520 +6,520 @@ import { paymentMockData } from "./payment.mock";
 import type { PaymentData, PaymentHistoryItem, PaymentWalletInfo } from "./payment.types";
 
 interface PayWalletResponse {
-  payUserId: number;
-  payAccountId: number;
-  accountNumber: string;
-  bankCode: string | null;
-  ownerName: string;
-  balance: number;
-  points: number;
-  status: string;
+ payUserId: number;
+ payAccountId: number;
+ accountNumber: string;
+ bankCode: string | null;
+ ownerName: string;
+ balance: number;
+ points: number;
+ status: string;
 }
 
 export interface PayWalletSummary {
-  balance: number;
-  points: number;
+ balance: number;
+ points: number;
 }
 
 interface PayTransactionResponse {
-  id: number;
-  transactionType?: string;
-  title: string;
-  date: string;
-  amount: number;
-  type: "pay" | "earn";
-  category: string;
+ id: number;
+ transactionType?: string;
+ title: string;
+ date: string;
+ amount: number;
+ type: "pay" | "earn";
+ category: string;
 }
 
 interface PayChargePrepareResponse {
-  orderId: string;
-  amount: number;
-  expiresAt: string;
+ orderId: string;
+ amount: number;
+ expiresAt: string;
 }
 
 interface PayCheckoutSessionResponse {
-  sessionToken: string;
-  checkoutUrl: string;
-  status: string;
-  expiresAt: string;
+ sessionToken: string;
+ checkoutUrl: string;
+ status: string;
+ expiresAt: string;
 }
 
 export interface CouponTemplateResponse {
-  id: number;
-  category: string;
-  name: string;
-  discountLabel: string;
-  validDays: number;
+ id: number;
+ category: string;
+ name: string;
+ discountLabel: string;
+ validDays: number;
 }
 
 interface UserCouponResponse {
-  id: number;
-  templateId: number;
-  name: string;
-  category: string;
-  discountLabel: string;
-  status: string;
-  issuedAt: string;
-  expiresAt: string;
+ id: number;
+ templateId: number;
+ name: string;
+ category: string;
+ discountLabel: string;
+ status: string;
+ issuedAt: string;
+ expiresAt: string;
 }
 
 interface PayCheckoutResponse {
-  paymentId: number;
-  externalOrderId: string;
-  status: string;
-  amount: number;
-  paymentType: string;
-  payUserId: number;
-  payAccountId: number;
-  balanceAfterPayment: number;
+ paymentId: number;
+ externalOrderId: string;
+ status: string;
+ amount: number;
+ paymentType: string;
+ payUserId: number;
+ payAccountId: number;
+ balanceAfterPayment: number;
 }
 
 interface CouponPurchaseResponse {
-  issuedCoupon: UserCouponResponse;
-  payment: PayCheckoutResponse;
+ issuedCoupon: UserCouponResponse;
+ payment: PayCheckoutResponse;
 }
 
 export interface CouponUseTokenResponse {
-  userCouponId: number;
-  oneTimeCode: string;
-  qrPayload: string;
-  expiresAt: string;
+ userCouponId: number;
+ oneTimeCode: string;
+ qrPayload: string;
+ expiresAt: string;
 }
 
 export interface CouponCheckoutPrepareResponse {
-  orderId: string;
-  sessionToken: string;
-  checkoutUrl: string;
-  amount: number;
-  pointAmount: number;
-  finalAmount: number;
-  expiresAt: string;
+ orderId: string;
+ sessionToken: string;
+ checkoutUrl: string;
+ amount: number;
+ pointAmount: number;
+ finalAmount: number;
+ expiresAt: string;
 }
 
 export interface CouponCheckoutConfirmResponse {
-  orderId: string;
-  paymentId: number;
-  issuedCoupon: UserCouponResponse;
+ orderId: string;
+ paymentId: number;
+ issuedCoupon: UserCouponResponse;
 }
 
 type CheckoutEntryMode = "IN_APP_CODE" | "MERCHANT_REDIRECT";
 type CheckoutChannel = "BARCODE" | "QR" | "REDIRECT";
 
 function isWalletNotFoundError(error: unknown): boolean {
-  if (!axios.isAxiosError(error)) {
-    return false;
-  }
+ if (!axios.isAxiosError(error)) {
+ return false;
+ }
 
-  return error.response?.status === 404 && error.response?.data?.code === "PAY_001";
+ return error.response?.status === 404 && error.response?.data?.code === "PAY_001";
 }
 
 function toWalletInfo(wallet: PayWalletResponse): PaymentWalletInfo {
-  return {
-    payUserId: wallet.payUserId,
-    payAccountId: wallet.payAccountId,
-    accountNumber: wallet.accountNumber,
-    bankCode: wallet.bankCode,
-    ownerName: wallet.ownerName,
-    status: wallet.status,
-  };
+ return {
+ payUserId: wallet.payUserId,
+ payAccountId: wallet.payAccountId,
+ accountNumber: wallet.accountNumber,
+ bankCode: wallet.bankCode,
+ ownerName: wallet.ownerName,
+ status: wallet.status,
+ };
 }
 
 function buildCategoryLabel(category: string): string {
-  switch (category) {
-    case "fuel":
-      return "주유/충전";
-    case "parking":
-      return "주차";
-    case "wash":
-      return "세차";
-    case "maintenance":
-      return "정비";
-    case "store":
-      return "편의점";
-    case "cafe":
-      return "카페";
-    default:
-      return category;
-  }
+ switch (category) {
+ case "fuel":
+ return "주유/충전";
+ case "parking":
+ return "주차";
+ case "wash":
+ return "세차";
+ case "maintenance":
+ return "정비";
+ case "store":
+ return "편의점";
+ case "cafe":
+ return "카페";
+ default:
+ return category;
+ }
 }
 
 function buildCouponDescription(category: string, name: string, validDays: number): string {
-  const base = `${validDays}일 이내 사용 가능`;
-  switch (category) {
-    case "fuel":
-      return `${name}은 제휴 주유소 결제 시 즉시 할인 적용됩니다. ${base}`;
-    case "parking":
-      return `${name}은 제휴 주차장 정산 시 자동 차감됩니다. ${base}`;
-    case "wash":
-      return `${name}은 세차 서비스 결제 단계에서 사용할 수 있습니다. ${base}`;
-    case "maintenance":
-      return `${name}은 정비 항목 결제 시 우선 적용됩니다. ${base}`;
-    case "store":
-      return `${name}은 제휴 편의점 결제에서 사용할 수 있습니다. ${base}`;
-    case "cafe":
-      return `${name}은 제휴 카페 주문 결제 시 즉시 사용 가능합니다. ${base}`;
-    default:
-      return `${name} 쿠폰입니다. ${base}`;
-  }
+ const base = `${validDays}일 이내 사용 가능`;
+ switch (category) {
+ case "fuel":
+ return `${name}은 제휴 주유소 결제 시 즉시 할인 적용됩니다. ${base}`;
+ case "parking":
+ return `${name}은 제휴 주차장 정산 시 자동 차감됩니다. ${base}`;
+ case "wash":
+ return `${name}은 세차 서비스 결제 단계에서 사용할 수 있습니다. ${base}`;
+ case "maintenance":
+ return `${name}은 정비 항목 결제 시 우선 적용됩니다. ${base}`;
+ case "store":
+ return `${name}은 제휴 편의점 결제에서 사용할 수 있습니다. ${base}`;
+ case "cafe":
+ return `${name}은 제휴 카페 주문 결제 시 즉시 사용 가능합니다. ${base}`;
+ default:
+ return `${name} 쿠폰입니다. ${base}`;
+ }
 }
 
 function inferPriceFromDiscountLabel(label: string): number {
-  const numeric = Number(label.replace(/[^0-9]/g, ""));
-  if (Number.isNaN(numeric) || numeric <= 0) {
-    return 3000;
-  }
-  return numeric;
+ const numeric = Number(label.replace(/[^0-9]/g, ""));
+ if (Number.isNaN(numeric) || numeric <= 0) {
+ return 3000;
+ }
+ return numeric;
 }
 
 function resolveWashCouponImage(name: string): string | null {
-  if (name.includes("코인") && name.includes("세차")) {
-    return "/media/coin_carwash.png";
-  }
-  if (name.includes("스팀") && name.includes("세차")) {
-    return "/media/steam_carwash.png";
-  }
-  return null;
+ if (name.includes("코인") && name.includes("세차")) {
+ return "/media/coin_carwash.png";
+ }
+ if (name.includes("스팀") && name.includes("세차")) {
+ return "/media/steam_carwash.png";
+ }
+ return null;
 }
 
 function resolveHistoryDescription(tx: PayTransactionResponse): string {
-  if (tx.transactionType === "CHARGE") {
-    return "고라니페이 잔액 충전";
-  }
-  if (tx.transactionType === "POINT_USE") {
-    return "결제 시 포인트 사용";
-  }
-  if (tx.transactionType === "POINT_EARN") {
-    return "리워드 포인트 적립";
-  }
-  if (tx.transactionType === "PAYMENT") {
-    if (tx.title.includes("쿠폰") || tx.category.includes("쿠폰")) {
-      return "쿠폰 상품 결제";
-    }
-    return "일반 결제";
-  }
-  return "결제 내역";
+ if (tx.transactionType === "CHARGE") {
+ return "고라니페이 잔액 충전";
+ }
+ if (tx.transactionType === "POINT_USE") {
+ return "결제 시 포인트 사용";
+ }
+ if (tx.transactionType === "POINT_EARN") {
+ return "리워드 포인트 적립";
+ }
+ if (tx.transactionType === "PAYMENT") {
+ if (tx.title.includes("쿠폰") || tx.category.includes("쿠폰")) {
+ return "쿠폰 상품 결제";
+ }
+ return "일반 결제";
+ }
+ return "결제 내역";
 }
 
 function toHistoryItems(transactions: PayTransactionResponse[]): PaymentHistoryItem[] {
-  return transactions.map((tx) => ({
-    id: tx.id,
-    title: tx.title,
-    date: tx.date,
-    amount: tx.amount,
-    type: tx.type,
-    category: tx.category,
-    description: resolveHistoryDescription(tx),
-  }));
+ return transactions.map((tx) => ({
+ id: tx.id,
+ title: tx.title,
+ date: tx.date,
+ amount: tx.amount,
+ type: tx.type,
+ category: tx.category,
+ description: resolveHistoryDescription(tx),
+ }));
 }
 
 function parseKoreanDate(value: string): Date | null {
-  if (!value) {
-    return null;
-  }
-  const normalized = value.replace(/\./g, "-").replace(/\s+/g, "");
-  const parsed = new Date(normalized);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
+ if (!value) {
+ return null;
+ }
+ const normalized = value.replace(/\./g, "-").replace(/\s+/g, "");
+ const parsed = new Date(normalized);
+ return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
 function calculateThisMonthUsage(transactions: PayTransactionResponse[]): number {
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth();
+ const now = new Date();
+ const currentYear = now.getFullYear();
+ const currentMonth = now.getMonth();
 
-  // 결제(PAYMENT) 거래만 집계해 "이번 달 총 사용액"으로 사용한다.
-  return transactions.reduce((sum, tx) => {
-    if (tx.transactionType !== "PAYMENT") {
-      return sum;
-    }
-    const txDate = parseKoreanDate(tx.date);
-    if (!txDate) {
-      return sum;
-    }
-    if (txDate.getFullYear() !== currentYear || txDate.getMonth() !== currentMonth) {
-      return sum;
-    }
-    return sum + tx.amount;
-  }, 0);
+ // 결제(PAYMENT) 거래만 집계해 "이번 달 총 사용액"으로 사용한다.
+ return transactions.reduce((sum, tx) => {
+ if (tx.transactionType !== "PAYMENT") {
+ return sum;
+ }
+ const txDate = parseKoreanDate(tx.date);
+ if (!txDate) {
+ return sum;
+ }
+ if (txDate.getFullYear() !== currentYear || txDate.getMonth() !== currentMonth) {
+ return sum;
+ }
+ return sum + tx.amount;
+ }, 0);
 }
 
 function toPaymentProducts(templates: CouponTemplateResponse[]) {
-  return templates.map((template, index) => {
-    let name = template.name;
-    let price = inferPriceFromDiscountLabel(template.discountLabel);
-    let discountLabel = template.discountLabel;
-    
-    let image = `https://picsum.photos/seed/coupon-${template.id}-${index}/400/300`;
-    const washCouponImage = resolveWashCouponImage(name);
-    if (washCouponImage) {
-      image = washCouponImage;
-    } else if (name.includes("GS칼텍스") || name.includes("GS 칼텍스")) {
-      image = "/media/gs_caltex.png";
-      discountLabel = "3,000원";
-    } else if (name.includes("SK에너지") || name.includes("SK 에너지")) {
-      image = "/media/sk_energy.jpg";
-      discountLabel = "5,000원";
-    } else if (name.includes("S-OIL") || name.includes("에쓰오일") || name.includes("S-Oil")) {
-      name = "S-OIL 만원 할인권";
-      image = "/media/s_oil.png";
-      price = 9000;
-      discountLabel = "10,000원";
-    } else if (name.includes("아이파킹") || name.toUpperCase().includes("IPARKING")) {
-      name = "아이파킹 10,000원권";
-      image = "/media/i_parking.avif";
-      price = 10000;
-      discountLabel = "10,000원";
-    } else if (name.includes("엔진오일")) {
-      name = "엔진오일 교환 30,000원권";
-      image = "/media/engine_oil.png";
-      price = 30000;
-      discountLabel = "30,000원";
-    } else if (name.toUpperCase().includes("CU")) {
-      name = "CU 3,000원권";
-      image = "/media/CU.jpg";
-      price = 3000;
-      discountLabel = "3,000원";
-    } else if (name.includes("GS25")) {
-      name = "GS25 50,000원 금액권";
-      image = "/media/gs25.png";
-      price = 50000;
-      discountLabel = "50,000원";
-    } else if (name.includes("스타벅스")) {
-      image = "/media/starbucks.jpg";
-    } else if (name.includes("이디야")) {
-      name = "이디야 5,000원권";
-      image = "/media/ediya.avif";
-      price = 5000;
-      discountLabel = "5,000원";
-    } else if (name.includes("메가커피") || name.includes("메가MGC") || name.includes("MGC")) {
-      image = "/media/mega.jpg";
-      discountLabel = "1+1";
-    } else if (name.includes("모두의주차장") || name.includes("모두의 주차장")) {
-      image = "/media/parking.png";
-    } else if (name.includes("타이어") && name.includes("점검")) {
-      image = "/media/tire.jpg";
-    } else if (name.includes("와이퍼")) {
-      image = "/media/wiper.jpg";
-    }
+ return templates.map((template, index) => {
+ let name = template.name;
+ let price = inferPriceFromDiscountLabel(template.discountLabel);
+ let discountLabel = template.discountLabel;
+ 
+ let image = `https://picsum.photos/seed/coupon-${template.id}-${index}/400/300`;
+ const washCouponImage = resolveWashCouponImage(name);
+ if (washCouponImage) {
+ image = washCouponImage;
+ } else if (name.includes("GS칼텍스") || name.includes("GS 칼텍스")) {
+ image = "/media/gs_caltex.png";
+ discountLabel = "3,000원";
+ } else if (name.includes("SK에너지") || name.includes("SK 에너지")) {
+ image = "/media/sk_energy.jpg";
+ discountLabel = "5,000원";
+ } else if (name.includes("S-OIL") || name.includes("에쓰오일") || name.includes("S-Oil")) {
+ name = "S-OIL 만원 할인권";
+ image = "/media/s_oil.png";
+ price = 9000;
+ discountLabel = "10,000원";
+ } else if (name.includes("아이파킹") || name.toUpperCase().includes("IPARKING")) {
+ name = "아이파킹 10,000원권";
+ image = "/media/i_parking.avif";
+ price = 10000;
+ discountLabel = "10,000원";
+ } else if (name.includes("엔진오일")) {
+ name = "엔진오일 교환 30,000원권";
+ image = "/media/engine_oil.png";
+ price = 30000;
+ discountLabel = "30,000원";
+ } else if (name.toUpperCase().includes("CU")) {
+ name = "CU 3,000원권";
+ image = "/media/CU.jpg";
+ price = 3000;
+ discountLabel = "3,000원";
+ } else if (name.includes("GS25")) {
+ name = "GS25 50,000원 금액권";
+ image = "/media/gs25.png";
+ price = 50000;
+ discountLabel = "50,000원";
+ } else if (name.includes("스타벅스")) {
+ image = "/media/starbucks.jpg";
+ } else if (name.includes("이디야")) {
+ name = "이디야 5,000원권";
+ image = "/media/ediya.avif";
+ price = 5000;
+ discountLabel = "5,000원";
+ } else if (name.includes("메가커피") || name.includes("메가MGC") || name.includes("MGC")) {
+ image = "/media/mega.jpg";
+ discountLabel = "1+1";
+ } else if (name.includes("모두의주차장") || name.includes("모두의 주차장")) {
+ image = "/media/parking.png";
+ } else if (name.includes("타이어") && name.includes("점검")) {
+ image = "/media/tire.jpg";
+ } else if (name.includes("와이퍼")) {
+ image = "/media/wiper.jpg";
+ }
 
-    return {
-      id: template.id,
-      name,
-      description: buildCouponDescription(template.category, name, template.validDays),
-      price,
-      originalPrice: price > 0 ? Math.floor(price * 1.1 / 100) * 100 : price,
-      category: template.category,
-      image,
-      discountLabel,
-      validDays: template.validDays,
-    };
-  });
+ return {
+ id: template.id,
+ name,
+ description: buildCouponDescription(template.category, name, template.validDays),
+ price,
+ originalPrice: price > 0 ? Math.floor(price * 1.1 / 100) * 100 : price,
+ category: template.category,
+ image,
+ discountLabel,
+ validDays: template.validDays,
+ };
+ });
 }
 
 function toPaymentCoupons(userCoupons: UserCouponResponse[], templateMap: Map<number, CouponTemplateResponse>) {
-  return userCoupons.map((coupon) => {
-    const template = templateMap.get(coupon.templateId);
-    const validDays = template?.validDays ?? 30;
-    
-    let name = coupon.name;
-    let image = `https://picsum.photos/seed/owned-coupon-${coupon.templateId}/400/300`;
-    const washCouponImage = resolveWashCouponImage(name);
-    if (washCouponImage) {
-      image = washCouponImage;
-    } else if (name.includes("GS칼텍스") || name.includes("GS 칼텍스")) {
-      image = "/media/gs_caltex.png";
-    } else if (name.includes("SK에너지") || name.includes("SK 에너지")) {
-      image = "/media/sk_energy.jpg";
-    } else if (name.includes("S-OIL") || name.includes("에쓰오일") || name.includes("S-Oil")) {
-      name = "S-OIL 만원 할인권";
-      image = "/media/s_oil.png";
-    } else if (name.includes("아이파킹") || name.toUpperCase().includes("IPARKING")) {
-      name = "아이파킹 10,000원권";
-      image = "/media/i_parking.avif";
-    } else if (name.includes("엔진오일")) {
-      name = "엔진오일 교환 30,000원권";
-      image = "/media/engine_oil.png";
-    } else if (name.toUpperCase().includes("CU")) {
-      name = "CU 3,000원권";
-      image = "/media/CU.jpg";
-    } else if (name.includes("GS25")) {
-      name = "GS25 50,000원 금액권";
-      image = "/media/gs25.png";
-    } else if (name.includes("스타벅스")) {
-      image = "/media/starbucks.jpg";
-    } else if (name.includes("이디야")) {
-      name = "이디야 5,000원권";
-      image = "/media/ediya.avif";
-    } else if (name.includes("메가카페") || name.includes("메가MGC") || name.includes("MGC")) {
-      image = "/media/mega.jpg";
-    } else if (name.includes("모두의주차장") || name.includes("모두의 주차장")) {
-      image = "/media/parking.png";
-    } else if (name.includes("타이어") && name.includes("점검")) {
-      image = "/media/tire.jpg";
-    } else if (name.includes("와이퍼")) {
-      image = "/media/wiper.jpg";
-    }
+ return userCoupons.map((coupon) => {
+ const template = templateMap.get(coupon.templateId);
+ const validDays = template?.validDays ?? 30;
+ 
+ let name = coupon.name;
+ let image = `https://picsum.photos/seed/owned-coupon-${coupon.templateId}/400/300`;
+ const washCouponImage = resolveWashCouponImage(name);
+ if (washCouponImage) {
+ image = washCouponImage;
+ } else if (name.includes("GS칼텍스") || name.includes("GS 칼텍스")) {
+ image = "/media/gs_caltex.png";
+ } else if (name.includes("SK에너지") || name.includes("SK 에너지")) {
+ image = "/media/sk_energy.jpg";
+ } else if (name.includes("S-OIL") || name.includes("에쓰오일") || name.includes("S-Oil")) {
+ name = "S-OIL 만원 할인권";
+ image = "/media/s_oil.png";
+ } else if (name.includes("아이파킹") || name.toUpperCase().includes("IPARKING")) {
+ name = "아이파킹 10,000원권";
+ image = "/media/i_parking.avif";
+ } else if (name.includes("엔진오일")) {
+ name = "엔진오일 교환 30,000원권";
+ image = "/media/engine_oil.png";
+ } else if (name.toUpperCase().includes("CU")) {
+ name = "CU 3,000원권";
+ image = "/media/CU.jpg";
+ } else if (name.includes("GS25")) {
+ name = "GS25 50,000원 금액권";
+ image = "/media/gs25.png";
+ } else if (name.includes("스타벅스")) {
+ image = "/media/starbucks.jpg";
+ } else if (name.includes("이디야")) {
+ name = "이디야 5,000원권";
+ image = "/media/ediya.avif";
+ } else if (name.includes("메가카페") || name.includes("메가MGC") || name.includes("MGC")) {
+ image = "/media/mega.jpg";
+ } else if (name.includes("모두의주차장") || name.includes("모두의 주차장")) {
+ image = "/media/parking.png";
+ } else if (name.includes("타이어") && name.includes("점검")) {
+ image = "/media/tire.jpg";
+ } else if (name.includes("와이퍼")) {
+ image = "/media/wiper.jpg";
+ }
 
-    return {
-      id: coupon.id,
-      templateId: coupon.templateId,
-      name: name,
-      expiry: new Date(coupon.expiresAt).toLocaleDateString("ko-KR"),
-      discount: coupon.discountLabel,
-      category: buildCategoryLabel(coupon.category),
-      description: buildCouponDescription(coupon.category, name, validDays),
-      image,
-      used: coupon.status !== "AVAILABLE",
-    };
-  });
+ return {
+ id: coupon.id,
+ templateId: coupon.templateId,
+ name: name,
+ expiry: new Date(coupon.expiresAt).toLocaleDateString("ko-KR"),
+ discount: coupon.discountLabel,
+ category: buildCategoryLabel(coupon.category),
+ description: buildCouponDescription(coupon.category, name, validDays),
+ image,
+ used: coupon.status !== "AVAILABLE",
+ };
+ });
 }
 
 async function getMyWallet(): Promise<PayWalletResponse> {
-  const response = await api.get<ApiResponse<PayWalletResponse>>("/pay/account");
-  return response.data.data;
+ const response = await api.get<ApiResponse<PayWalletResponse>>("/pay/account");
+ return response.data.data;
 }
 
 async function getMyTransactions(): Promise<PayTransactionResponse[]> {
-  const response = await api.get<ApiResponse<PayTransactionResponse[]>>("/pay/transactions");
-  return response.data.data;
+ const response = await api.get<ApiResponse<PayTransactionResponse[]>>("/pay/transactions");
+ return response.data.data;
 }
 
 export async function getCouponTemplates(): Promise<CouponTemplateResponse[]> {
-  const response = await api.get<ApiResponse<CouponTemplateResponse[]>>("/coupons/templates");
-  return response.data.data;
+ const response = await api.get<ApiResponse<CouponTemplateResponse[]>>("/coupons/templates");
+ return response.data.data;
 }
 
 export async function getCouponTemplateById(templateId: number): Promise<CouponTemplateResponse> {
-  const response = await api.get<ApiResponse<CouponTemplateResponse>>(`/coupons/templates/${templateId}`);
-  return response.data.data;
+ const response = await api.get<ApiResponse<CouponTemplateResponse>>(`/coupons/templates/${templateId}`);
+ return response.data.data;
 }
 
 async function getMyCoupons(): Promise<UserCouponResponse[]> {
-  const response = await api.get<ApiResponse<UserCouponResponse[]>>("/coupons/my");
-  return response.data.data;
+ const response = await api.get<ApiResponse<UserCouponResponse[]>>("/coupons/my");
+ return response.data.data;
 }
 
 export async function createMyWallet(): Promise<PayWalletResponse> {
-  const response = await api.post<ApiResponse<PayWalletResponse>>("/pay/account");
-  return response.data.data;
+ const response = await api.post<ApiResponse<PayWalletResponse>>("/pay/account");
+ return response.data.data;
 }
 
 async function getWalletOrNull(): Promise<PayWalletResponse | null> {
-  try {
-    return await getMyWallet();
-  } catch (error) {
-    if (isWalletNotFoundError(error)) {
-      return null;
-    }
-    throw error;
-  }
+ try {
+ return await getMyWallet();
+ } catch (error) {
+ if (isWalletNotFoundError(error)) {
+ return null;
+ }
+ throw error;
+ }
 }
 
 // 대시보드 등에서 경량 포인트/잔액 조회 용도로 사용
 export async function getMyWalletSummary(): Promise<PayWalletSummary | null> {
-  const wallet = await getWalletOrNull();
-  if (!wallet) {
-    return null;
-  }
-  return {
-    balance: wallet.balance,
-    points: wallet.points,
-  };
+ const wallet = await getWalletOrNull();
+ if (!wallet) {
+ return null;
+ }
+ return {
+ balance: wallet.balance,
+ points: wallet.points,
+ };
 }
 
 export async function getPaymentData(): Promise<PaymentData> {
-  const [missionPageData, wallet] = await Promise.all([
-    getMissionPageData(),
-    getWalletOrNull(),
-  ]);
+ const [missionPageData, wallet] = await Promise.all([
+ getMissionPageData(),
+ getWalletOrNull(),
+ ]);
 
-  let history: PaymentHistoryItem[] = [];
-  let monthlyUsage = 0;
-  if (wallet) {
-    try {
-      const transactions = await getMyTransactions();
-      history = toHistoryItems(transactions);
-      monthlyUsage = calculateThisMonthUsage(transactions);
-    } catch (error) {
-      console.error("payment 거래내역 조회 실패:", error);
-    }
-  }
+ let history: PaymentHistoryItem[] = [];
+ let monthlyUsage = 0;
+ if (wallet) {
+ try {
+ const transactions = await getMyTransactions();
+ history = toHistoryItems(transactions);
+ monthlyUsage = calculateThisMonthUsage(transactions);
+ } catch (error) {
+ console.error("payment 거래내역 조회 실패:", error);
+ }
+ }
 
-  let templates: CouponTemplateResponse[] = [];
-  let userCoupons: UserCouponResponse[] = [];
-  try {
-    [templates, userCoupons] = await Promise.all([
-      getCouponTemplates(),
-      getMyCoupons(),
-    ]);
-  } catch (error) {
-    console.error("coupon 데이터 조회 실패:", error);
-  }
+ let templates: CouponTemplateResponse[] = [];
+ let userCoupons: UserCouponResponse[] = [];
+ try {
+ [templates, userCoupons] = await Promise.all([
+ getCouponTemplates(),
+ getMyCoupons(),
+ ]);
+ } catch (error) {
+ console.error("coupon 데이터 조회 실패:", error);
+ }
 
-  const templateMap = new Map(templates.map((template) => [template.id, template]));
-  const products = templates.length > 0 ? toPaymentProducts(templates) : paymentMockData.products;
-  const coupons = userCoupons.length > 0 ? toPaymentCoupons(userCoupons, templateMap) : paymentMockData.coupons;
-  const categories = templates.length > 0
-    ? [{ id: "all", label: "전체" }, ...Array.from(new Set(templates.map((t) => t.category))).map((category) => ({
-      id: category,
-      label: buildCategoryLabel(category),
-    }))]
-    : paymentMockData.categories;
+ const templateMap = new Map(templates.map((template) => [template.id, template]));
+ const products = templates.length > 0 ? toPaymentProducts(templates) : paymentMockData.products;
+ const coupons = userCoupons.length > 0 ? toPaymentCoupons(userCoupons, templateMap) : paymentMockData.coupons;
+ const categories = templates.length > 0
+ ? [{ id: "all", label: "전체" }, ...Array.from(new Set(templates.map((t) => t.category))).map((category) => ({
+ id: category,
+ label: buildCategoryLabel(category),
+ }))]
+ : paymentMockData.categories;
 
-  return {
-    ...paymentMockData,
-    categories,
-    products,
-    coupons,
-    walletMissing: wallet == null,
-    wallet: wallet ? toWalletInfo(wallet) : null,
-    user: {
-      ...paymentMockData.user,
-      points: wallet?.points ?? 0,
-      balance: wallet?.balance ?? 0,
-      monthlyUsage,
-    },
-    recentHistory: history.slice(0, 4),
-    allHistory: history,
-    missionSummary: missionPageData.summary,
-    missions: missionPageData.missions,
-  };
+ return {
+ ...paymentMockData,
+ categories,
+ products,
+ coupons,
+ walletMissing: wallet == null,
+ wallet: wallet ? toWalletInfo(wallet) : null,
+ user: {
+ ...paymentMockData.user,
+ points: wallet?.points ?? 0,
+ balance: wallet?.balance ?? 0,
+ monthlyUsage,
+ },
+ recentHistory: history.slice(0, 4),
+ allHistory: history,
+ missionSummary: missionPageData.summary,
+ missions: missionPageData.missions,
+ };
 }
 
 export async function chargeBalance(amount: number): Promise<PayWalletResponse> {
-  const response = await api.post<ApiResponse<PayWalletResponse>>("/pay/charge", { amount });
-  return response.data.data;
+ const response = await api.post<ApiResponse<PayWalletResponse>>("/pay/charge", { amount });
+ return response.data.data;
 }
 
 export async function prepareCharge(amount: number): Promise<PayChargePrepareResponse> {
-  const response = await api.post<ApiResponse<PayChargePrepareResponse>>("/pay/charge/prepare", { amount });
-  return response.data.data;
+ const response = await api.post<ApiResponse<PayChargePrepareResponse>>("/pay/charge/prepare", { amount });
+ return response.data.data;
 }
 
 export async function confirmCharge(paymentKey: string, orderId: string, amount: number) {
-  const response = await api.post<ApiResponse<PayWalletResponse>>("/pay/charge/confirm", {
-    paymentKey,
-    orderId,
-    amount,
-  });
-  return response.data.data;
+ const response = await api.post<ApiResponse<PayWalletResponse>>("/pay/charge/confirm", {
+ paymentKey,
+ orderId,
+ amount,
+ });
+ return response.data.data;
 }
 
 export async function createCheckoutSession(
-  title: string,
-  amount: number,
-  entryMode: CheckoutEntryMode = "IN_APP_CODE",
-  channel: CheckoutChannel = "QR",
+ title: string,
+ amount: number,
+ entryMode: CheckoutEntryMode = "IN_APP_CODE",
+ channel: CheckoutChannel = "QR",
 ): Promise<PayCheckoutSessionResponse> {
-  const origin = window.location.origin;
-  const response = await api.post<ApiResponse<PayCheckoutSessionResponse>>("/pay/checkout/session", {
-    title,
-    amount,
-    successUrl: `${origin}/payment`,
-    failUrl: `${origin}/payment`,
-    entryMode,
-    channel,
-  });
-  return response.data.data;
+ const origin = window.location.origin;
+ const response = await api.post<ApiResponse<PayCheckoutSessionResponse>>("/pay/checkout/session", {
+ title,
+ amount,
+ successUrl: `${origin}/payment`,
+ failUrl: `${origin}/payment`,
+ entryMode,
+ channel,
+ });
+ return response.data.data;
 }
 
 /**
@@ -527,46 +527,46 @@ export async function createCheckoutSession(
  * 금액은 매장 결제요청에서 확정되므로 코드 세션 자체는 0원으로 발급한다.
  */
 export async function createMyPaymentCodeSession(): Promise<PayCheckoutSessionResponse> {
-  return createCheckoutSession("GORANI PAY 결제코드", 0, "IN_APP_CODE", "QR");
+ return createCheckoutSession("GORANI PAY 결제코드", 0, "IN_APP_CODE", "QR");
 }
 
 /**
  * 쿠폰 결제 준비: BE가 PAY checkout URL을 발급해 주고 FE는 해당 URL로 이동한다.
  */
 export async function prepareCouponCheckout(couponTemplateId: number, pointAmount: number): Promise<CouponCheckoutPrepareResponse> {
-  const origin = window.location.origin;
-  const response = await api.post<ApiResponse<CouponCheckoutPrepareResponse>>("/coupons/checkout/prepare", {
-    couponTemplateId,
-    pointAmount,
-    successUrl: `${origin}/payment/coupon/success`,
-    failUrl: `${origin}/payment/coupon/fail`,
-  });
-  return response.data.data;
+ const origin = window.location.origin;
+ const response = await api.post<ApiResponse<CouponCheckoutPrepareResponse>>("/coupons/checkout/prepare", {
+ couponTemplateId,
+ pointAmount,
+ successUrl: `${origin}/payment/coupon/success`,
+ failUrl: `${origin}/payment/coupon/fail`,
+ });
+ return response.data.data;
 }
 
 /**
  * PAY 결제 성공 리다이렉트 이후 BE에 쿠폰 발급 확정을 요청한다.
  */
 export async function confirmCouponCheckout(orderId: string, paymentId: number, amount: number, status: string | null): Promise<CouponCheckoutConfirmResponse> {
-  const response = await api.post<ApiResponse<CouponCheckoutConfirmResponse>>("/coupons/checkout/confirm", {
-    orderId,
-    paymentId,
-    amount,
-    status,
-  });
-  return response.data.data;
+ const response = await api.post<ApiResponse<CouponCheckoutConfirmResponse>>("/coupons/checkout/confirm", {
+ orderId,
+ paymentId,
+ amount,
+ status,
+ });
+ return response.data.data;
 }
 
 export async function purchaseCoupon(couponTemplateId: number, amount: number, pointAmount: number) {
-  const response = await api.post<ApiResponse<CouponPurchaseResponse>>("/coupons/purchase", {
-    couponTemplateId,
-    amount,
-    pointAmount,
-  });
-  return response.data.data;
+ const response = await api.post<ApiResponse<CouponPurchaseResponse>>("/coupons/purchase", {
+ couponTemplateId,
+ amount,
+ pointAmount,
+ });
+ return response.data.data;
 }
 
 export async function issueCouponUseToken(userCouponId: number): Promise<CouponUseTokenResponse> {
-  const response = await api.post<ApiResponse<CouponUseTokenResponse>>(`/coupons/my/${userCouponId}/use-token`);
-  return response.data.data;
+ const response = await api.post<ApiResponse<CouponUseTokenResponse>>(`/coupons/my/${userCouponId}/use-token`);
+ return response.data.data;
 }
