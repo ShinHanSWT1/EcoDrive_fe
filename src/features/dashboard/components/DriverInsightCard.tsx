@@ -22,7 +22,7 @@ export default function DriverInsightCard({ insight }: DriverInsightCardProps) {
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-black tracking-wide text-blue-700 shadow-sm">
               <Sparkles size={14} />
-              {insight.badge}
+              AI {insight.badge}
             </span>
           </div>
 
@@ -31,7 +31,7 @@ export default function DriverInsightCard({ insight }: DriverInsightCardProps) {
               {insight.title}
             </p>
             <h3 className="text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
-              {insight.styleLabel ?? "운전자 유형 분석 준비중"}
+              {insight.styleLabel ?? "운전 스타일 분석 준비중"}
             </h3>
           </div>
 
