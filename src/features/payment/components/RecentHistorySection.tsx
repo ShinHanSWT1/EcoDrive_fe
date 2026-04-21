@@ -54,18 +54,18 @@ export function RecentHistorySection({
  )}
  </div>
  <div>
- <div className="font-bold text-slate-900 text-sm">{item.title}</div>
- <div className="text-[11px] text-slate-400 font-medium mt-0.5">
+ <div className="font-bold text-slate-900 text-base">{item.title}</div>
+ <div className="text-[13px] text-slate-400 font-medium mt-0.5">
  {item.date} · {item.category}
  </div>
  {item.description ? (
- <div className="text-[11px] text-slate-500 mt-1">{item.description}</div>
+ <div className="text-[13px] text-slate-500 mt-1">{item.description}</div>
  ) : null}
  </div>
  </div>
  <div
  className={cn(
- "text-sm font-black",
+ "text-base font-black",
  item.type === "earn" ? "text-[#1A5D40]" : "text-slate-900",
  )}
  >

@@ -12,17 +12,18 @@ export default function HeaderNav() {
  const location = useLocation();
 
  return (
- <nav className="hidden md:flex items-center gap-10">
+ <nav aria-label="주요 탐색 메뉴" className="hidden md:flex items-center gap-10">
  {navItems.map((item) => {
  const isActive = location.pathname === item.path;
  return (
  <Link
  key={item.path}
  to={item.path}
+ aria-current={isActive ? "page" : undefined}
  className={cn(
  "text-base font-black transition-all hover:text-[#1a5d40] relative py-2",
- isActive 
- ? "text-[#1a5d40] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-[#1a5d40]" 
+ isActive
+ ? "text-[#1a5d40] after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-[#1a5d40]"
  : "text-slate-600",
  )}
  >

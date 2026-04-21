@@ -235,7 +235,7 @@ export default function Profile({
 
  if (isLoading) {
  return (
- <div className="rounded-3xl border-[0.5px] bg-white p-8 text-slate-500">
+ <div className="rounded-3xl border-[0.5px] border-[#1A5D40]/30 bg-white p-8 text-slate-500">
  마이페이지 정보를 불러오는 중입니다.
  </div>
  );
@@ -484,7 +484,7 @@ export default function Profile({
  <h3 className="ml-4 text-xs font-bold uppercase tracking-widest text-slate-400">
  기타
  </h3>
- <div className="overflow-hidden rounded-[32px] border-[0.5px] bg-white ">
+ <div className="overflow-hidden rounded-[32px] border-[0.5px] border-[#1A5D40]/30 bg-white ">
  <button
  onClick={onLogout}
  className="group flex w-full items-center justify-between p-5 transition-colors hover:bg-slate-50"
@@ -588,7 +588,7 @@ function VehicleInsuranceCard({
  isDeleting: boolean;
 }) {
  return (
- <div className="rounded-[32px] border-[0.5px] bg-white p-6 ">
+ <div className="rounded-[32px] border-[0.5px] border-[#1A5D40]/30 bg-white p-6 ">
  <div className="flex items-start justify-between gap-4">
  <div>
  <div className="text-xs font-bold uppercase tracking-widest text-slate-400">
@@ -670,7 +670,7 @@ function StatCard({
  valueClassName: string;
 }) {
  return (
- <div className="flex items-center justify-between rounded-3xl border-[0.5px] bg-white px-5 py-4 text-left sm:flex-col sm:justify-center sm:gap-2 sm:px-4">
+ <div className="flex items-center justify-between rounded-3xl border-[0.5px] border-[#1A5D40]/30 bg-white px-5 py-4 text-left sm:flex-col sm:justify-center sm:gap-2 sm:px-4">
  <div className="flex items-center gap-2 sm:flex-col sm:gap-1">
  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
  <Icon size={18} />
@@ -694,7 +694,7 @@ function InfoTile({
  value: string;
 }) {
  return (
- <div className="rounded-2xl border-[0.5px] bg-slate-50 px-4 py-4">
+ <div className="rounded-2xl border-[0.5px] border-[#1A5D40]/30 bg-slate-50 px-4 py-4">
  <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
  {label}
  </div>

@@ -57,7 +57,7 @@ export function MonthlyDrivingCard({
  </div>
  </div>
 
- <div className="h-[240px] w-full relative z-10 bg-slate-50/50 backdrop-blur-sm rounded-[32px] p-6"> {monthlyHistory.length > 0 ? (
+ <div className="h-[240px] w-full relative z-10 bg-slate-50/50 backdrop-blur-sm rounded-[32px] p-6" role="img" aria-label="최근 6개월간의 월별 주행거리 변화를 나타내는 막대 차트입니다."> {monthlyHistory.length > 0 ? (
  <ResponsiveContainer width="100%" height="100%">
  <BarChart
  data={monthlyHistory}

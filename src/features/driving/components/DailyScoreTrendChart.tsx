@@ -81,7 +81,7 @@ export function DailyScoreTrendChart({
 
  <div className="min-h-0 flex-1 px-4 pb-4 pt-4 sm:px-5">
  {chartSummary.hasData ? (
- <div className="h-full min-h-[250px] rounded-2xl bg-slate-50/70 px-3 py-3 sm:px-4">
+ <div className="h-full min-h-[250px] rounded-2xl bg-slate-50/70 px-3 py-3 sm:px-4" role="img" aria-label="선택한 월의 일별 안전 운전 점수 변화를 나타내는 꺾은선 차트입니다.">
  <ResponsiveContainer width="100%" height="100%">
  <AreaChart
  data={trendData}

@@ -7,7 +7,7 @@ export default function Footer() {
  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
  <div className="space-y-4">
  <div className="flex items-center gap-2">
- <img src="/media/logo.png" alt="EcoDrive" className="w-8 h-8 object-contain" />
+ <img src="/media/logo5.png" alt="EcoDrive" className="w-10 h-10 object-contain" />
  <span className="text-lg font-black text-slate-400 tracking-tight">EcoDrive</span>
  </div>
  <p className="text-sm text-slate-400 max-w-md leading-relaxed">

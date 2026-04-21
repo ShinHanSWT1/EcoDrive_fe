@@ -16,43 +16,46 @@ type DrivingSummaryWidgetProps = {
 };
 
 export default function DrivingSummaryWidget({
-  summaryNote,
+  summaryNote = "이번 달은 평소보다 경제적인 운전을 하셨네요! 탄소 배출을 12% 절감하셨습니다. ✨",
   metrics = {
-    totalDistance: 0,
-    avgSpeed: 0,
-    maxSpeed: 0,
-    idlingTime: 0,
-    ecoScore: 0,
+    totalDistance: 124.5,
+    avgSpeed: 42.8,
+    maxSpeed: 110.2,
+    idlingTime: 12,
+    ecoScore: 92,
   },
 }: DrivingSummaryWidgetProps) {
   const chartData = [
-    { name: "score", value: metrics.ecoScore },
-    { name: "rest", value: 100 - metrics.ecoScore },
+    { name: "score", value: metrics.ecoScore || 92 },
+    { name: "rest", value: 100 - (metrics.ecoScore || 92) },
   ];
 
   const COLORS = ["#A0C878", "#F1F5F9"];
 
+  const formatValue = (val: number, unit: string) => {
+    return `${val} ${unit}`;
+  };
+
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.3 }}
       className="bg-white p-8 md:p-10 rounded-[40px] relative h-full border border-slate-100 overflow-hidden"
     >
       <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-        
+
         {/* Left Side: Stats Grid */}
         <div className="flex-1 w-full">
           <h3 className="font-black text-2xl mb-8 text-slate-900">총 주행거리 요약</h3>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { icon: Car, label: "총 주행거리", value: `${metrics.totalDistance} km`, color: "bg-blue-50 text-blue-600" },
-              { icon: Gauge, label: "평균 속도", value: `${metrics.avgSpeed} km/h`, color: "bg-emerald-50 text-emerald-600" },
-              { icon: Zap, label: "최고 속도", value: `${metrics.maxSpeed} km/h`, color: "bg-orange-50 text-orange-600" },
-              { icon: Timer, label: "공회전 시간", value: `${metrics.idlingTime} 분`, color: "bg-purple-50 text-purple-600" },
-            ].map((stat, i) => (
-              <motion.div 
+              { icon: Car, label: "총 주행거리", value: formatValue(metrics.totalDistance, "km"), color: "bg-blue-50 text-blue-600" },
+              { icon: Gauge, label: "평균 속도", value: formatValue(metrics.avgSpeed, "km/h"), color: "bg-emerald-50 text-emerald-600" },
+              { icon: Zap, label: "최고 속도", value: formatValue(metrics.maxSpeed, "km/h"), color: "bg-orange-50 text-orange-600" },
+              { icon: Timer, label: "공회전 시간", value: formatValue(metrics.idlingTime, "분"), color: "bg-purple-50 text-purple-600" },
+            ].map((stat, i) => (              <motion.div 
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -109,7 +112,7 @@ export default function DrivingSummaryWidget({
           </div>
 
           <div className="absolute inset-0 flex flex-col items-center justify-center pt-4">
-            <span className="text-5xl font-black text-slate-900">{metrics.ecoScore}점</span>
+            <span className="text-5xl font-black text-slate-900">{metrics.ecoScore || 92}점</span>
             <span className="text-sm font-extrabold text-[#A0C878] mt-1">Excellent</span>
           </div>
 

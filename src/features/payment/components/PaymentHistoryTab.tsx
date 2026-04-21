@@ -152,10 +152,10 @@ export default function PaymentHistoryTab({
  </div>
 
  <div>
- <div className="text-sm font-bold text-slate-900">
+ <div className="text-base font-bold text-slate-900">
  {item.title}
  </div>
- <div className="text-[10px] text-slate-400 font-bold mt-0.5">
+ <div className="text-[12px] text-slate-400 font-bold mt-0.5">
  {item.date}
  </div>
  </div>
@@ -163,7 +163,7 @@ export default function PaymentHistoryTab({
 
  <div
  className={cn(
- "text-sm font-black",
+ "text-base font-black",
  item.type === "earn" ? "text-[#1A5D40]" : "text-slate-900",
  )}
  >

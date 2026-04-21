@@ -46,10 +46,10 @@ export default function AssetSummaryCard({
  <Wallet size={28} />
  </button>
  <div className="text-right">
- <div className="text-[10px] text-slate-600 font-black uppercase tracking-widest mb-1 flex items-center justify-end gap-1">
+ <div className="text-[12px] text-slate-600 font-black uppercase tracking-widest mb-1 flex items-center justify-end gap-1">
  이번 달 쏠쏠한 사용액 <Sparkles size={12} className="text-amber-500" />
  </div>
- <div className="text-xl font-black flex items-center justify-end gap-1">
+ <div className="text-[22px] font-black flex items-center justify-end gap-1">
  {monthlyUsage.toLocaleString("ko-KR")}원
  <TrendingUp size={18} className="text-indigo-600" />
  </div>
@@ -57,7 +57,7 @@ export default function AssetSummaryCard({
  </div>
 
  <div className="space-y-1.5 mb-8">
- <div className="text-xs text-slate-700 font-black uppercase tracking-wider">
+ <div className="text-[14px] text-slate-700 font-black uppercase tracking-wider">
  현재 빵빵한 PAY 총 잔액
  </div>
  <div className="text-5xl font-black tracking-tight text-slate-900">
