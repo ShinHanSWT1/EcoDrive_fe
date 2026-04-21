@@ -33,7 +33,7 @@ type DrivingInsightPayload = {
     fallbackUsed: boolean;
 };
 
-async function getDriverInsightCard(userVehicleId: number | null): Promise<DriverInsightCardData> {
+export async function getDriverInsightCard(userVehicleId: number | null): Promise<DriverInsightCardData> {
     try {
         const response = await api.post<ApiResponse<DrivingInsightPayload>>(
             "/driving/insight",
@@ -65,6 +65,17 @@ async function getDriverInsightCard(userVehicleId: number | null): Promise<Drive
         console.warn("[대시보드] 운전자 유형 인사이트 조회 실패", error);
         return createDefaultDriverInsightCard();
     }
+}
+
+export async function getDashboardDriverInsight(): Promise<DriverInsightCardData> {
+    const vehicles = await getMyVehicles().catch(() => []);
+    const representativeVehicleId = resolveRepresentativeVehicleId(vehicles);
+
+    if (!representativeVehicleId) {
+        return createDefaultDriverInsightCard();
+    }
+
+    return getDriverInsightCard(representativeVehicleId);
 }
 
 function roundDiscountRate(rate: number | null | undefined): number {
@@ -183,14 +194,12 @@ export async function getDashboardData(): Promise<DashboardData> {
         myInsurances,
         weeklySummaries,
         walletSummary,
-        driverInsight,
     ] = await Promise.all([
         getDrivingOverviewByVehicle(representativeVehicleId),
         getRecentDrivingSessions(20, representativeVehicleId),
         getMyInsurances().catch(() => []),
         getDrivingWeeklySummaries(year, month, representativeVehicleId).catch(() => []),
         getMyWalletSummary().catch(() => null),
-        getDriverInsightCard(representativeVehicleId),
     ]);
 
     const totalDistance = recentSessions.reduce(
@@ -284,7 +293,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         totalSavings,
         pointBalance: walletSummary?.points ?? (carbon.rewardPoint ?? 0),
         todayEarnedPoints,
-        driverInsight,
+        driverInsight: createDefaultDriverInsightCard(),
         summaryNote:
             carbon.carbonReductionKg != null
                 ? `친환경 운전으로 탄소 배출을 ${carbon.carbonReductionKg.toFixed(2)}kg 줄였습니다.`
