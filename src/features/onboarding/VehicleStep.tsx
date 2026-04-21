@@ -62,7 +62,7 @@ export default function VehicleStep({
           <div ref={vehicleSearchRef} className="relative">
             <input
               type="text"
-              placeholder="아반떼, 쏘나타, 2023"
+              placeholder="아반떼, 소나타, 2023"
               value={vehicleKeyword}
               onFocus={onVehicleKeywordFocus}
               onChange={(event) => onVehicleKeywordChange(event.target.value)}
