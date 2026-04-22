@@ -181,6 +181,163 @@ function resolveWashCouponImage(name: string): string | null {
  return null;
 }
 
+type CouponPresentation = {
+ name: string;
+ image: string;
+ price?: number;
+ discountLabel?: string;
+};
+
+function resolveCouponPresentation(
+ name: string,
+ fallbackImage: string,
+ fallbackPrice?: number,
+ fallbackDiscountLabel?: string,
+): CouponPresentation {
+ const washCouponImage = resolveWashCouponImage(name);
+ if (washCouponImage) {
+ return {
+ name,
+ image: washCouponImage,
+ price: fallbackPrice,
+ discountLabel: fallbackDiscountLabel,
+ };
+ }
+
+ if (name.includes("신한오일뱅크") || name.includes("신한 오일뱅크")) {
+ return {
+ name: "신한오일뱅크 5,000원 주유 할인권",
+ image: "/media/shinhan_oil_bank.png",
+ price: 5000,
+ discountLabel: "5,000원",
+ };
+ }
+
+ if (name.includes("GS칼텍스") || name.includes("GS 칼텍스")) {
+ return {
+ name,
+ image: "/media/gs_caltex.png",
+ price: fallbackPrice,
+ discountLabel: "3,000원",
+ };
+ }
+
+ if (name.includes("SK에너지") || name.includes("SK 에너지")) {
+ return {
+ name,
+ image: "/media/sk_energy.jpg",
+ price: fallbackPrice,
+ discountLabel: "5,000원",
+ };
+ }
+
+ if (name.includes("S-OIL") || name.includes("에쓰오일") || name.includes("S-Oil")) {
+ return {
+ name: "S-OIL 만원 할인권",
+ image: "/media/s_oil.png",
+ price: 9000,
+ discountLabel: "10,000원",
+ };
+ }
+
+ if (name.includes("아이파킹") || name.toUpperCase().includes("IPARKING")) {
+ return {
+ name: "아이파킹 10,000원권",
+ image: "/media/i_parking.avif",
+ price: 10000,
+ discountLabel: "10,000원",
+ };
+ }
+
+ if (name.includes("엔진오일")) {
+ return {
+ name: "엔진오일 교환 30,000원권",
+ image: "/media/engine_oil.png",
+ price: 30000,
+ discountLabel: "30,000원",
+ };
+ }
+
+ if (name.toUpperCase().includes("CU")) {
+ return {
+ name: "CU 3,000원권",
+ image: "/media/CU.jpg",
+ price: 3000,
+ discountLabel: "3,000원",
+ };
+ }
+
+ if (name.includes("GS25")) {
+ return {
+ name: "GS25 50,000원 금액권",
+ image: "/media/gs25.png",
+ price: 50000,
+ discountLabel: "50,000원",
+ };
+ }
+
+ if (name.includes("스타벅스")) {
+ return {
+ name,
+ image: "/media/starbucks.jpg",
+ price: fallbackPrice,
+ discountLabel: fallbackDiscountLabel,
+ };
+ }
+
+ if (name.includes("이디야")) {
+ return {
+ name: "이디야 5,000원권",
+ image: "/media/ediya.avif",
+ price: 5000,
+ discountLabel: "5,000원",
+ };
+ }
+
+ if (name.includes("메가커피") || name.includes("메가카페") || name.includes("메가MGC") || name.includes("MGC")) {
+ return {
+ name,
+ image: "/media/mega.jpg",
+ price: fallbackPrice,
+ discountLabel: "1+1",
+ };
+ }
+
+ if (name.includes("모두의주차장") || name.includes("모두의 주차장")) {
+ return {
+ name,
+ image: "/media/parking.png",
+ price: fallbackPrice,
+ discountLabel: fallbackDiscountLabel,
+ };
+ }
+
+ if (name.includes("타이어") && name.includes("점검")) {
+ return {
+ name,
+ image: "/media/tire.jpg",
+ price: fallbackPrice,
+ discountLabel: fallbackDiscountLabel,
+ };
+ }
+
+ if (name.includes("와이퍼")) {
+ return {
+ name,
+ image: "/media/wiper.jpg",
+ price: fallbackPrice,
+ discountLabel: fallbackDiscountLabel,
+ };
+ }
+
+ return {
+ name,
+ image: fallbackImage,
+ price: fallbackPrice,
+ discountLabel: fallbackDiscountLabel,
+ };
+}
+
 function resolveHistoryDescription(tx: PayTransactionResponse): string {
  if (tx.transactionType === "CHARGE") {
  return "고라니페이 잔액 충전";
@@ -244,71 +401,24 @@ function calculateThisMonthUsage(transactions: PayTransactionResponse[]): number
 
 function toPaymentProducts(templates: CouponTemplateResponse[]) {
  return templates.map((template, index) => {
- let name = template.name;
- let price = inferPriceFromDiscountLabel(template.discountLabel);
- let discountLabel = template.discountLabel;
- 
- let image = `https://picsum.photos/seed/coupon-${template.id}-${index}/400/300`;
- const washCouponImage = resolveWashCouponImage(name);
- if (washCouponImage) {
- image = washCouponImage;
- } else if (name.includes("GS칼텍스") || name.includes("GS 칼텍스")) {
- image = "/media/gs_caltex.png";
- discountLabel = "3,000원";
- } else if (name.includes("SK에너지") || name.includes("SK 에너지")) {
- image = "/media/sk_energy.jpg";
- discountLabel = "5,000원";
- } else if (name.includes("S-OIL") || name.includes("에쓰오일") || name.includes("S-Oil")) {
- name = "S-OIL 만원 할인권";
- image = "/media/s_oil.png";
- price = 9000;
- discountLabel = "10,000원";
- } else if (name.includes("아이파킹") || name.toUpperCase().includes("IPARKING")) {
- name = "아이파킹 10,000원권";
- image = "/media/i_parking.avif";
- price = 10000;
- discountLabel = "10,000원";
- } else if (name.includes("엔진오일")) {
- name = "엔진오일 교환 30,000원권";
- image = "/media/engine_oil.png";
- price = 30000;
- discountLabel = "30,000원";
- } else if (name.toUpperCase().includes("CU")) {
- name = "CU 3,000원권";
- image = "/media/CU.jpg";
- price = 3000;
- discountLabel = "3,000원";
- } else if (name.includes("GS25")) {
- name = "GS25 50,000원 금액권";
- image = "/media/gs25.png";
- price = 50000;
- discountLabel = "50,000원";
- } else if (name.includes("스타벅스")) {
- image = "/media/starbucks.jpg";
- } else if (name.includes("이디야")) {
- name = "이디야 5,000원권";
- image = "/media/ediya.avif";
- price = 5000;
- discountLabel = "5,000원";
- } else if (name.includes("메가커피") || name.includes("메가MGC") || name.includes("MGC")) {
- image = "/media/mega.jpg";
- discountLabel = "1+1";
- } else if (name.includes("모두의주차장") || name.includes("모두의 주차장")) {
- image = "/media/parking.png";
- } else if (name.includes("타이어") && name.includes("점검")) {
- image = "/media/tire.jpg";
- } else if (name.includes("와이퍼")) {
- image = "/media/wiper.jpg";
- }
+ const fallbackPrice = inferPriceFromDiscountLabel(template.discountLabel);
+ const presentation = resolveCouponPresentation(
+ template.name,
+ `https://picsum.photos/seed/coupon-${template.id}-${index}/400/300`,
+ fallbackPrice,
+ template.discountLabel,
+ );
+ const price = presentation.price ?? fallbackPrice;
+ const discountLabel = presentation.discountLabel ?? template.discountLabel;
 
  return {
  id: template.id,
- name,
- description: buildCouponDescription(template.category, name, template.validDays),
+ name: presentation.name,
+ description: buildCouponDescription(template.category, presentation.name, template.validDays),
  price,
  originalPrice: price > 0 ? Math.floor(price * 1.1 / 100) * 100 : price,
  category: template.category,
- image,
+ image: presentation.image,
  discountLabel,
  validDays: template.validDays,
  };
@@ -319,55 +429,22 @@ function toPaymentCoupons(userCoupons: UserCouponResponse[], templateMap: Map<nu
  return userCoupons.map((coupon) => {
  const template = templateMap.get(coupon.templateId);
  const validDays = template?.validDays ?? 30;
- 
- let name = coupon.name;
- let image = `https://picsum.photos/seed/owned-coupon-${coupon.templateId}/400/300`;
- const washCouponImage = resolveWashCouponImage(name);
- if (washCouponImage) {
- image = washCouponImage;
- } else if (name.includes("GS칼텍스") || name.includes("GS 칼텍스")) {
- image = "/media/gs_caltex.png";
- } else if (name.includes("SK에너지") || name.includes("SK 에너지")) {
- image = "/media/sk_energy.jpg";
- } else if (name.includes("S-OIL") || name.includes("에쓰오일") || name.includes("S-Oil")) {
- name = "S-OIL 만원 할인권";
- image = "/media/s_oil.png";
- } else if (name.includes("아이파킹") || name.toUpperCase().includes("IPARKING")) {
- name = "아이파킹 10,000원권";
- image = "/media/i_parking.avif";
- } else if (name.includes("엔진오일")) {
- name = "엔진오일 교환 30,000원권";
- image = "/media/engine_oil.png";
- } else if (name.toUpperCase().includes("CU")) {
- name = "CU 3,000원권";
- image = "/media/CU.jpg";
- } else if (name.includes("GS25")) {
- name = "GS25 50,000원 금액권";
- image = "/media/gs25.png";
- } else if (name.includes("스타벅스")) {
- image = "/media/starbucks.jpg";
- } else if (name.includes("이디야")) {
- name = "이디야 5,000원권";
- image = "/media/ediya.avif";
- } else if (name.includes("메가카페") || name.includes("메가MGC") || name.includes("MGC")) {
- image = "/media/mega.jpg";
- } else if (name.includes("모두의주차장") || name.includes("모두의 주차장")) {
- image = "/media/parking.png";
- } else if (name.includes("타이어") && name.includes("점검")) {
- image = "/media/tire.jpg";
- } else if (name.includes("와이퍼")) {
- image = "/media/wiper.jpg";
- }
+ const presentation = resolveCouponPresentation(
+ coupon.name,
+ `https://picsum.photos/seed/owned-coupon-${coupon.templateId}/400/300`,
+ undefined,
+ coupon.discountLabel,
+ );
 
  return {
  id: coupon.id,
  templateId: coupon.templateId,
- name: name,
+ name: presentation.name,
  expiry: new Date(coupon.expiresAt).toLocaleDateString("ko-KR"),
  discount: coupon.discountLabel,
  category: buildCategoryLabel(coupon.category),
- description: buildCouponDescription(coupon.category, name, validDays),
- image,
+ description: buildCouponDescription(coupon.category, presentation.name, validDays),
+ image: presentation.image,
  used: coupon.status !== "AVAILABLE",
  };
  });
