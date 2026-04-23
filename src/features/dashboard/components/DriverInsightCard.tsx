@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Radar, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import type { DriverInsightCardData } from "../dashboard.types";
 
 type DriverInsightCardProps = {
@@ -49,9 +49,6 @@ export default function DriverInsightCard({ insight }: DriverInsightCardProps) {
           </div>
         </div>
 
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] bg-slate-900 text-white shadow-lg shadow-slate-900/15 md:h-20 md:w-20">
-          <Radar size={30} />
-        </div>
       </div>
     </motion.section>
   );

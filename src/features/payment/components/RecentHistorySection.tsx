@@ -24,7 +24,7 @@ export function RecentHistorySection({
  </div>
  <button
  onClick={onViewAll}
- className="text-[10px] font-bold text-[#1A5D40] flex items-center gap-1 hover:bg-[#1A5D40]/10 px-2.5 py-1.5 rounded-lg transition-all"
+ className="text-[12px] font-bold text-[#1A5D40] flex items-center gap-1 hover:bg-[#1A5D40]/10 px-2.5 py-1.5 rounded-lg transition-all"
  >
  전체보기 <ChevronRight size={12} />
  </button>

@@ -1,4 +1,4 @@
-import { Coins, CreditCard, Plus, ShoppingBag, Ticket, TrendingUp, Wallet, Sparkles } from "lucide-react";
+import { Coins, CreditCard, Plus, ShoppingBag, Ticket, Wallet, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 
 interface AssetSummaryCardProps {
@@ -30,9 +30,9 @@ export default function AssetSummaryCard({
  <motion.div
  initial={{ opacity: 0, y: 20 }}
  animate={{ opacity: 1, y: 0 }}
- className="bg-white p-8 rounded-[40px] text-slate-900 relative overflow-hidden group h-full flex flex-col justify-between border-[0.5px] border-[#A0C878]"
+ className="bg-white p-8 rounded-[40px] text-slate-900 relative overflow-hidden h-full flex flex-col justify-between border-[0.5px] border-[#A0C878]"
  >
- <div className="absolute -top-10 -right-10 w-64 h-64 bg-white/40 rounded-full blur-3xl pointer-events-none"></div>
+ <div className="absolute -top-10 -right-10 w-64 h-64 bg-white/40 rounded-full blur-3xl pointer-events-none" />
 
  <div className="relative z-10">
  <div className="flex justify-between items-start mb-8">
@@ -49,9 +49,8 @@ export default function AssetSummaryCard({
  <div className="text-[12px] text-slate-600 font-black uppercase tracking-widest mb-1 flex items-center justify-end gap-1">
  이번 달 쏠쏠한 사용액 <Sparkles size={12} className="text-amber-500" />
  </div>
- <div className="text-[22px] font-black flex items-center justify-end gap-1">
+ <div className="text-[22px] font-black">
  {monthlyUsage.toLocaleString("ko-KR")}원
- <TrendingUp size={18} className="text-indigo-600" />
  </div>
  </div>
  </div>
@@ -64,7 +63,6 @@ export default function AssetSummaryCard({
  {totalBalance.toLocaleString("ko-KR")}
  <span className="text-3xl ml-1 font-bold">원</span>
  </div>
-
  <div className="flex flex-wrap items-center gap-3 mt-6">
  <div className="px-4 py-2.5 bg-[#A0C878]/10 rounded-2xl border border-[#A0C878]/30 flex items-center gap-2">
  <Coins size={18} className="text-amber-500" />
@@ -84,10 +82,10 @@ export default function AssetSummaryCard({
  whileTap={{ scale: 0.95 }}
  onClick={onChargeClick}
  disabled={chargeDisabled}
- className="bg-slate-900 text-white rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 hover:bg-black transition-colors disabled:opacity-50"
+ className="bg-[#A0C878] text-slate-900 rounded-2xl px-4 py-3 font-black text-sm flex items-center justify-center gap-2 hover:bg-[#8fb864] transition-colors disabled:opacity-50"
  >
  <Plus size={16} />
- 충전 꽉꽉
+ 충&nbsp;&nbsp;전
  </motion.button>
  <motion.button
  whileHover={{ scale: 1.05 }}

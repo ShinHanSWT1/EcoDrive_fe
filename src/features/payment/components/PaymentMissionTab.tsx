@@ -9,13 +9,13 @@ type PaymentMissionTabProps = {
 };
 
 function MissionGroupSection({
- title, subtitle, icon, badgeClass, progressClass, pulseClass, items, containerBg
+ title, subtitle, icon, badgeClass, progressClass, pulseClass, items, containerBg, noBorder = false
 }: {
- title: string; subtitle: string; icon: React.ReactNode; badgeClass: string; progressClass: string; pulseClass: string; items: MissionItem[]; containerBg: string;
+ title: string; subtitle: string; icon: React.ReactNode; badgeClass: string; progressClass: string; pulseClass: string; items: MissionItem[]; containerBg: string; noBorder?: boolean;
 }) {
  if (items.length === 0) {
  return (
- <div className={`p-8 rounded-[40px] border-4 ${containerBg.replace('bg-', 'border-').replace('/80', '')} bg-white `}>
+ <div className={`p-8 rounded-[40px] ${noBorder ? '' : `border-4 ${containerBg.replace('bg-', 'border-').replace('/80', '')}`} bg-white `}>
  <div className="flex items-center justify-between mb-6">
  <h4 className="text-2xl font-black text-slate-900 flex items-center gap-3">
  {icon} {title}
@@ -32,7 +32,7 @@ function MissionGroupSection({
  }
 
  return (
- <div className={`p-8 rounded-[40px] border-4 ${containerBg.replace('bg-', 'border-').replace('/80', '')} bg-white space-y-6`}>
+ <div className={`p-8 rounded-[40px] ${noBorder ? '' : `border-4 ${containerBg.replace('bg-', 'border-').replace('/80', '')}`} bg-white space-y-6`}>
  <div className="flex items-center justify-between px-2">
  <h4 className="text-2xl font-black text-slate-900 flex items-center gap-3">
  {icon} {title}
@@ -82,9 +82,9 @@ function MissionGroupSection({
  <motion.div
  initial={{ width: 0 }} animate={{ width: `${Math.min(mission.progress, 100)}%` }}
  transition={{ type: "spring", stiffness: 50, damping: 15 }}
- className={cn("h-full rounded-full relative overflow-hidden", isCompleted ? "bg-[#143D60]" : progressClass)}
+ className={cn("h-full rounded-full relative overflow-hidden", isCompleted ? "bg-[#1A5D40]" : progressClass)}
  >
- <div className="absolute inset-0 bg-white/20 w-full h-full animate-[shimmer_2s_infinite]"></div>
+ <div className="absolute inset-0 bg-[#1a5d40]/20 w-full h-full animate-[shimmer_2s_infinite]"></div>
  </motion.div>
  </div>
  </div>
@@ -118,7 +118,7 @@ export default function PaymentMissionTab({ summary, missions }: PaymentMissionT
 
  return (
  <div className="space-y-10">
- <div className="bg-white rounded-[50px] p-10 border-4 border-[#143D60] relative overflow-hidden text-left">
+ <div className="bg-white rounded-[50px] p-10 relative overflow-hidden text-left">
  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
  <div className="relative z-10 flex flex-col lg:flex-row justify-between gap-10">
  <div className="space-y-4 lg:max-w-sm">
@@ -161,7 +161,7 @@ export default function PaymentMissionTab({ summary, missions }: PaymentMissionT
  subtitle="Daily Missions"
  icon={<Clock size={28} className="text-[#1A5D40] bg-white p-1 rounded-xl " />}
  badgeClass="text-[#1A5D40] bg-[#1A5D40]/20 border border-[#1A5D40]/30"
- progressClass="bg-[#143D60]"
+ progressClass="bg-[#1A5D40]"
  pulseClass="bg-[#1A5D40]"
  items={dailyMissions}
  containerBg="bg-[#1A5D40]/10"
@@ -172,10 +172,11 @@ export default function PaymentMissionTab({ summary, missions }: PaymentMissionT
  subtitle="Weekly Goals"
  icon={<Calendar size={28} className="text-indigo-600 bg-white p-1 rounded-xl " />}
  badgeClass="text-indigo-600 bg-indigo-100 border border-indigo-200"
- progressClass="bg-[#143D60]"
+ progressClass="bg-[#1A5D40]"
  pulseClass="bg-indigo-500"
  items={weeklyMissions}
  containerBg="bg-indigo-50/80"
+ noBorder
  />
 
  <MissionGroupSection
@@ -183,7 +184,7 @@ export default function PaymentMissionTab({ summary, missions }: PaymentMissionT
  subtitle="Monthly Goals"
  icon={<Calendar size={28} className="text-[#1A5D40] bg-white p-1 rounded-xl " />}
  badgeClass="text-[#1A5D40] bg-[#1A5D40]/20 border border-[#1A5D40]/30"
- progressClass="bg-[#143D60]"
+ progressClass="bg-[#1A5D40]"
  pulseClass="bg-[#1A5D40]"
  items={monthlyMissions}
  containerBg="bg-[#1A5D40]/10"
