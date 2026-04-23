@@ -78,8 +78,12 @@ export default function App() {
 
  if (isInitializing) {
  return (
- <div className="min-h-screen flex items-center justify-center bg-slate-50">
- <p className="text-slate-600 font-medium">로그인 상태 확인 중입니다...</p>
+ <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-6">
+ <img src="/ecodrive-logo.png" alt="EcoDrive" className="h-12 w-auto" />
+ <div className="flex flex-col items-center gap-3">
+ <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+ <p className="text-slate-500 text-sm">로그인 상태 확인 중...</p>
+ </div>
  </div>
  );
  }

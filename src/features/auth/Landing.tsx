@@ -39,7 +39,6 @@ export default function Landing() {
             <div className="absolute top-8 right-80 w-28 h-28 border-[10px] border-emerald-400/40 rounded-full pointer-events-none" />
             <div className="absolute -bottom-12 right-72 w-44 h-44 border-[12px] border-emerald-400/30 rounded-full pointer-events-none" />
             <div className="absolute top-1/3 right-[38%] w-5 h-5 bg-yellow-300 rotate-45 pointer-events-none" />
-            <div className="absolute bottom-1/3 right-[52%] w-4 h-4 bg-purple-400 rounded-full pointer-events-none" />
 
             {/* Left: Text */}
             <div className="relative z-10 flex-1 flex flex-col justify-center p-10 md:p-14">
@@ -304,51 +303,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ─── Footer ──────────────────────────────────────────────────── */}
-      <footer className="py-16 bg-slate-900 text-white">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-start gap-12 mb-12">
-            <div>
-              <div className="flex items-center gap-3 font-black text-2xl mb-5">
-                <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-600/20">
-                  <ShieldCheck size={22} />
-                </div>
-                ECODRIVE
-              </div>
-              <p className="text-slate-400 font-medium leading-relaxed max-w-sm">
-                (주)에코드라이브는 당신의 안전한 이동을 가치로 바꾸는<br />
-                미래 지향적 ESG 모빌리티 테크 기업입니다.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-14">
-              <div>
-                <div className="font-black text-base mb-5">서비스</div>
-                <ul className="space-y-3 text-slate-400 font-medium text-sm">
-                  <li><Link to="/report" className="hover:text-emerald-400 transition-colors">주행분석</Link></li>
-                  <li><Link to="/insurance" className="hover:text-emerald-400 transition-colors">보험할인</Link></li>
-                  <li><Link to="/payment" className="hover:text-emerald-400 transition-colors">에코페이</Link></li>
-                </ul>
-              </div>
-              <div>
-                <div className="font-black text-base mb-5">고객지원</div>
-                <ul className="space-y-3 text-slate-400 font-medium text-sm">
-                  <li><a href="#" className="hover:text-emerald-400 transition-colors">자주 묻는 질문</a></li>
-                  <li><a href="#" className="hover:text-emerald-400 transition-colors">공지사항</a></li>
-                  <li><a href="#" className="hover:text-emerald-400 transition-colors">1:1 문의</a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-slate-500 text-sm font-medium">© 2026 ECODRIVE Corp. All rights reserved.</div>
-            <div className="flex gap-6 text-sm text-slate-500">
-              <a href="#" className="hover:text-white transition-colors">이용약관</a>
-              <a href="#" className="hover:text-white transition-colors">개인정보처리방침</a>
-              <a href="#" className="hover:text-white transition-colors">전자금융거래약관</a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -12,7 +12,7 @@ export const dashboardMockData: DashboardData = {
         insight: "급가감속과 과속 지표가 특정 방향으로 크게 치우치지 않았습니다.",
         isDefault: false,
     },
-    summaryNote: "대시보드 목업용 요약 문구",
+    summaryNote: "이번 달은 평소보다 경제적인 운전을 하셨네요! 탄소 배출을 12.4kg CO₂ 절감하셨습니다. ✨",
 
     stats: [
         {
